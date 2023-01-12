@@ -1,3 +1,5 @@
+require('basicIde/globals')
+
 local components = {}
 table.insert(components, 'basicIde/theme')
 table.insert(components, 'basicIde/statusBar')
