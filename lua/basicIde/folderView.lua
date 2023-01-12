@@ -86,6 +86,9 @@ return {
 			},
 			tag = 'nightly' -- optional, updated every week. (see issue #1193)
 		}
+
+		-- "tab" (buffer) bar
+		use {'akinsho/bufferline.nvim', tag = "v3.*", requires = 'nvim-tree/nvim-web-devicons'}
 	end,
 
 	configure = function()
@@ -123,5 +126,20 @@ return {
 		}
 
 		require("nvim-tree").setup(config)
+
+		--
+
+		require("bufferline").setup({
+			options = {
+				numbers = "buffer_id",
+				right_mouse_command = "",
+				middle_mouse_command = "bdelete! %d",
+				show_buffer_icons = false,
+				show_buffer_default_icon = false,
+				show_close_icon = false,
+				show_duplicate_prefix = true,
+				always_show_bufferline = true,
+			},
+		})
 	end,
 }
