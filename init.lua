@@ -96,8 +96,8 @@ packer.reset()
 
 packer.use 'wbthomason/packer.nvim'
 
-require('basicIde/main').use_deps(packer.use)
+require('basicIde').use_deps(packer.use)
 
 packer.install()
 
-require('basicIde/main').configure()
+require('basicIde').configure()
