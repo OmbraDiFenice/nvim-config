@@ -9,6 +9,7 @@ table.insert(components, 'basicIde/vimSettings')
 table.insert(components, 'basicIde/folding')
 table.insert(components, 'basicIde/search')
 table.insert(components, 'basicIde/folderView')
+table.insert(components, 'basicIde/git')
 
 return {
 	use_deps = function(use)
