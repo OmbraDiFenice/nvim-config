@@ -92,15 +92,19 @@ return {
 	end,
 
 	configure = function()
+
 		vim.g.loaded_netrw = 1
 		vim.g.loaded_netrwPlugin = 1
 		vim.opt.termguicolors = true
 
 		vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = function() api.tree.open() end })
-		vim.api.nvim_set_keymap("n", "<C-h>", ":NvimTreeFocus<cr>", { silent = true, noremap = true })
+		vim.api.nvim_set_keymap("n", "<C-h>", ":NvimTreeFocus<cr>", { silent = true, noremap = true, desc = "focus tree view" })
+		vim.api.nvim_set_keymap("n", "<C-u>", ":bn<cr>", { silent = true, noremap = true, desc = "previous buffer" })
+		vim.api.nvim_set_keymap("n", "<C-o>", ":bp<cr>", { silent = true, noremap = true, desc = "next buffer" })
 
 		local config = {
 			view = {
+				width = "20%",
 				mappings = {
 					custom_only = false,
 					list = key_mapping,
@@ -123,6 +127,11 @@ return {
 					},
 				},
 			},
+			filters = {
+				custom = {
+					"\\.git",
+				},
+			},
 		}
 
 		require("nvim-tree").setup(config)
@@ -139,6 +148,7 @@ return {
 				show_close_icon = false,
 				show_duplicate_prefix = true,
 				always_show_bufferline = true,
+				sort_by = "id",
 			},
 		})
 	end,
