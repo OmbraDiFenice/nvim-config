@@ -16,5 +16,7 @@ return {
 
 		vim.o.updatetime = 300
 		vim.wo.signcolumn = 'yes'
+
+		vim.cmd [[ set clipboard+=unnamedplus ]]
 	end,
 }
