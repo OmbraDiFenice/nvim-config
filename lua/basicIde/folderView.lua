@@ -97,7 +97,6 @@ return {
 		vim.g.loaded_netrwPlugin = 1
 		vim.opt.termguicolors = true
 
-		vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = function() api.tree.open() end })
 		vim.api.nvim_set_keymap("n", "<C-h>", ":NvimTreeFocus<cr>", { silent = true, noremap = true, desc = "focus tree view" })
 		vim.api.nvim_set_keymap("n", "<C-u>", ":bp<cr>", { silent = true, noremap = true, desc = "previous buffer" })
 		vim.api.nvim_set_keymap("n", "<C-o>", ":bn<cr>", { silent = true, noremap = true, desc = "next buffer" })

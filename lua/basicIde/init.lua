@@ -10,6 +10,7 @@ table.insert(components, 'basicIde/folding')
 table.insert(components, 'basicIde/search')
 table.insert(components, 'basicIde/folderView')
 table.insert(components, 'basicIde/git')
+table.insert(components, 'basicIde/session')
 
 return {
 	use_deps = function(use)
