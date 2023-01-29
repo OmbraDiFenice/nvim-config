@@ -74,7 +74,6 @@ local key_mapping = {
 	{ key = "h", action = "close_node" },
 	{ key = "H", action = "collapse_all", action_cb = collapse_all },
 	{ key = "ga", action = "git_add", action_cb = git_add },
-	{ key = "<leader>f", action = ":NvimTreeFindFile<CR>" },
 }
 
 return {
@@ -101,6 +100,7 @@ return {
 		vim.api.nvim_set_keymap("n", "<C-u>", ":bp<cr>", { silent = true, noremap = true, desc = "previous buffer" })
 		vim.api.nvim_set_keymap("n", "<C-o>", ":bn<cr>", { silent = true, noremap = true, desc = "next buffer" })
 		vim.api.nvim_set_keymap("n", "<leader><C-w>", ":bd<cr>", { silent = true, noremap = true, desc = "close buffer" })
+		vim.api.nvim_set_keymap("n", "<leader>f", ":NvimTreeFindFile<CR>", { silent = true, noremap = true, desc = "find current buffer in tree view" })
 
 		local config = {
 			view = {
