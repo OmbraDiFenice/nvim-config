@@ -35,6 +35,9 @@ local lsp_keybindings = function(_, bufnr)
 	vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
 		vim.lsp.buf.format()
 	end, { desc = 'Format current buffer with LSP' })
+
+	-- refactoring
+	nmap('<F6>', vim.lsp.buf.rename, 'Rename symbol under cursor')
 end
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
