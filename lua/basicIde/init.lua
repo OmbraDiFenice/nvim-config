@@ -11,6 +11,7 @@ table.insert(components, 'basicIde/search')
 table.insert(components, 'basicIde/folderView')
 table.insert(components, 'basicIde/git')
 table.insert(components, 'basicIde/session')
+table.insert(components, 'basicIde/project')
 table.insert(components, 'basicIde/terminal')
 
 return {
