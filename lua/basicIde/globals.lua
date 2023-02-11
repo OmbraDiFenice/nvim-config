@@ -1,4 +1,4 @@
 P = function(table)
-	print(vim.inspect(table))
+	vim.api.nvim_echo({{vim.inspect(table)}}, true, {})
 	return table
 end
