@@ -68,6 +68,35 @@ local git_add = function()
   lib.refresh_tree()
 end
 
+local close_current_buffer = function()
+	local bufs = vim.fn.getbufinfo({ buflisted = true })
+	local current_buffer = vim.api.nvim_win_get_buf(0)
+	local current_buffer_idx = nil
+
+	for i, buf_info in ipairs(bufs) do
+		if buf_info.bufnr == current_buffer then
+			current_buffer_idx = i
+		end
+	end
+
+	if current_buffer_idx == nil then
+		vim.api.nvim_err_writeln('unable to find current buffer index. Maybe it is not listed?')
+		return
+	end
+
+	local prev = bufs[current_buffer_idx-1] ~= nil and bufs[current_buffer_idx-1].bufnr
+	local next = bufs[current_buffer_idx+1] ~= nil and bufs[current_buffer_idx+1].bufnr
+
+	vim.api.nvim_buf_delete(current_buffer, { unload = false })
+	if prev then
+		vim.cmd('buffer '..prev)
+	else
+		if next then
+			vim.cmd('buffer '..next)
+		end
+	end
+end
+
 local key_mapping = {
 	{ key = "l", action = "edit", action_cb = edit_or_open },
 	{ key = "L", action = "vsplit_preview", action_cb = vsplit_preview },
@@ -99,7 +128,7 @@ return {
 		vim.api.nvim_set_keymap("n", "<C-h>", ":NvimTreeFocus<cr>", { silent = true, noremap = true, desc = "focus tree view" })
 		vim.api.nvim_set_keymap("n", "<C-u>", ":bp<cr>", { silent = true, noremap = true, desc = "previous buffer" })
 		vim.api.nvim_set_keymap("n", "<C-o>", ":bn<cr>", { silent = true, noremap = true, desc = "next buffer" })
-		vim.api.nvim_set_keymap("n", "<leader><C-w>", ":bd<cr>", { silent = true, noremap = true, desc = "close buffer" })
+		vim.keymap.set("n", "<leader><C-w>", close_current_buffer, { silent = true, noremap = true, desc = "close buffer" })
 		vim.api.nvim_set_keymap("n", "<leader>f", ":NvimTreeFindFile<CR>", { silent = true, noremap = true, desc = "find current buffer in tree view" })
 
 		local config = {
