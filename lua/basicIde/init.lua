@@ -13,6 +13,7 @@ table.insert(components, 'basicIde/git')
 table.insert(components, 'basicIde/session')
 table.insert(components, 'basicIde/project')
 table.insert(components, 'basicIde/terminal')
+table.insert(components, 'basicIde/editor')
 
 return {
 	use_deps = function(use)
