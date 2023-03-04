@@ -1,12 +1,9 @@
-local lib = require("nvim-tree.lib")
-local view = require("nvim-tree.view")
-local api = require("nvim-tree.api")
-
 local function collapse_all()
 	require("nvim-tree.actions.tree-modifiers.collapse-all").fn()
 end
 
 local function edit_or_open()
+	local lib = require("nvim-tree.lib")
 	-- open as vsplit on current node
 	local action = "edit"
 	local node = lib.get_node_at_cursor()
@@ -27,6 +24,8 @@ local function edit_or_open()
 end
 
 local function vsplit_preview()
+	local lib = require("nvim-tree.lib")
+	local view = require("nvim-tree.view")
 	-- open as vsplit on current node
 	local action = "vsplit"
 	local node = lib.get_node_at_cursor()
@@ -50,25 +49,27 @@ local function vsplit_preview()
 end
 
 local git_add = function()
-  local node = lib.get_node_at_cursor()
+	local lib = require("nvim-tree.lib")
+	local node = lib.get_node_at_cursor()
 
-	if not node then return end
+	      if not node then return end
 
-  local gs = node.git_status.file
+	local gs = node.git_status.file
 
-  -- If the file is untracked, unstaged or partially staged, we stage it
-  if gs == "??" or gs == "MM" or gs == "AM" or gs == " M" then
-    vim.cmd("silent !git add " .. node.absolute_path)
+	-- If the file is untracked, unstaged or partially staged, we stage it
+	if gs == "??" or gs == "MM" or gs == "AM" or gs == " M" then
+	  vim.cmd("silent !git add " .. node.absolute_path)
 
-  -- If the file is staged, we unstage
-  elseif gs == "M " or gs == "A " then
-    vim.cmd("silent !git restore --staged " .. node.absolute_path)
-  end
+	-- If the file is staged, we unstage
+	elseif gs == "M " or gs == "A " then
+	  vim.cmd("silent !git restore --staged " .. node.absolute_path)
+end
 
-  lib.refresh_tree()
+lib.refresh_tree()
 end
 
 local close_current_buffer = function()
+	local api = require("nvim-tree.api")
 	local bufs = vim.fn.getbufinfo({ buflisted = true })
 	local current_buffer = vim.api.nvim_win_get_buf(0)
 	local current_buffer_idx = nil
