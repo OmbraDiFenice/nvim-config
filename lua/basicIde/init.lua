@@ -14,6 +14,7 @@ table.insert(components, 'basicIde/session')
 table.insert(components, 'basicIde/project')
 table.insert(components, 'basicIde/terminal')
 table.insert(components, 'basicIde/editor')
+table.insert(components, 'basicIde/debugging')
 
 return {
 	use_deps = function(use)
