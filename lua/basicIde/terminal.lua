@@ -15,6 +15,8 @@ return {
 	configure = function()
 		require('toggleterm').setup({
 			open_mapping = [[<c-\>]],
+			direction = 'vertical',
+			size = function() return vim.o.columns * 0.4 end,
 		})
 
 	vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
