@@ -11,10 +11,11 @@ table.insert(components, 'basicIde/search')
 table.insert(components, 'basicIde/folderView')
 table.insert(components, 'basicIde/git')
 table.insert(components, 'basicIde/session')
-table.insert(components, 'basicIde/project')
 table.insert(components, 'basicIde/terminal')
 table.insert(components, 'basicIde/editor')
 table.insert(components, 'basicIde/debugging')
+
+table.insert(components, 'basicIde/project') -- load project specific config, should be always the last 
 
 return {
 	use_deps = function(use)
