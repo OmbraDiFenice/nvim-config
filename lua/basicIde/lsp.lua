@@ -1,4 +1,22 @@
-local servers_configuration = {}
+local servers_configuration = {
+	pylsp = {
+		pylsp = {
+			plugins = {
+				pyflakes = {
+					enabled = false, -- has un-ignorable warnings
+				},
+				flake8 = {
+					enabled = true,
+					ignore = {
+						'F541', -- f-string without any placeholders
+						'E501', -- line too long
+						'F401', -- module imported but unused
+					},
+				}
+			}
+		}
+	}
+}
 
 local lsp_keybindings = function(_, bufnr)
 	local nmap = function(keys, func, desc)
