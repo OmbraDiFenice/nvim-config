@@ -11,6 +11,8 @@ return {
 			'nvim-treesitter/nvim-treesitter-textobjects',
 			after = 'nvim-treesitter',
 		}
+
+		use { 'luukvbaal/statuscol.nvim' }
 	end,
 
 	configure = function()
@@ -67,7 +69,30 @@ return {
 
 		vim.opt.foldmethod = 'expr'
 		vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
-		vim.opt.foldenable = false
-		vim.opt.foldcolumn = 'auto'
+		vim.opt.foldenable = true
+		vim.opt.foldlevelstart = 99
+		vim.opt.foldcolumn = '1'
+		vim.opt.fillchars = 'foldopen:,foldclose:'
+
+		-- status column
+
+		local statuscol_builtin = require('statuscol.builtin')
+		require('statuscol').setup({
+			bt_ignore = { 'terminal' },
+			segments = {
+				--{ text = { "%C" }, click = "v:lua.ScFa" },
+				{ text = { "%s" }, click = "v:lua.ScSa" },
+				{
+					text = { statuscol_builtin.lnumfunc, " " },
+					condition = { true, statuscol_builtin.not_empty },
+					click = "v:lua.ScLa",
+				},
+				{
+					text = { " ", statuscol_builtin.foldfunc, " " },
+					condition = { statuscol_builtin.not_empty, true, statuscol_builtin.not_empty },
+					click = "v:lua.ScFa"
+				},
+			},
+		})
 	end,
 }
