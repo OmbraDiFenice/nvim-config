@@ -18,5 +18,7 @@ return {
 		vim.wo.signcolumn = 'yes'
 
 		vim.cmd [[ set clipboard+=unnamedplus ]]
+
+		vim.api.nvim_set_keymap("c", "h", "vertical botright h", { noremap = true, desc = "open help in a right vertical split window" })
 	end,
 }
