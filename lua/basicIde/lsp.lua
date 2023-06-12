@@ -12,7 +12,10 @@ local servers_configuration = {
 						'E501', -- line too long
 						'F401', -- module imported but unused
 					},
-				}
+				},
+				pycodestyle = {
+					enabled = false,
+				},
 			}
 		}
 	}
