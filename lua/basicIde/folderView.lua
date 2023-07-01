@@ -63,9 +63,9 @@ local git_add = function()
 	-- If the file is staged, we unstage
 	elseif gs == "M " or gs == "A " then
 	  vim.cmd("silent !git restore --staged " .. node.absolute_path)
-end
+	end
 
-lib.refresh_tree()
+	lib.refresh_tree()
 end
 
 local close_current_buffer = function()
@@ -165,6 +165,8 @@ return {
 		}
 
 		require("nvim-tree").setup(config)
+
+		require("basicIde/folderViewExtensions/treeState").setup()
 
 		--
 
