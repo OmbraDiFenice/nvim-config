@@ -1,7 +1,3 @@
-local function collapse_all()
-	require("nvim-tree.actions.tree-modifiers.collapse-all").fn()
-end
-
 local function edit_or_open()
 	local lib = require("nvim-tree.lib")
 	-- open as vsplit on current node
@@ -98,13 +94,21 @@ local close_current_buffer = function()
 	end
 end
 
-local key_mapping = {
-	{ key = "l", action = "edit", action_cb = edit_or_open },
-	{ key = "L", action = "vsplit_preview", action_cb = vsplit_preview },
-	{ key = "h", action = "close_node" },
-	{ key = "H", action = "collapse_all", action_cb = collapse_all },
-	{ key = "ga", action = "git_add", action_cb = git_add },
-}
+local nvim_tree_key_mappings = function(bufnr)
+  local api = require('nvim-tree.api')
+
+  local function opts(desc)
+    return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+  end
+
+	api.config.mappings.default_on_attach(bufnr)
+
+  vim.keymap.set('n', 'l', edit_or_open, opts('Open'))
+  vim.keymap.set('n', 'L', vsplit_preview, opts('vsplit_preview'))
+  vim.keymap.set('n', 'h', api.node.navigate.parent_close, opts('Close Directory'))
+  vim.keymap.set('n', 'H', api.tree.collapse_all, opts('Collapse'))
+  vim.keymap.set('n', 'ga', git_add, opts('git_add'))
+end
 
 return {
 	use_deps = function(use)
@@ -113,7 +117,7 @@ return {
 			requires = {
 				'nvim-tree/nvim-web-devicons',
 			},
-			tag = 'nightly' -- optional, updated every week. (see issue #1193)
+			tag = 'master'
 		}
 
 		-- "tab" (buffer) bar
@@ -135,11 +139,8 @@ return {
 		local config = {
 			view = {
 				width = "20%",
-				mappings = {
-					custom_only = false,
-					list = key_mapping,
-				},
 			},
+			on_attach = nvim_tree_key_mappings,
 			actions = {
 				open_file = {
 					quit_on_open = false
@@ -165,7 +166,6 @@ return {
 		}
 
 		require("nvim-tree").setup(config)
-
 		require("basicIde/folderViewExtensions/treeState").setup()
 
 		--
