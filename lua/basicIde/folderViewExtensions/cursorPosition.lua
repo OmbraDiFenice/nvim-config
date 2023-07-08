@@ -1,6 +1,10 @@
 local view = require('nvim-tree.view')
+local api = require('nvim-tree.api')
+local Event = api.events.Event
 
-local M = {}
+local M = {
+	_last_position = { 1, 0 }
+}
 
 M.get = function()
 	local default = { 1, 0 }
@@ -11,6 +15,23 @@ M.get = function()
 	end
 
 	return vim.api.nvim_win_get_cursor(window_id)
+end
+
+M.setup = function(cursor_position)
+	M._last_position = cursor_position
+
+	api.events.subscribe(Event.TreeOpen, function()
+		local buf = view.get_bufnr()
+		vim.api.nvim_create_autocmd('BufWinLeave', {
+			pattern = { '<buffer='..buf..'>' },
+			callback = function()
+				M._last_position = M.get()
+			end,
+		})
+
+		M.apply(M._last_position)
+	end)
+
 end
 
 M.apply = function(cursor_position)

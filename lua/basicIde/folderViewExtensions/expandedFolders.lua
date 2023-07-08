@@ -1,6 +1,8 @@
+local api = require('nvim-tree.api')
 local core = require('nvim-tree.core')
 local utils = require('nvim-tree.utils')
 local lib = require('nvim-tree.lib')
+local Event = api.events.Event
 
 local M = {}
 
@@ -22,10 +24,18 @@ M.get = function()
 	return expanded_folders
 end
 
-M.apply = function()
+M.setup = function(expanded_folders)
+	-- Apparently Event.Ready is only triggered when the plugin starts the first time
+	-- and then the internal "expanded" status is kept.
+	--
+	-- If that wasn't the case we would need to recompute expanded_folders and keep a 
+	-- temporary "last value" similarly to what it's done for cursorPosition
+	api.events.subscribe(Event.Ready, function ()
+		M.apply(expanded_folders)
+	end)
 end
 
-M.expand = function(expanded_folders)
+M.apply = function(expanded_folders)
 	local function get_expanded_nodes()
 		return utils.get_nodes_by_line(core.get_explorer().nodes, core.get_nodes_starting_line())
 	end

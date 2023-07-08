@@ -72,28 +72,12 @@ M.update = function ()
 	end
 end
 
-M.apply = function ()
-	for key, callbacks in pairs(state_setting_callbacks) do
-		callbacks.apply(M.state[key])
-	end
-end
-
 M.setup = function()
 	M.load()
 
-	api.events.subscribe(Event.TreeOpen, function()
-		local buf = require('nvim-tree.view').get_bufnr()
-		vim.api.nvim_create_autocmd('BufWinLeave', {
-			pattern = { '<buffer='..buf..'>' },
-			callback = M.update,
-		})
-
-		M.apply()
-	end)
-
-	api.events.subscribe(Event.Ready, function()
-		require('basicIde/folderViewExtensions/expandedFolders').expand(M.state['expanded_folders'])
-	end)
+	for key, callbacks in pairs(state_setting_callbacks) do
+		callbacks.setup(M.state[key])
+	end
 
 	vim.api.nvim_create_autocmd('VimLeave', {
 		callback = function()
