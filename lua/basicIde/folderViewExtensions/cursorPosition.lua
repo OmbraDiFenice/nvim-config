@@ -1,36 +1,39 @@
 local view = require('nvim-tree.view')
 
-return {
-	parse = function(raw_value)
-		local row, column = string.gmatch(raw_value, '(%d+),(%d+)')()
-		local cursor_position = { tonumber(row), tonumber(column) }
-		print('found cursor position at ' .. cursor_position[1] .. ',' .. cursor_position[2])
+local M = {}
 
-		return cursor_position
-	end,
+M.parse = function(raw_value)
+	local row, column = string.gmatch(raw_value, '(%d+),(%d+)')()
+	local cursor_position = { tonumber(row), tonumber(column) }
 
-	get = function()
-		local default = { 0, 0 }
+	return cursor_position
+end
 
-		local window_id = view.get_winnr()
-		if window_id == nil then
-			return default
-		end
+M.get = function()
+	local default = { 1, 0 }
 
-		return vim.api.nvim_win_get_cursor(window_id)
-	end,
+	local window_id = view.get_winnr()
+	if window_id == nil then
+		return default
+	end
 
-	serialize = function(cursor_position)
-		return tostring(cursor_position[1]) .. ',' .. tostring(cursor_position[2])
-	end,
+	return vim.api.nvim_win_get_cursor(window_id)
+end
 
-	apply = function(cursor_position)
-		local window_id = view.get_winnr()
-		print('window id: ' .. tostring(window_id))
+M.serialize = function(cursor_position)
+	return tostring(cursor_position[1]) .. ',' .. tostring(cursor_position[2])
+end
 
-		if window_id ~= nil then
-			print('setting cursor at position ' .. cursor_position[1] .. ',' .. cursor_position[2])
+M.apply = function(cursor_position)
+	local bufnr = view.get_bufnr()
+	local buf_lines = vim.api.nvim_buf_line_count(bufnr)
+	local windows = vim.fn.win_findbuf(bufnr)
+
+	for _, window_id in pairs(windows) do
+		if cursor_position[1] <= buf_lines then
 			vim.api.nvim_win_set_cursor(window_id, cursor_position)
 		end
 	end
-}
+end
+
+return M

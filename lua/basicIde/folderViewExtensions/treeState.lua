@@ -6,7 +6,7 @@ M = {
 	state_filename = '.nvim-tree.state',
 	state = {
 		cursor_position = { 0, 0 },
-	}
+	},
 }
 
 local state_setting_callbacks = {
@@ -78,26 +78,28 @@ M.apply = function ()
 end
 
 M.setup = function()
-	api.events.subscribe(Event.Ready, function()
-		M.load()
+	M.load()
+
+	api.events.subscribe(Event.TreeOpen, function()
+		local buf = require('nvim-tree.view').get_bufnr()
+		vim.api.nvim_create_autocmd('BufWinLeave', {
+			pattern = { '<buffer='..buf..'>' },
+			callback = M.update,
+		})
+
 		M.apply()
 	end)
 
-	vim.api.nvim_create_autocmd('FileType', {
-		pattern = { 'NvimTree' },
-		callback = function(args)
-			vim.api.nvim_create_autocmd('VimLeavePre', {
-				callback = function()
-					-- extract nodes open/closed state
-					local nodes = core.get_explorer().nodes
+	vim.api.nvim_create_autocmd('VimLeave', {
+		callback = function()
+			-- extract nodes open/closed state
+			local nodes = core.get_explorer().nodes
 
-					M.update()
-					M.store()
+			M.update()
+			M.store()
 
-					return true
-				end
-			})
-		end,
+			return true
+		end
 	})
 end
 
