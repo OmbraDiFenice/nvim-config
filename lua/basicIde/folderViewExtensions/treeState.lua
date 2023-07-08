@@ -1,16 +1,17 @@
 local api = require('nvim-tree.api')
-local core = require('nvim-tree.core')
 local Event = api.events.Event
 
 M = {
 	state_filename = '.nvim-tree.state',
 	state = {
 		cursor_position = { 1, 0 },
+		expanded_folders = {},
 	},
 }
 
 local state_setting_callbacks = {
 	cursor_position = require('basicIde/folderViewExtensions/cursorPosition'),
+	expanded_folders = require('basicIde/folderViewExtensions/expandedFolders'),
 }
 
 local load_state_from_file = function(file_name)
@@ -90,14 +91,14 @@ M.setup = function()
 		M.apply()
 	end)
 
+	api.events.subscribe(Event.Ready, function()
+		require('basicIde/folderViewExtensions/expandedFolders').expand(M.state['expanded_folders'])
+	end)
+
 	vim.api.nvim_create_autocmd('VimLeave', {
 		callback = function()
-			-- extract nodes open/closed state
-			local nodes = core.get_explorer().nodes
-
 			M.update()
 			M.store()
-
 			return true
 		end
 	})
