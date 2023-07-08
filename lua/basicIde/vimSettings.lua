@@ -19,6 +19,12 @@ return {
 
 		vim.cmd [[ set clipboard+=unnamedplus ]]
 
-		vim.api.nvim_set_keymap("c", "h", "vertical botright h", { noremap = true, desc = "open help in a right vertical split window" })
+		-- opens help windows on the right, taken from https://vi.stackexchange.com/questions/4452/how-can-i-make-vim-open-help-in-a-vertical-split
+		vim.cmd [[
+			augroup vimrc_help
+				autocmd!
+				autocmd BufEnter *.txt if &buftype == 'help' | wincmd L | endif
+			augroup END
+		]]
 	end,
 }
