@@ -84,7 +84,6 @@ local close_current_buffer = function()
 	local prev = bufs[current_buffer_idx-1] ~= nil and bufs[current_buffer_idx-1].bufnr
 	local next = bufs[current_buffer_idx+1] ~= nil and bufs[current_buffer_idx+1].bufnr
 
-	vim.api.nvim_buf_delete(current_buffer, { unload = false })
 	if prev then
 		vim.cmd('buffer '..prev)
 	else
@@ -92,6 +91,7 @@ local close_current_buffer = function()
 			vim.cmd('buffer '..next)
 		end
 	end
+	vim.api.nvim_buf_delete(current_buffer, { unload = false })
 end
 
 local nvim_tree_key_mappings = function(bufnr)
