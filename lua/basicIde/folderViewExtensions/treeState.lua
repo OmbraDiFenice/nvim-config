@@ -5,7 +5,7 @@ local Event = api.events.Event
 M = {
 	state_filename = '.nvim-tree.state',
 	state = {
-		cursor_position = { 0, 0 },
+		cursor_position = { 1, 0 },
 	},
 }
 
@@ -29,7 +29,7 @@ local load_state_from_file = function(file_name)
 
 			local callbacks = state_setting_callbacks[key]
 			if callbacks then
-				state[key] = callbacks.parse(tostring(value))
+				state[key] = callbacks.deserialize(tostring(value))
 			else
 				print('found unknown config "' .. key .. '" in state file, ignoring')
 			end
@@ -56,7 +56,7 @@ M.store = function ()
 		local callbacks = state_setting_callbacks[key]
 		if callbacks then
 			local serialized_value = callbacks.serialize(value)
-			state_file:write(key .. '=' .. serialized_value)
+			state_file:write(key .. '=' .. serialized_value .. '\n')
 		end
 	end
 
