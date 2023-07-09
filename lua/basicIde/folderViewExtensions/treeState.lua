@@ -1,6 +1,3 @@
-local api = require('nvim-tree.api')
-local Event = api.events.Event
-
 M = {
 	state_filename = '.nvim-tree.state',
 	state = {
@@ -24,9 +21,7 @@ local load_state_from_file = function(file_name)
 	local state = {}
 
 	for line in state_file:lines() do
-		print('checking line ' .. line)
 		for key, value in string.gmatch(line, '([%w_]+)=(.+)') do
-			print('found key = ' .. key .. ' and value = ' .. value)
 
 			local callbacks = state_setting_callbacks[key]
 			if callbacks then
