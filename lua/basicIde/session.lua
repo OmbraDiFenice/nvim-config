@@ -1,14 +1,18 @@
 local close_nvim_tree = function()
-	local nvim_api = require('nvim-tree.api')
-	if nvim_api ~= nil then
-		nvim_api.tree.close()
+	local nvim_tree_api = require('nvim-tree.api')
+	if nvim_tree_api ~= nil then
+		nvim_tree_api.tree.close()
 	end
 end
 
 local open_nvim_tree = function()
-	local nvim_api = require('nvim-tree.api')
-	if nvim_api ~= nil then
-		nvim_api.tree.open()
+	local nvim_tree_api = require('nvim-tree.api')
+	local nvim_tree_view = require('nvim-tree.view')
+	if nvim_tree_api ~= nil then
+		nvim_tree_api.tree.open()
+		if vim.api.nvim_get_current_buf() == nvim_tree_view.get_bufnr() then
+			vim.cmd [[ :e # ]]
+		end
 	end
 end
 
