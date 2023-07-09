@@ -12,13 +12,13 @@ local state_setting_callbacks = {
 }
 
 local load_state_from_file = function(file_name)
+	local state = {}
+
 	local state_file = io.open(file_name, 'r')
 	if state_file == nil then
 		print('no state file found')
-		return
+		return state
 	end
-
-	local state = {}
 
 	for line in state_file:lines() do
 		for key, value in string.gmatch(line, '([%w_]+)=(.+)') do
