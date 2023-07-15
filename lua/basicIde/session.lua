@@ -12,7 +12,7 @@ local open_nvim_tree = function()
 
 	if nvim_tree_api ~= nil and nvim_tree_view ~= nil then
 		nvim_tree_api.tree.open()
-		if vim.api.nvim_get_current_buf() == nvim_tree_view.get_bufnr() then
+		if vim.api.nvim_get_current_buf() == nvim_tree_view.get_bufnr() and vim.fn.expand('#') ~= '' then
 			vim.cmd [[ :e # ]]
 		end
 	end
