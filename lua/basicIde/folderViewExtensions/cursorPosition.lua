@@ -34,15 +34,7 @@ M.setup = function(cursor_position)
 end
 
 M.apply = function(cursor_position)
-	local bufnr = view.get_bufnr()
-	local buf_lines = vim.api.nvim_buf_line_count(bufnr)
-	local windows = vim.fn.win_findbuf(bufnr)
-
-	for _, window_id in pairs(windows) do
-		if cursor_position[1] <= buf_lines then
-			vim.api.nvim_win_set_cursor(window_id, cursor_position)
-		end
-	end
+	view.set_cursor(cursor_position)
 end
 
 M.serialize = function(cursor_position)
