@@ -21,9 +21,8 @@ M.setup = function(cursor_position)
 	M._last_position = cursor_position
 
 	api.events.subscribe(Event.TreeOpen, function()
-		local buf = view.get_bufnr()
 		vim.api.nvim_create_autocmd('BufWinLeave', {
-			pattern = { '<buffer='..buf..'>' },
+			buffer = view.get_bufnr(),
 			callback = function()
 				M._last_position = M.get()
 			end,

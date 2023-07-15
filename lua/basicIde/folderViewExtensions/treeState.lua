@@ -6,7 +6,7 @@ M = {
 	},
 }
 
-local state_setting_callbacks = {
+local state_setting_modules = {
 	cursor_position = require('basicIde/folderViewExtensions/cursorPosition'),
 	expanded_folders = require('basicIde/folderViewExtensions/expandedFolders'),
 }
@@ -23,9 +23,9 @@ local load_state_from_file = function(file_name)
 	for line in state_file:lines() do
 		for key, value in string.gmatch(line, '([%w_]+)=(.+)') do
 
-			local callbacks = state_setting_callbacks[key]
-			if callbacks then
-				state[key] = callbacks.deserialize(tostring(value))
+			local module = state_setting_modules[key]
+			if module then
+				state[key] = module.deserialize(tostring(value))
 			else
 				print('found unknown config "' .. key .. '" in state file, ignoring')
 			end
@@ -49,9 +49,9 @@ M.store = function ()
 	end
 
 	for key, value in pairs(M.state) do
-		local callbacks = state_setting_callbacks[key]
-		if callbacks then
-			local serialized_value = callbacks.serialize(value)
+		local module = state_setting_modules[key]
+		if module then
+			local serialized_value = module.serialize(value)
 			state_file:write(key .. '=' .. serialized_value .. '\n')
 		end
 	end
@@ -61,8 +61,8 @@ M.store = function ()
 end
 
 M.update = function ()
-	for key, callbacks in pairs(state_setting_callbacks) do
-		local value = callbacks.get()
+	for key, module in pairs(state_setting_modules) do
+		local value = module.get()
 		M.state[key] = value
 	end
 end
@@ -70,8 +70,8 @@ end
 M.setup = function()
 	M.load()
 
-	for key, callbacks in pairs(state_setting_callbacks) do
-		callbacks.setup(M.state[key])
+	for key, module in pairs(state_setting_modules) do
+		module.setup(M.state[key])
 	end
 
 	vim.api.nvim_create_autocmd('VimLeave', {
