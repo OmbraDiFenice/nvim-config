@@ -87,7 +87,7 @@ return {
 			requires = {
 				'nvim-tree/nvim-web-devicons',
 			},
-			tag = 'master'
+			branch = 'master'
 		}
 
 		-- "tab" (buffer) bar
