@@ -9,3 +9,6 @@ File_exists = function(name)
    return f ~= nil and io.close(f)
 end
 
+Get_data_directory = function ()
+	return vim.fn.stdpath("data").."/sessions/"..vim.fn.getcwd().."/"
+end

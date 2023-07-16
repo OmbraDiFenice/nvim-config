@@ -1,5 +1,5 @@
 M = {
-	state_filename = '.nvim-tree.state',
+	state_filename = Get_data_directory() .. 'nvim-tree.state',
 	state = {
 		cursor_position = { 1, 0 },
 		expanded_folders = {},

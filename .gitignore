@@ -1,4 +1,2 @@
 /plugin/*
-lua/.luarc.json
-/.sessions
-.nvim-tree.state
+.luarc.json
