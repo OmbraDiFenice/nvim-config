@@ -3,7 +3,8 @@ local api = require('nvim-tree.api')
 local Event = api.events.Event
 
 local M = {
-	_last_position = { 1, 0 }
+	_last_position = { 1, 0 },
+	_should_apply = true,
 }
 
 M.get = function()
@@ -20,17 +21,29 @@ end
 M.setup = function(cursor_position)
 	M._last_position = cursor_position
 
-	api.events.subscribe(Event.TreeOpen, function(args)
+	api.events.subscribe(Event.TreeOpen, function()
+		local bufnr = view.get_bufnr();
+
 		vim.api.nvim_create_autocmd('BufWinLeave', {
-			buffer = view.get_bufnr(),
+			buffer = bufnr,
 			callback = function()
 				M._last_position = M.get()
+			end,
+		})
+
+		vim.api.nvim_create_autocmd('BufUnload', {
+			buffer = bufnr,
+			callback = function()
+				M._should_apply = true
 			end,
 		})
 	end)
 
 	api.events.subscribe(Event.TreeRendered, function()
-		M.apply(M._last_position)
+		if M._should_apply then
+			M.apply(M._last_position)
+			M._should_apply = false -- nvim-tree already takes care of keeping the cursor position as long as the buffer is valid
+		end
 	end)
 
 end
