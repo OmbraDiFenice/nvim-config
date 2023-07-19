@@ -17,16 +17,20 @@ local close_current_buffer = function()
 	local prev_buf = nil
 	local next_buf = nil
 
-	local i = 0
-	while bufs[current_buffer_idx-i] ~= nil and bufs[current_buffer_idx-i].listed == 1 do
-		prev_buf = bufs[current_buffer_idx-i].bufnr
-		i = i-1
+	for i = current_buffer_idx-1, 0, -1 do
+		local buf = bufs[i]
+		if buf ~= nil and buf.listed == 1 then
+			prev_buf = buf.bufnr
+			break
+		end
 	end
 
-	i = 0
-	while bufs[current_buffer_idx+i] ~= nil and bufs[current_buffer_idx+i].listed == 1 do
-		next_buf = bufs[current_buffer_idx+i].bufnr
-		i = i+1
+	for i = current_buffer_idx+1, #bufs, 1 do
+		local buf = bufs[i]
+		if buf ~= nil and buf.listed == 1 then
+			next_buf = buf.bufnr
+			break
+		end
 	end
 
 	if prev_buf then
@@ -36,6 +40,7 @@ local close_current_buffer = function()
 			vim.cmd('buffer '..next_buf)
 		end
 	end
+
 	vim.api.nvim_buf_delete(current_buffer, { unload = false })
 end
 
