@@ -1,3 +1,21 @@
+TestRun_lualine_component = {
+	msg = '',
+}
+
+function TestRun_lualine_component:init()
+	vim.cmd [[ highlight! lualine_test_passed guifg=#98c379 guibg=#31353f ]]
+	vim.cmd [[ highlight! lualine_test_failed guifg=#e86671 guibg=#31353f ]]
+
+	vim.api.nvim_create_autocmd('User', {
+		pattern = 'UpdateTestStatusBar',
+		callback = function (data)
+			self.msg = data.data.message
+			require('lualine').refresh()
+		end
+	})
+end
+
+
 return {
 	use_deps = function(use)
 		use {
@@ -7,6 +25,8 @@ return {
 	end,
 
 	configure = function()
+		TestRun_lualine_component:init()
+
 		require('lualine').setup {
 			options = {
 				-- to enable fancy fonts in the terminal follow these steps:
@@ -26,6 +46,7 @@ return {
 						path = 1,
 					},
 				},
+				lualine_x = {function() return TestRun_lualine_component.msg end, 'encoding', 'fileformat', 'filetype'},
 			}
 		}
 	end,
