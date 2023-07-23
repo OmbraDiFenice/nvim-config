@@ -44,6 +44,21 @@ local close_current_buffer = function()
 	vim.api.nvim_buf_delete(current_buffer, { unload = false })
 end
 
+local function setup_diagnostics_keybindings()
+	vim.api.nvim_set_keymap('n', '<leader>d?', '', {
+		callback = vim.diagnostic.open_float,
+		desc = 'open diagnostic floating window for current line',
+	})
+
+	vim.api.nvim_set_keymap('n', '<C-l>', '', {
+		callback = function ()
+			require('telescope.builtin').diagnostics()
+		end,
+		desc = 'show diagnostics for all loaded buffers',
+	})
+end
+
+
 return {
 	use_deps = function(use)
 		use {
@@ -69,5 +84,7 @@ return {
 				end
 			end
 		})
+
+		setup_diagnostics_keybindings()
 	end
 }
