@@ -28,7 +28,7 @@ local setup_listeners = function ()
 
 	-- these are tables so that if we run this function multiple times
 	-- (e.g. by sourcing the file) we don't attach new functions to the same event again
-	dap.listeners.after.event_breakpoint['dapui_config'] = dapui.open
+	dap.listeners.after.event_stopped['dapui_config'] = dapui.open
 	dap.listeners.before.event_terminated['dapui_config'] = dapui.close
 	dap.listeners.before.event_exited['dapui_config'] = dapui.close
 end
