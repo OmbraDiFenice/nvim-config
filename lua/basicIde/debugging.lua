@@ -70,17 +70,26 @@ return {
 			}
 		}
 
-	-- python
+		-- python
 		use {
 			'mfussenegger/nvim-dap-python',
 			requires = {
 				'nvim-treesitter/nvim-treesitter',
 			}
 		}
+
+		-- javascript
+		use {
+			"mxsdev/nvim-dap-vscode-js",
+			requires = {
+				"microsoft/vscode-js-debug",
+				opt = true,
+				run = "npm install --legacy-peer-deps && npx gulp vsDebugServerBundle && mv dist out" ,
+			}
+		}
 	end,
 
 	configure = function()
-		local dap = require('dap')
 		local dapui = require('dapui')
 		dapui.setup {
 			layouts = {
@@ -127,5 +136,12 @@ return {
 		-- python configuration
 		local dap_python = require('dap-python')
 		dap_python.setup('~/.local/share/nvim/mason/packages/debugpy/venv/bin/python')
+
+		-- javascript configuration
+		local dap_vscode_js = require('dap-vscode-js')
+		dap_vscode_js.setup({
+			adapters = { 'pwa-node', 'pwa-chrome', 'node-terminal' },
+		})
+
 	end
 }
