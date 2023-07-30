@@ -33,6 +33,8 @@ local close_current_buffer = function()
 		end
 	end
 
+	vim.api.nvim_buf_delete(current_buffer, { unload = false })
+
 	if prev_buf then
 		vim.cmd('buffer '..prev_buf)
 	else
@@ -40,8 +42,6 @@ local close_current_buffer = function()
 			vim.cmd('buffer '..next_buf)
 		end
 	end
-
-	vim.api.nvim_buf_delete(current_buffer, { unload = false })
 end
 
 local function setup_diagnostics_keybindings()
