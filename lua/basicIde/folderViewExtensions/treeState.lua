@@ -12,7 +12,7 @@ local state_setting_modules = {
 }
 
 local load_state_from_file = function(file_name)
-	local state = {}
+	local state = Deepcopy(M.state)
 
 	local state_file = io.open(file_name, 'r')
 	if state_file == nil then
