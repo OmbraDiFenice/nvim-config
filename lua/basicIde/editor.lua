@@ -44,6 +44,17 @@ local close_current_buffer = function()
 	end
 end
 
+local function close_all()
+	for _, tab_info in ipairs(vim.fn.gettabinfo()) do
+		for variable, value in pairs(tab_info.variables or {}) do
+			if variable == 'diffview_tab' and value == true then -- variable is set in git.lua, during diffview hook
+				vim.cmd(':tabclose ' .. tab_info.tabnr)
+			end
+		end
+	end
+	vim.cmd [[ qall ]]
+end
+
 local function setup_diagnostics_keybindings()
 	vim.api.nvim_set_keymap('n', '<leader>d?', '', {
 		callback = vim.diagnostic.open_float,
@@ -70,7 +81,7 @@ return {
 		require('auto-save').setup()
 
 		vim.keymap.set("n", "<leader>q", close_current_buffer, { silent = true, noremap = true, desc = "close buffer" })
-		vim.keymap.set('n', '<leader>Q', function() vim.cmd('qall') end, { desc = 'close window' })
+		vim.keymap.set('n', '<leader>Q', close_all, { desc = 'close all windows' })
 
 		-- opens help windows on the right, taken from https://vi.stackexchange.com/questions/4452/how-can-i-make-vim-open-help-in-a-vertical-split
 		local vimrc_help_group = vim.api.nvim_create_augroup('vimrc_help', { clear = true })

@@ -1,3 +1,8 @@
+local function setup_diffview_keymaps()
+	vim.keymap.set('n', '<leader>gd', function() vim.cmd [[ :DiffviewOpen ]] end, { desc = 'Open git diff' })
+	vim.keymap.set({'n', 'v'}, '<leader>gh', function() vim.cmd [[ :DiffviewFileHistory ]] end, { desc = 'Open git file/lines history' })
+end
+
 return {
 	use_deps = function(use)
 		use {
@@ -5,6 +10,9 @@ return {
 		}
 		use {
 			'lewis6991/gitsigns.nvim',
+		}
+		use {
+			"sindrets/diffview.nvim",
 		}
 	end,
 
@@ -44,5 +52,25 @@ return {
 				map('n', '<leader>hD', function() gs.diffthis('~') end, { desc = 'git diff ~' })
 			end
 		}
+
+		-- diffview
+
+		require('diffview').setup {
+			keymaps = {
+				view = {{'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' }}},
+				diff1 = {{'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' }}},
+				diff2 = {{'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' }}},
+				diff3 = {{'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' }}},
+				diff4 = {{'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' }}},
+				file_panel = {{'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' }}},
+				file_history_panel = {{'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' }}},
+			},
+			hooks = {
+				view_opened = function(view)
+					vim.api.nvim_tabpage_set_var(view.tabpage, 'diffview_tab', true)
+				end,
+			},
+		}
+		setup_diffview_keymaps()
 	end,
 }
