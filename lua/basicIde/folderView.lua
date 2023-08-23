@@ -91,6 +91,14 @@ return {
 			branch = 'master'
 		}
 
+		use {
+			'antosha417/nvim-lsp-file-operations',
+			requires = {
+				"nvim-lua/plenary.nvim",
+				"nvim-tree/nvim-tree.lua",
+			}
+		}
+
 		-- "tab" (buffer) bar
 		use {'akinsho/bufferline.nvim', tag = "v3.*", requires = 'nvim-tree/nvim-web-devicons'}
 	end,
@@ -137,6 +145,8 @@ return {
 
 		require("nvim-tree").setup(config)
 		require("basicIde/folderViewExtensions/treeState").setup()
+
+		require("lsp-file-operations").setup()
 
 		--
 
