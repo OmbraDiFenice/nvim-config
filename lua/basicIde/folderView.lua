@@ -78,6 +78,7 @@ local nvim_tree_key_mappings = function(bufnr)
   vim.keymap.set('n', 'h', api.node.navigate.parent_close, opts('Close Directory'))
   vim.keymap.set('n', 'H', api.tree.collapse_all, opts('Collapse'))
   vim.keymap.set('n', 'ga', git_add, opts('git_add'))
+  vim.keymap.set('n', '<C-h>', api.tree.close, opts('git_add'))
 end
 
 return {
