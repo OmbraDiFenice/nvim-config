@@ -17,6 +17,10 @@ return {
 			open_mapping = [[<c-\>]],
 			direction = 'vertical',
 			size = function() return vim.o.columns * 0.4 end,
+			clear_env = false,
+			on_create = function (terminal)
+				terminal:send('[[ -d ${VIRTUAL_ENV+x} ]] || source "$VIRTUAL_ENV/bin/activate" ; clear', false)
+			end
 		})
 
 	vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
