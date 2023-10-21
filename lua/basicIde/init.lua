@@ -14,6 +14,7 @@ table.insert(components, 'basicIde/session')
 table.insert(components, 'basicIde/terminal')
 table.insert(components, 'basicIde/editor')
 table.insert(components, 'basicIde/debugging')
+table.insert(components, 'basicIde/coverage')
 
 table.insert(components, 'basicIde/project') -- load project specific config, should be always the last 
 

@@ -28,3 +28,9 @@ function Deepcopy(orig)
     end
     return copy
 end
+
+function LogWarning(message)
+	vim.cmd('echohl WarningMsg')
+	vim.cmd('echomsg "Warning: ' .. message .. '"')
+	vim.cmd('echohl None')
+end
