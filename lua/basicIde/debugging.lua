@@ -11,6 +11,7 @@ local setup_keymaps = function()
 	vim.keymap.set('n', '<leader>dB', function()
 		dap.toggle_breakpoint(vim.fn.input({prompt = 'Breakpoint condition: '}))
 	end, { desc = 'Toggle conditional breakpoint' })
+	vim.keymap.set('n', '<leader>dq', dap.terminate, { desc = 'Stop debug session' })
 
 	-- debugger UI
 	vim.keymap.set('n', '<leader>dd', dapui.toggle, { desc = 'Toggle debugger' })
