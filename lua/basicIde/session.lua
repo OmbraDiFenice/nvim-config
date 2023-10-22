@@ -38,6 +38,6 @@ return {
 			post_restore_cmds = { open_nvim_tree },
 		}
 
-		vim.o.sessionoptions="blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+		vim.o.sessionoptions="blank,buffers,curdir,help,tabpages,winsize,winpos,terminal,localoptions"
 	end,
 }
