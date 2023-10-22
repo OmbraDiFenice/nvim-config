@@ -2,11 +2,14 @@ local servers_configuration = {
 	pylsp = {
 		pylsp = {
 			plugins = {
+				black = {
+					enabled = true,
+				},
 				pyflakes = {
 					enabled = false, -- has un-ignorable warnings
 				},
 				flake8 = {
-					enabled = true,
+					enabled = false,
 					ignore = {
 						'F541', -- f-string without any placeholders
 						'E501', -- line too long
@@ -104,5 +107,23 @@ return {
 			end,
 		}
 
+		local mason_registry = require 'mason-registry'
+		mason_registry:on(
+			'package:install:success',
+			vim.schedule_wrap(function (pkg, handle)
+				if pkg.spec.name == 'python-lsp-server'
+				then
+					vim.fn.jobstart({'bash', '-c',  'source venv/bin/activate && pip install pylsp-mypy python-lsp-ruff python-lsp-black'}, {
+						cwd = vim.fn.stdpath('data')..'/mason/packages/python-lsp-server',
+					})
+				end
+				if pkg.spec.name == 'mypy'
+				then
+					vim.fn.jobstart({'bash', '-c',  'source venv/bin/activate && pip install numpy'}, {
+						cwd = vim.fn.stdpath('data')..'/mason/packages/mypy',
+					})
+				end
+			end)
+		)
 	end,
 }
