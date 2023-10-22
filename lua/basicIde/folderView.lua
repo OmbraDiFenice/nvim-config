@@ -45,6 +45,7 @@ local function vsplit_preview()
 end
 
 local git_add = function()
+	local api = require("nvim-tree.api")
 	local lib = require("nvim-tree.lib")
 	local node = lib.get_node_at_cursor()
 
@@ -61,7 +62,7 @@ local git_add = function()
 	  vim.cmd("silent !git restore --staged " .. node.absolute_path)
 	end
 
-	lib.refresh_tree()
+	api.tree.reload()
 end
 
 local nvim_tree_key_mappings = function(bufnr)
