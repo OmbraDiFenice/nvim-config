@@ -30,7 +30,7 @@ return {
 		require('auto-session').setup {
 			log_level = "error",
 			auto_session_root_dir = Get_data_directory(),
-      auto_session_suppress_dirs = { "~/", "~/Projects", "~/Downloads", "/"},
+			auto_session_suppress_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
 			auto_session_use_git_branch = true,
 
 			-- can't be done in nvim-tree, see https://github.com/nvim-tree/nvim-tree.lua/issues/1992#issuecomment-1455504628
@@ -38,6 +38,6 @@ return {
 			post_restore_cmds = { open_nvim_tree },
 		}
 
-		vim.o.sessionoptions="blank,buffers,curdir,help,tabpages,winsize,winpos,terminal,localoptions"
+		vim.o.sessionoptions = "blank,buffers,curdir,help,tabpages,winsize,winpos,terminal,localoptions"
 	end,
 }

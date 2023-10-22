@@ -8,13 +8,12 @@ function TestRun_lualine_component:init()
 
 	vim.api.nvim_create_autocmd('User', {
 		pattern = 'UpdateTestStatusBar',
-		callback = function (data)
+		callback = function(data)
 			self.msg = data.data.message
 			require('lualine').refresh()
 		end
 	})
 end
-
 
 return {
 	use_deps = function(use)
@@ -46,7 +45,7 @@ return {
 						path = 1,
 					},
 				},
-				lualine_x = {function() return TestRun_lualine_component.msg end, 'encoding', 'fileformat', 'filetype'},
+				lualine_x = { function() return TestRun_lualine_component.msg end, 'encoding', 'fileformat', 'filetype' },
 			}
 		}
 	end,

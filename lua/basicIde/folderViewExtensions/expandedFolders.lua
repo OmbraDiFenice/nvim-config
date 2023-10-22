@@ -28,9 +28,9 @@ M.setup = function(expanded_folders)
 	-- Apparently Event.Ready is only triggered when the plugin starts the first time
 	-- and then the internal "expanded" status is kept.
 	--
-	-- If that wasn't the case we would need to recompute expanded_folders and keep a 
+	-- If that wasn't the case we would need to recompute expanded_folders and keep a
 	-- temporary "last value" similarly to what it's done for cursorPosition
-	api.events.subscribe(Event.Ready, function ()
+	api.events.subscribe(Event.Ready, function()
 		M.apply(expanded_folders)
 	end)
 end

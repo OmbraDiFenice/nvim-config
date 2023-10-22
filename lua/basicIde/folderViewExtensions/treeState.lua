@@ -22,7 +22,6 @@ local load_state_from_file = function(file_name)
 
 	for line in state_file:lines() do
 		for key, value in string.gmatch(line, '([%w_]+)=(.+)') do
-
 			local module = state_setting_modules[key]
 			if module then
 				state[key] = module.deserialize(tostring(value))
@@ -37,11 +36,11 @@ local load_state_from_file = function(file_name)
 	return state
 end
 
-M.load = function ()
+M.load = function()
 	M.state = load_state_from_file(M.state_filename)
 end
 
-M.store = function ()
+M.store = function()
 	local state_file = io.open(M.state_filename, 'w')
 	if state_file == nil then
 		print('file open failed')
@@ -60,7 +59,7 @@ M.store = function ()
 	state_file:close()
 end
 
-M.update = function ()
+M.update = function()
 	for key, module in pairs(state_setting_modules) do
 		local value = module.get()
 		M.state[key] = value

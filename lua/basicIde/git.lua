@@ -1,6 +1,7 @@
 local function setup_diffview_keymaps()
 	vim.keymap.set('n', '<leader>gd', function() vim.cmd [[ :DiffviewOpen ]] end, { desc = 'Open git diff' })
-	vim.keymap.set({'n', 'v'}, '<leader>gh', function() vim.cmd [[ :DiffviewFileHistory ]] end, { desc = 'Open git file/lines history' })
+	vim.keymap.set({ 'n', 'v' }, '<leader>gh', function() vim.cmd [[ :DiffviewFileHistory ]] end,
+		{ desc = 'Open git file/lines history' })
 end
 
 return {
@@ -18,7 +19,7 @@ return {
 
 	configure = function()
 		require('gitsigns').setup {
-		 on_attach = function(bufnr)
+			on_attach = function(bufnr)
 				local gs = package.loaded.gitsigns
 
 				local function map(mode, l, r, opts)
@@ -33,17 +34,17 @@ return {
 					if vim.wo.diff then return ']c' end
 					vim.schedule(function() gs.next_hunk() end)
 					return '<Ignore>'
-				end, { expr=true, desc = 'goto next hunk' })
+				end, { expr = true, desc = 'goto next hunk' })
 
 				map('n', '[c', function()
 					if vim.wo.diff then return '[c' end
 					vim.schedule(function() gs.prev_hunk() end)
 					return '<Ignore>'
-				end, { expr=true, desc = 'goto previous hunk' })
+				end, { expr = true, desc = 'goto previous hunk' })
 
 				-- Actions
-				map({'n', 'v'}, '<leader>hs', ':Gitsigns stage_hunk<CR>', { desc = 'stage hunk' })
-				map({'n', 'v'}, '<leader>hr', ':Gitsigns reset_hunk<CR>', { desc = 'reset hunk' })
+				map({ 'n', 'v' }, '<leader>hs', ':Gitsigns stage_hunk<CR>', { desc = 'stage hunk' })
+				map({ 'n', 'v' }, '<leader>hr', ':Gitsigns reset_hunk<CR>', { desc = 'reset hunk' })
 				map('n', '<leader>hp', gs.preview_hunk, { desc = 'git preview hunk' })
 				map('n', '<leader>hS', gs.stage_buffer, { desc = 'git stage buffer' })
 				map('n', '<leader>hu', gs.undo_stage_hunk, { desc = 'undo stage hunk' })
@@ -57,13 +58,15 @@ return {
 
 		require('diffview').setup {
 			keymaps = {
-				view = {{'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' }}},
-				diff1 = {{'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' }}},
-				diff2 = {{'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' }}},
-				diff3 = {{'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' }}},
-				diff4 = {{'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' }}},
-				file_panel = {{'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' }}},
-				file_history_panel = {{'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' }}},
+				view = { { 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } } },
+				diff1 = { { 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } } },
+				diff2 = { { 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } } },
+				diff3 = { { 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } } },
+				diff4 = { { 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } } },
+				file_panel = {
+					{ 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } } },
+				file_history_panel = {
+					{ 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } } },
 			},
 			hooks = {
 				view_opened = function(view)

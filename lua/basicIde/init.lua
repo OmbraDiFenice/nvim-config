@@ -17,7 +17,7 @@ table.insert(components, 'basicIde/debugging')
 table.insert(components, 'basicIde/coverage')
 table.insert(components, 'basicIde/codeFormatting')
 
-table.insert(components, 'basicIde/project') -- load project specific config, should be always the last 
+table.insert(components, 'basicIde/project') -- load project specific config, should be always the last
 
 return {
 	use_deps = function(use)

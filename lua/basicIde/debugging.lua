@@ -9,21 +9,21 @@ local setup_keymaps = function()
 	vim.keymap.set('n', '<F4>', function() dap.step_out() end, { desc = 'debuger step out' })
 	vim.keymap.set('n', '<leader>db', dap.toggle_breakpoint, { desc = 'Toggle breakpoint' })
 	vim.keymap.set('n', '<leader>dB', function()
-		dap.toggle_breakpoint(vim.fn.input({prompt = 'Breakpoint condition: '}))
+		dap.toggle_breakpoint(vim.fn.input({ prompt = 'Breakpoint condition: ' }))
 	end, { desc = 'Toggle conditional breakpoint' })
 	vim.keymap.set('n', '<leader>dq', dap.terminate, { desc = 'Stop debug session' })
 
 	-- debugger UI
 	vim.keymap.set('n', '<leader>dd', dapui.toggle, { desc = 'Toggle debugger' })
-	vim.keymap.set('n', '<leader>dl', function ()
+	vim.keymap.set('n', '<leader>dl', function()
 		dapui.float_element('breakpoints', { width = 100, height = 40, enter = true })
-	end, { desc = 'Show breakpoint list' } )
-	vim.keymap.set('n', '<leader>dc', function ()
+	end, { desc = 'Show breakpoint list' })
+	vim.keymap.set('n', '<leader>dc', function()
 		dapui.float_element('console', { width = 130, height = 60 })
-	end, { desc = 'Show debugging console output' } )
+	end, { desc = 'Show debugging console output' })
 end
 
-local setup_listeners = function ()
+local setup_listeners = function()
 	local dap = require('dap')
 	local dapui = require('dapui')
 
@@ -31,7 +31,7 @@ local setup_listeners = function ()
 	-- (e.g. by sourcing the file) we don't attach new functions to the same event again
 	dap.listeners.after.event_stopped['dapui_config'] = dapui.open
 	dap.listeners.before.event_terminated['dapui_config'] = dapui.close
-	dap.listeners.before.event_exited['dapui_config'] = function (session, data)
+	dap.listeners.before.event_exited['dapui_config'] = function(session, data)
 		dapui.close()
 
 		if session.config.unittest then -- unittest is a custom key extra key, not part of the standard api
@@ -85,7 +85,7 @@ return {
 			requires = {
 				"microsoft/vscode-js-debug",
 				opt = true,
-				run = "npm install --legacy-peer-deps && npx gulp vsDebugServerBundle && mv dist out" ,
+				run = "npm install --legacy-peer-deps && npx gulp vsDebugServerBundle && mv dist out",
 			}
 		}
 	end,
@@ -125,11 +125,11 @@ return {
 			},
 		}
 
-		vim.fn.sign_define('DapBreakpoint', { text='', texthl='', linehl='', numhl='' })
-		vim.fn.sign_define('DapBreakpointCondition', { text='', texthl='', linehl='', numhl='' })
+		vim.fn.sign_define('DapBreakpoint', { text = '', texthl = '', linehl = '', numhl = '' })
+		vim.fn.sign_define('DapBreakpointCondition', { text = '', texthl = '', linehl = '', numhl = '' })
 
-		vim.fn.sign_define('DapLogPoint', { text='', texthl='', linehl='', numhl='' })
-		vim.fn.sign_define('DapBreakpointRejected', { text='', texthl='', linehl='', numhl='' })
+		vim.fn.sign_define('DapLogPoint', { text = '', texthl = '', linehl = '', numhl = '' })
+		vim.fn.sign_define('DapBreakpointRejected', { text = '', texthl = '', linehl = '', numhl = '' })
 
 		setup_keymaps()
 		setup_listeners()
@@ -143,6 +143,5 @@ return {
 		dap_vscode_js.setup({
 			adapters = { 'pwa-node', 'pwa-chrome', 'node-terminal' },
 		})
-
 	end
 }

@@ -110,17 +110,18 @@ return {
 		local mason_registry = require 'mason-registry'
 		mason_registry:on(
 			'package:install:success',
-			vim.schedule_wrap(function (pkg, handle)
+			vim.schedule_wrap(function(pkg, handle)
 				if pkg.spec.name == 'python-lsp-server'
 				then
-					vim.fn.jobstart({'bash', '-c',  'source venv/bin/activate && pip install pylsp-mypy python-lsp-ruff python-lsp-black'}, {
-						cwd = vim.fn.stdpath('data')..'/mason/packages/python-lsp-server',
+					vim.fn.jobstart(
+					{ 'bash', '-c', 'source venv/bin/activate && pip install pylsp-mypy python-lsp-ruff python-lsp-black' }, {
+						cwd = vim.fn.stdpath('data') .. '/mason/packages/python-lsp-server',
 					})
 				end
 				if pkg.spec.name == 'mypy'
 				then
-					vim.fn.jobstart({'bash', '-c',  'source venv/bin/activate && pip install numpy'}, {
-						cwd = vim.fn.stdpath('data')..'/mason/packages/mypy',
+					vim.fn.jobstart({ 'bash', '-c', 'source venv/bin/activate && pip install numpy' }, {
+						cwd = vim.fn.stdpath('data') .. '/mason/packages/mypy',
 					})
 				end
 			end)

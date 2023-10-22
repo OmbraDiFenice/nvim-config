@@ -9,14 +9,11 @@ local function edit_or_open()
 	-- Just copy what's done normally with vsplit
 	if node.link_to and not node.nodes then
 		require('nvim-tree.actions.node.open-file').fn(action, node.link_to)
-
 	elseif node.nodes ~= nil then
 		lib.expand_or_collapse(node)
-
 	else
 		require('nvim-tree.actions.node.open-file').fn(action, node.absolute_path)
 	end
-
 end
 
 local function vsplit_preview()
@@ -31,13 +28,10 @@ local function vsplit_preview()
 	-- Just copy what's done normally with vsplit
 	if node.link_to and not node.nodes then
 		require('nvim-tree.actions.node.open-file').fn(action, node.link_to)
-
 	elseif node.nodes ~= nil then
 		lib.expand_or_collapse(node)
-
 	else
 		require('nvim-tree.actions.node.open-file').fn(action, node.absolute_path)
-
 	end
 
 	-- Finally refocus on tree if it was lost
@@ -49,37 +43,37 @@ local git_add = function()
 	local lib = require("nvim-tree.lib")
 	local node = lib.get_node_at_cursor()
 
-	      if not node then return end
+	if not node then return end
 
 	local gs = node.git_status.file
 
 	-- If the file is untracked, unstaged or partially staged, we stage it
 	if gs == "??" or gs == "MM" or gs == "AM" or gs == " M" then
-	  vim.cmd("silent !git add " .. node.absolute_path)
+		vim.cmd("silent !git add " .. node.absolute_path)
 
-	-- If the file is staged, we unstage
+		-- If the file is staged, we unstage
 	elseif gs == "M " or gs == "A " then
-	  vim.cmd("silent !git restore --staged " .. node.absolute_path)
+		vim.cmd("silent !git restore --staged " .. node.absolute_path)
 	end
 
 	api.tree.reload()
 end
 
 local nvim_tree_key_mappings = function(bufnr)
-  local api = require('nvim-tree.api')
+	local api = require('nvim-tree.api')
 
-  local function opts(desc)
-    return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
-  end
+	local function opts(desc)
+		return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+	end
 
 	api.config.mappings.default_on_attach(bufnr)
 
-  vim.keymap.set('n', 'l', edit_or_open, opts('Open'))
-  vim.keymap.set('n', 'L', vsplit_preview, opts('vsplit_preview'))
-  vim.keymap.set('n', 'h', api.node.navigate.parent_close, opts('Close Directory'))
-  vim.keymap.set('n', 'H', api.tree.collapse_all, opts('Collapse'))
-  vim.keymap.set('n', 'ga', git_add, opts('git_add'))
-  vim.keymap.set('n', '<C-h>', api.tree.close, opts('git_add'))
+	vim.keymap.set('n', 'l', edit_or_open, opts('Open'))
+	vim.keymap.set('n', 'L', vsplit_preview, opts('vsplit_preview'))
+	vim.keymap.set('n', 'h', api.node.navigate.parent_close, opts('Close Directory'))
+	vim.keymap.set('n', 'H', api.tree.collapse_all, opts('Collapse'))
+	vim.keymap.set('n', 'ga', git_add, opts('git_add'))
+	vim.keymap.set('n', '<C-h>', api.tree.close, opts('git_add'))
 end
 
 return {
@@ -101,19 +95,20 @@ return {
 		}
 
 		-- "tab" (buffer) bar
-		use {'akinsho/bufferline.nvim', tag = "v3.*", requires = 'nvim-tree/nvim-web-devicons'}
+		use { 'akinsho/bufferline.nvim', tag = "v3.*", requires = 'nvim-tree/nvim-web-devicons' }
 	end,
 
 	configure = function()
-
 		vim.g.loaded_netrw = 1
 		vim.g.loaded_netrwPlugin = 1
 		vim.opt.termguicolors = true
 
-		vim.api.nvim_set_keymap("n", "<C-h>", ":NvimTreeFocus<cr>", { silent = true, noremap = true, desc = "focus tree view" })
+		vim.api.nvim_set_keymap("n", "<C-h>", ":NvimTreeFocus<cr>",
+			{ silent = true, noremap = true, desc = "focus tree view" })
 		vim.api.nvim_set_keymap("n", "<C-u>", ":bp<cr>", { silent = true, noremap = true, desc = "previous buffer" })
 		vim.api.nvim_set_keymap("n", "<C-o>", ":bn<cr>", { silent = true, noremap = true, desc = "next buffer" })
-		vim.api.nvim_set_keymap("n", "<leader>f", ":NvimTreeFindFile<CR>", { silent = true, noremap = true, desc = "find current buffer in tree view" })
+		vim.api.nvim_set_keymap("n", "<leader>f", ":NvimTreeFindFile<CR>",
+			{ silent = true, noremap = true, desc = "find current buffer in tree view" })
 
 		local config = {
 			view = {

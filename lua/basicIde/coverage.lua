@@ -3,7 +3,7 @@ local setup_keymaps = function()
 	local report = require('coverage.report')
 	local config = require('coverage.config')
 
-	local ensureLoaded = function (cb)
+	local ensureLoaded = function(cb)
 		if not report.is_cached() then
 			local cb_orig = config.opts.load_coverage_cb
 
@@ -21,10 +21,10 @@ local setup_keymaps = function()
 		end
 	end
 
-	vim.keymap.set('n', '<leader>ct', function ()
+	vim.keymap.set('n', '<leader>ct', function()
 		ensureLoaded(coverage.toggle)
 	end, { desc = 'Toggle coverage gutter' })
-	vim.keymap.set('n', '<leader>cs', function ()
+	vim.keymap.set('n', '<leader>cs', function()
 		ensureLoaded(coverage.summary)
 	end, { desc = 'Show coverage summary' })
 end

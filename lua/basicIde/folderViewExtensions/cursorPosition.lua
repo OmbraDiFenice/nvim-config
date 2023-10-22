@@ -45,7 +45,6 @@ M.setup = function(cursor_position)
 			M._should_apply = false -- nvim-tree already takes care of keeping the cursor position as long as the buffer is valid
 		end
 	end)
-
 end
 
 M.apply = function(cursor_position)

@@ -17,7 +17,7 @@ local close_current_buffer = function()
 	local prev_buf = nil
 	local next_buf = nil
 
-	for i = current_buffer_idx-1, 0, -1 do
+	for i = current_buffer_idx - 1, 0, -1 do
 		local buf = bufs[i]
 		if buf ~= nil and buf.listed == 1 then
 			prev_buf = buf.bufnr
@@ -25,7 +25,7 @@ local close_current_buffer = function()
 		end
 	end
 
-	for i = current_buffer_idx+1, #bufs, 1 do
+	for i = current_buffer_idx + 1, #bufs, 1 do
 		local buf = bufs[i]
 		if buf ~= nil and buf.listed == 1 then
 			next_buf = buf.bufnr
@@ -36,10 +36,10 @@ local close_current_buffer = function()
 	vim.api.nvim_buf_delete(current_buffer, { unload = false })
 
 	if prev_buf then
-		vim.cmd('buffer '..prev_buf)
+		vim.cmd('buffer ' .. prev_buf)
 	else
 		if next_buf then
-			vim.cmd('buffer '..next_buf)
+			vim.cmd('buffer ' .. next_buf)
 		end
 	end
 end
@@ -62,7 +62,7 @@ local function setup_diagnostics_keybindings()
 	})
 
 	vim.api.nvim_set_keymap('n', '<C-l>', '', {
-		callback = function ()
+		callback = function()
 			require('telescope.builtin').diagnostics()
 		end,
 		desc = 'show diagnostics for all loaded buffers',
@@ -85,11 +85,11 @@ return {
 
 		-- opens help windows on the right, taken from https://vi.stackexchange.com/questions/4452/how-can-i-make-vim-open-help-in-a-vertical-split
 		local vimrc_help_group = vim.api.nvim_create_augroup('vimrc_help', { clear = true })
-		vim.api.nvim_create_autocmd( { 'BufEnter' }, {
+		vim.api.nvim_create_autocmd({ 'BufEnter' }, {
 			desc = 'Move opened help windows to the right',
 			group = vimrc_help_group,
 			pattern = '*.txt',
-			callback = function (args)
+			callback = function(args)
 				if vim.api.nvim_buf_get_option(args.buf, 'buftype') == 'help' then
 					vim.cmd 'wincmd L'
 				end

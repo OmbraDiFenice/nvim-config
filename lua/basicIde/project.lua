@@ -37,7 +37,7 @@ return {
 
 		vim.api.nvim_create_autocmd('BufWritePost', {
 			pattern = PROJECT_SETTINGS_FILE,
-			desc = 'reload '..PROJECT_SETTINGS_FILE..' on save',
+			desc = 'reload ' .. PROJECT_SETTINGS_FILE .. ' on save',
 			callback = apply_project_config,
 		})
 	end,

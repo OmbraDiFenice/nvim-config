@@ -1,33 +1,33 @@
 local ensure_packer = function()
-  local fn = vim.fn
-  local install_path = fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
-  if fn.empty(fn.glob(install_path)) > 0 then
-    fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
-    vim.cmd [[packadd packer.nvim]]
-    return true
-  end
-  return false
+	local fn = vim.fn
+	local install_path = fn.stdpath('data') .. '/site/pack/packer/start/packer.nvim'
+	if fn.empty(fn.glob(install_path)) > 0 then
+		fn.system({ 'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path })
+		vim.cmd [[packadd packer.nvim]]
+		return true
+	end
+	return false
 end
 
 -- vim.cmd [[ set hlsearch ]]
 -- vim.cmd [[ set number relativenumber ]]
 -- vim.cmd [[ autocmd BufReadPost * silent! normal! g`"zv ]]
--- 
+--
 -- vim.cmd [[ set tabstop=2 ]]
 -- vim.cmd [[ set shiftwidth=2 ]]
 -- vim.cmd [[ set noexpandtab ]]
--- 
+--
 -- vim.cmd [[ set clipboard=unnamed ]]
--- 
+--
 -- local packer_bootstrap = ensure_packer()
--- 
+--
 -- require('packer').startup(function(use)
 -- 	use 'wbthomason/packer.nvim'
--- 
+--
 -- 	-- theme
 -- 	use {
 -- 		'navarasu/onedark.nvim',
--- 		setup = function() 
+-- 		setup = function()
 -- 			local plugin = require('onedark')
 -- 			plugin.setup {
 -- 				style = 'dark',
@@ -35,10 +35,10 @@ end
 -- 			plugin.load()
 -- 		end,
 -- 	}
--- 
+--
 -- 	-- status bar
 -- 	use {
--- 		'nvim-lualine/lualine.nvim', 
+-- 		'nvim-lualine/lualine.nvim',
 -- 		requires = { 'kyazdani42/nvim-web-devicons', opt = true },
 -- 		config = function()
 -- 			require('lualine').setup {
@@ -56,7 +56,7 @@ end
 -- 			}		
 -- 		end,
 -- 	}
--- 
+--
 -- 	-- LSP
 -- 	use {
 -- 		'neovim/nvim-lspconfig',
@@ -66,9 +66,9 @@ end
 -- 		},
 -- 		config = function()
 -- 			require('mason').setup()
--- 
+--
 -- 			local servers_configurations = {}
--- 
+--
 -- 			local mason_lspconfig = require 'mason-lspconfig'
 -- 			mason_lspconfig.setup()
 -- 			mason_lspconfig.setup_handlers {
@@ -82,8 +82,8 @@ end
 -- 			}
 -- 		end,
 -- 	}
--- 
--- 
+--
+--
 -- 	if packer_bootstrap then
 -- 		require('packer').sync()
 -- 	end
