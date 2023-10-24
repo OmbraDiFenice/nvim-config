@@ -90,6 +90,7 @@ end
 -- end)
 
 
+ensure_packer()
 local packer = require('packer')
 packer.init()
 packer.reset()
