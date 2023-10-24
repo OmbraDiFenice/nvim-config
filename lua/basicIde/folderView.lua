@@ -152,7 +152,7 @@ return {
 				right_mouse_command = "",
 				middle_mouse_command = "bdelete! %d",
 				show_buffer_icons = false,
-				show_buffer_default_icon = false,
+				get_element_icon = nil,
 				show_close_icon = false,
 				show_duplicate_prefix = true,
 				always_show_bufferline = true,
