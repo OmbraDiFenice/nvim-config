@@ -7,6 +7,9 @@ local default_settings = {
 	debugging = {
 		dap_configurations = nil,
 	},
+	terminal = {
+		init_environment_cmd = '[[ -d ${VIRTUAL_ENV+x} ]] || source "$VIRTUAL_ENV/bin/activate" ; clear'
+	}
 }
 
 return {

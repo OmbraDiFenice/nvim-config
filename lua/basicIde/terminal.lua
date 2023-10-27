@@ -12,14 +12,18 @@ return {
 		use 'akinsho/toggleterm.nvim'
 	end,
 
-	configure = function()
+	configure = function(project_settings)
 		require('toggleterm').setup({
 			open_mapping = [[<c-\>]],
 			direction = 'vertical',
 			size = function() return vim.o.columns * 0.4 end,
 			clear_env = false,
 			on_create = function(terminal)
-				terminal:send('[[ -d ${VIRTUAL_ENV+x} ]] || source "$VIRTUAL_ENV/bin/activate" ; clear', false)
+				local init_environment_cmd = project_settings.terminal.init_environment_cmd
+
+				if not init_environment_cmd then return end
+
+				terminal:send(init_environment_cmd, false)
 			end
 		})
 
