@@ -1,3 +1,36 @@
+local function apply_custom_dap_configurations(dap_configurations)
+	local dap = require('dap')
+
+	for language, project_configurations in pairs(dap_configurations) do
+		if dap.configurations[language] == nil then dap.configurations[language] = {} end
+
+		for _, project_configuration in pairs(project_configurations) do
+			for i, dap_config in pairs(dap.configurations[language]) do
+				if dap_config.name == project_configuration.name then
+					table.remove(dap.configurations[language], i)
+				end
+			end
+
+			table.insert(dap.configurations[language], project_configuration)
+		end
+	end
+end
+
+local function setup_project_settings(project_settings)
+	local debugging_project_settings = project_settings.debugging
+
+	local dap_configurations = debugging_project_settings.dap_configurations
+	if dap_configurations == nil then return end
+
+	apply_custom_dap_configurations(dap_configurations)
+
+	vim.api.nvim_create_autocmd('BufWritePost', {
+		pattern = project_settings.PROJECT_SETTINGS_FILE,
+		desc = 'reload ' .. project_settings.PROJECT_SETTINGS_FILE .. ' on save',
+		callback = apply_custom_dap_configurations,
+	})
+end
+
 local setup_keymaps = function()
 	local dap = require('dap')
 	local dapui = require('dapui')
@@ -90,7 +123,7 @@ return {
 		}
 	end,
 
-	configure = function()
+	configure = function(project_settings)
 		local dapui = require('dapui')
 		dapui.setup {
 			layouts = {
@@ -133,6 +166,8 @@ return {
 
 		setup_keymaps()
 		setup_listeners()
+
+		setup_project_settings(project_settings)
 
 		-- python configuration
 		local dap_python = require('dap-python')

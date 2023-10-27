@@ -23,10 +23,24 @@ function Deepcopy(orig)
 			copy[Deepcopy(orig_key)] = Deepcopy(orig_value)
 		end
 		setmetatable(copy, Deepcopy(getmetatable(orig)))
-	else   -- number, string, boolean, etc
+	else -- number, string, boolean, etc
 		copy = orig
 	end
 	return copy
+end
+
+-- taken from https://stackoverflow.com/a/7470789
+-- Overwrites value of table t1 with corresponding values from t2.
+-- Mutate and return t1
+function Deepmerge(t1, t2)
+	for k, v in pairs(t2) do
+		if (type(v) == "table") and (type(t1[k] or false) == "table") then
+			Deepmerge(t1[k], t2[k])
+		else
+			t1[k] = v
+		end
+	end
+	return t1
 end
 
 function LogWarning(message)

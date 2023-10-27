@@ -1,9 +1,13 @@
 return {
-	use_deps = function(use)
+	use_deps = function(use, project_settings)
+		if not project_settings.format_on_save.enabled then return end
+
 		use 'elentok/format-on-save.nvim'
 	end,
 
-	configure = function()
+	configure = function(project_settings)
+		if not project_settings.format_on_save.enabled then return end
+
 		local format_on_save = require("format-on-save")
 		local formatters = require("format-on-save.formatters")
 

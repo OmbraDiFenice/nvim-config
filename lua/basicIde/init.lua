@@ -1,5 +1,8 @@
 require('basicIde/globals')
 
+local project = require('basicIde/project')
+local project_settings = project.load_settings()
+
 local components = {}
 table.insert(components, 'basicIde/theme')
 table.insert(components, 'basicIde/statusBar')
@@ -17,20 +20,18 @@ table.insert(components, 'basicIde/debugging')
 table.insert(components, 'basicIde/coverage')
 table.insert(components, 'basicIde/codeFormatting')
 
-table.insert(components, 'basicIde/project') -- load project specific config, should be always the last
-
 return {
 	use_deps = function(use)
 		for _, component in ipairs(components)
 		do
-			require(component).use_deps(use)
+			require(component).use_deps(use, project_settings)
 		end
 	end,
 
 	configure = function()
 		for _, component in ipairs(components)
 		do
-			require(component).configure()
+			require(component).configure(project_settings)
 		end
 	end,
 }
