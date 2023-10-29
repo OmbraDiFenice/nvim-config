@@ -2,7 +2,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 
 local default_settings = {
 	format_on_save = {
-		enabled = true,
+		enabled = false,
 	},
 	debugging = {
 		dap_configurations = nil,
