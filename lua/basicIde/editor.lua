@@ -78,7 +78,16 @@ return {
 	end,
 
 	configure = function()
-		require('auto-save').setup()
+		require('auto-save').setup({
+			condition = function(buf)
+				local utils = require("auto-save.utils.data")
+				local ide_autosave_var = vim.fn.getbufvar(buf, 'nvim_ide_autosave')
+
+				return vim.fn.getbufvar(buf, "&modifiable") == 1 and
+					utils.not_in(vim.fn.getbufvar(buf, "&filetype"), {}) and
+					(ide_autosave_var == nil or ide_autosave_var)
+			end
+		})
 
 		vim.keymap.set("n", "<leader>q", close_current_buffer, { silent = true, noremap = true, desc = "close buffer" })
 		vim.keymap.set('n', '<leader>Q', close_all, { desc = 'close all windows' })

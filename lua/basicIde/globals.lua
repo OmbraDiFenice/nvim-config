@@ -3,6 +3,10 @@ P = function(table)
 	return table
 end
 
+function Printlines(lines)
+	vim.notify(table.concat(lines, '\n'))
+end
+
 -- https://stackoverflow.com/a/54775280/4046810
 File_exists = function(name)
 	local f = io.open(name, "r")

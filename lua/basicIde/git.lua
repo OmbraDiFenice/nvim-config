@@ -1,3 +1,55 @@
+local utils = require('basicIde/utils')
+
+local function open_commit_win()
+	local function _edit_commit()
+		local buf = utils.openFloatWindow({
+			title = 'Commit message',
+			title_pos = 'center',
+		})
+		utils.runAndReturnOutput({ 'git', 'commit' }, function() -- regenerates default commit message
+			vim.cmd.edit('.git/COMMIT_EDITMSG')                -- TODO: get file from git config (is it possible?), possibly allowing to commit in submodules
+			vim.api.nvim_win_set_cursor(0, { 1, 0 })
+			vim.api.nvim_buf_set_var(buf, 'nvim_ide_autosave', false)
+			vim.cmd('startinsert')
+
+			vim.keymap.set('n', '<esc>', function()
+				vim.api.nvim_buf_delete(buf, { force = true })
+			end, { desc = 'Close float window', buffer = buf })
+		end, {
+			env = {
+				GIT_EDITOR = false,
+			}
+		})
+	end
+
+	local function remove_trailing_empty_lines(lines)
+		local cleaned_lines = {}
+		local non_empty_found = false
+
+		for i = #lines, 1, -1 do
+			if #(lines[i]) ~= 0 or non_empty_found then
+				non_empty_found = true
+				table.insert(cleaned_lines, 1, lines[i])
+			end
+		end
+
+		return cleaned_lines
+	end
+
+
+	utils.runAndReturnOutput({ 'git', 'diff', '--cached', '--numstat' }, -- gets 1 line per file in staging area
+		function(output, exit_code)
+			output = remove_trailing_empty_lines(output)
+			P(output)
+			if #output == 0 then
+				utils.runAndReturnOutput({ 'git', 'status' }, Printlines) -- notify the output of git status in nvim
+			else
+				_edit_commit()
+			end
+		end
+	)
+end
+
 local function setup_diffview_keymaps()
 	vim.keymap.set('n', '<leader>gd', function() vim.cmd [[ :DiffviewOpen ]] end, { desc = 'Open git diff' })
 	vim.keymap.set({ 'n', 'v' }, '<leader>gh', function() vim.cmd [[ :DiffviewFileHistory ]] end,
@@ -75,5 +127,9 @@ return {
 			},
 		}
 		setup_diffview_keymaps()
+
+		-- custom commit float
+
+		vim.keymap.set('n', 'gc', open_commit_win, { desc = 'open float window to commit changes' })
 	end,
 }
