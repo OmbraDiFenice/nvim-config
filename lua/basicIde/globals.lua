@@ -52,3 +52,11 @@ function LogWarning(message)
 	vim.cmd('echomsg "Warning: ' .. message .. '"')
 	vim.cmd('echohl None')
 end
+
+function Is_in_list(needle, haystack)
+	for _, element in ipairs(haystack) do
+		if needle == element then
+			return true
+		end
+	end
+end

@@ -1,3 +1,5 @@
+local CodeBreadcrumbs_lualine_component = require('basicIde.CodeBreadcrumbs_lualine_component')
+
 TestRun_lualine_component = {
 	msg = '',
 }
@@ -25,6 +27,7 @@ return {
 
 	configure = function()
 		TestRun_lualine_component:init()
+		local breadcrumbs = CodeBreadcrumbs_lualine_component:new()
 
 		require('lualine').setup {
 			options = {
@@ -44,8 +47,14 @@ return {
 						'filename',
 						path = 1,
 					},
+					function() return breadcrumbs.msg end,
 				},
-				lualine_x = { function() return TestRun_lualine_component.msg end, 'encoding', 'fileformat', 'filetype' },
+				lualine_x = {
+					function() return TestRun_lualine_component.msg end,
+					'encoding',
+					'fileformat',
+					'filetype',
+				},
 			}
 		}
 	end,
