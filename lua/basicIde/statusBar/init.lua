@@ -1,21 +1,5 @@
-local CodeBreadcrumbs_lualine_component = require('basicIde.CodeBreadcrumbs_lualine_component')
-
-TestRun_lualine_component = {
-	msg = '',
-}
-
-function TestRun_lualine_component:init()
-	vim.cmd [[ highlight! lualine_test_passed guifg=#98c379 guibg=#31353f ]]
-	vim.cmd [[ highlight! lualine_test_failed guifg=#e86671 guibg=#31353f ]]
-
-	vim.api.nvim_create_autocmd('User', {
-		pattern = 'UpdateTestStatusBar',
-		callback = function(data)
-			self.msg = data.data.message
-			require('lualine').refresh()
-		end
-	})
-end
+local CodeBreadcrumbs_lualine_component = require('basicIde.statusBar.CodeBreadcrumbs_lualine_component')
+local TestRun_lualine_component = require('basicIde.statusBar.TestRun_lualine_component')
 
 return {
 	use_deps = function(use)
@@ -26,7 +10,7 @@ return {
 	end,
 
 	configure = function()
-		TestRun_lualine_component:init()
+		local testRun = TestRun_lualine_component:new()
 		local breadcrumbs = CodeBreadcrumbs_lualine_component:new()
 
 		require('lualine').setup {
@@ -50,7 +34,7 @@ return {
 					function() return breadcrumbs.msg end,
 				},
 				lualine_x = {
-					function() return TestRun_lualine_component.msg end,
+					function() return testRun.msg end,
 					'encoding',
 					'fileformat',
 					'filetype',
