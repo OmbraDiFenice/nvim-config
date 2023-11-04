@@ -69,6 +69,16 @@ local function setup_diagnostics_keybindings()
 	})
 end
 
+local function setup_highlight_identifier_on_cursor_hover()
+	vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
+		callback = vim.lsp.buf.document_highlight,
+		desc = 'get document highlights from LSP',
+	})
+	vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
+		callback = vim.lsp.buf.clear_references,
+		desc = 'clear LSP document highlights',
+	})
+end
 
 return {
 	use_deps = function(use)
@@ -106,5 +116,7 @@ return {
 		})
 
 		setup_diagnostics_keybindings()
+
+		setup_highlight_identifier_on_cursor_hover()
 	end
 }
