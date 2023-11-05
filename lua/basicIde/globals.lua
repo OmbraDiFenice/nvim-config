@@ -60,3 +60,12 @@ function Is_in_list(needle, haystack)
 		end
 	end
 end
+
+function Map(t, fn)
+	local mapped = {}
+	for key, value in pairs(t) do
+		table.insert(mapped, fn(value, key, t))
+	end
+	return mapped
+end
+
