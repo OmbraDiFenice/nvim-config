@@ -1,5 +1,5 @@
-local function setup_keymaps()
-	vim.keymap.set({'n', 'v'}, '<F7>', vim.lsp.buf.format, { desc = 'format current buffer' })
+local function setup_keymaps(keymap_settings)
+	vim.keymap.set({'n', 'v'}, keymap_settings.format_current_buffer, vim.lsp.buf.format, { desc = 'format current buffer' })
 end
 
 return {
@@ -10,7 +10,7 @@ return {
 	end,
 
 	configure = function(project_settings)
-		setup_keymaps()
+		setup_keymaps(project_settings.format_on_save.keymaps)
 
 		if not project_settings.format_on_save.enabled then return end
 

@@ -1,8 +1,16 @@
 local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 
 local default_settings = {
-	format_on_save = {
-		enabled = false,
+	format_on_save = { -- WARNING: if enabled together with autosave it will pollute the undo history and you won't be able to undo changes anymore
+		enabled = false, -- 1. you make a change -> autosave triggers -> changes go to undo history
+                     -- 2. buffer is autoformatted -> buffer is changed -> autosave triggers again -> autoformatting changes go to undo history
+                     -- 3. you want to undo changes made at point 1, but:
+                     --    - hitting 'u' actually undoes the reformatting from point 2
+                     --    - that triggers autoformat again
+                     --    - you're back to the change you wanted to undo
+		keymaps = {
+			format_current_buffer = '<F7>',
+		}
 	},
 	debugging = {
 		dap_configurations = nil,
