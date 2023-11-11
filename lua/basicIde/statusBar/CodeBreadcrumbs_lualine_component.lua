@@ -53,7 +53,7 @@ local function int_to_hex_color(int_color)
 end
 
 -- returns the fg color from treesitter highlighting as an integer, or nil if not found
-local function get_treesitter_highlighting_fg_color(capture_data)
+local function get_treesitter_highlighting_group_info(capture_data)
 	local treesitter_highlight_group = '@' .. capture_data.capture
 	local treesitter_specific_highlight_group = treesitter_highlight_group .. '.' .. capture_data.lang
 	local treesitter_group_info = vim.empty_dict()
@@ -66,12 +66,9 @@ local function get_treesitter_highlighting_fg_color(capture_data)
 		if vim.fn.empty(treesitter_group_info) == 0 then break end
 	end
 
-	local treesitter_int_fg_color = nil
 	if vim.fn.empty(treesitter_group_info) == 0 then
-		treesitter_int_fg_color = treesitter_group_info.fg
+		return treesitter_group_info
 	end
-
-	return treesitter_int_fg_color
 end
 
 
@@ -82,14 +79,22 @@ local function find_highlighting_group(node)
 
 	local capture_data = captures[#captures] -- apparently the last one in the list is the most specific one
 
-	local treesitter_int_fg_color = get_treesitter_highlighting_fg_color(capture_data)
+	local treesitter_highlight_group_info = get_treesitter_highlighting_group_info(capture_data)
+	if treesitter_highlight_group_info == nil then return '' end
+
+	local treesitter_int_fg_color = treesitter_highlight_group_info.fg
 
 	local fg_hex_color = int_to_hex_color(treesitter_int_fg_color)
 	local bg_hex_color = lualine_highlight.get_lualine_hl('lualine_c_inactive')
 			.bg -- ensure that the bg color is consistent with lualine. TODO: get the lualine hl_group from some config or dynamically
 	local lualine_highlight_group = '@' .. capture_data.capture .. '.' .. capture_data.lang .. '.lualine'
 
-	lualine_highlight.highlight(lualine_highlight_group, fg_hex_color, bg_hex_color or 'None', nil, '')
+	local gui_options = nil
+	if treesitter_highlight_group_info.bold then
+		gui_options = 'bold'
+	end
+
+	lualine_highlight.highlight(lualine_highlight_group, fg_hex_color, bg_hex_color or 'None', gui_options, '')
 
 	return '%#' .. lualine_highlight_group .. '#'
 end
