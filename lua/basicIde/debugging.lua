@@ -5,6 +5,7 @@ local function apply_custom_dap_configurations(dap_configurations)
 		if dap.configurations[language] == nil then dap.configurations[language] = {} end
 
 		for _, project_configuration in pairs(project_configurations) do
+			-- remove a previous configuration with the same name if present
 			for i, dap_config in pairs(dap.configurations[language]) do
 				if dap_config.name == project_configuration.name then
 					table.remove(dap.configurations[language], i)
@@ -12,6 +13,12 @@ local function apply_custom_dap_configurations(dap_configurations)
 			end
 
 			table.insert(dap.configurations[language], project_configuration)
+
+			-- setup keymap if the extra keymap field is specified in the dap configuration at project setting level
+			if project_configuration.keymap then
+				vim.keymap.set('n', project_configuration.keymap, function() dap.run(project_configuration) end,
+					{ desc = '[' .. project_configuration.type .. ']' .. ' debug: ' .. project_configuration.name })
+			end
 		end
 	end
 end
