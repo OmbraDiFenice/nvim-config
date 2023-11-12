@@ -1,19 +1,20 @@
 local dap = require('dap')
 local dapui = require('dapui')
+local coverage = require('coverage')
 
-local function update_lualine_test_started(session)
+local function update_lualine_run_started(session)
 	vim.api.nvim_exec_autocmds('User', {
 		pattern = 'UpdateTestStatusBar',
-		data = { message = '' },
+		data = { message = 'Running ' .. session.config.name },
 	})
 end
 
-local function update_lualine_test_end(session, data)
+local function update_lualine_run_end(session, data)
 	local testOutcome = {
-		message = '%#lualine_test_passed#tests passed'
+		message = '%#lualine_test_passed#' .. session.config.name .. ': success'
 	}
 	if data.exitCode ~= 0 then
-		testOutcome.message = '%#lualine_test_failed#tests failed'
+		testOutcome.message = '%#lualine_test_failed#' .. session.config.name .. ': failed'
 		dapui.float_element('console', { width = 130, height = 60 })
 	end
 
@@ -21,6 +22,15 @@ local function update_lualine_test_end(session, data)
 		pattern = 'UpdateTestStatusBar',
 		data = testOutcome,
 	})
+end
+
+local function update_coverage_signs(session, data)
+	if data.exit_code == 0 then
+		local signs = require('coverage.signs')
+		coverage.load(signs.is_enabled())
+	else
+		coverage.clear()
+	end
 end
 
 return function()
@@ -33,14 +43,14 @@ return function()
 	dap.listeners.before.event_exited['dapui_config'] = function(session, data)
 		dapui.close()
 
-		if session.config.unittest then -- unittest is a custom key extra key, not part of the standard api
-			update_lualine_test_end(session, data)
+		update_lualine_run_end(session, data)
+
+		if session.is_coverage then -- is_coverage is a custom extra key, not part of the standard api
+			update_coverage_signs(session, data)
 		end
 	end
 
 	dap.listeners.after.event_process['dapui_config'] = function(session)
-		if session.config.unittest then -- unittest is a custom key extra key, not part of the standard api
-			update_lualine_test_started(session)
-		end
+		update_lualine_run_started(session)
 	end
 end

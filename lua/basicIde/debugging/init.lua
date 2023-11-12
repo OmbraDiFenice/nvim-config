@@ -30,6 +30,8 @@ return {
 
 		setup_project_settings(project_settings)
 
+		-- this must be done after the generic configurations are done
+		-- particularly after applying project settings
 		for _, language_module in ipairs(language_modules) do
 			language_module.configure(project_settings)
 		end

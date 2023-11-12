@@ -23,7 +23,7 @@ local function apply_custom_dap_configurations(dap_configurations)
 	end
 end
 
-return function (project_settings)
+return function(project_settings)
 	local debugging_project_settings = project_settings.debugging
 
 	local dap_configurations = debugging_project_settings.dap_configurations
@@ -40,4 +40,3 @@ return function (project_settings)
 		callback = apply_custom_dap_configurations,
 	})
 end
-
