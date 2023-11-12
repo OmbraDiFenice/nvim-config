@@ -23,6 +23,11 @@ local servers_configuration = {
 		}
 	}
 }
+local server_commands = {
+	clangd = {
+		'clangd', '--enable-config', '--log=verbose', '--pretty',
+	}
+}
 
 local lsp_keybindings = function(_, bufnr)
 	local nmap = function(keys, func, desc)
@@ -103,6 +108,7 @@ return {
 					capabilities = capabilities,
 					on_attach = lsp_keybindings,
 					settings = servers_configuration[server_name],
+					cmd = server_commands[server_name],
 				}
 			end,
 		}
