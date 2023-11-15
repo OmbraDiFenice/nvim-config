@@ -19,6 +19,7 @@ table.insert(components, 'basicIde/editor')
 table.insert(components, 'basicIde/debugging')
 table.insert(components, 'basicIde/coverage')
 table.insert(components, 'basicIde/codeFormatting')
+table.insert(components, 'basicIde/remote_sync')
 
 return {
 	use_deps = function(use)

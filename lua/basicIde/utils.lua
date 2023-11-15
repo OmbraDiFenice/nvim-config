@@ -1,4 +1,14 @@
 return {
+	ensure_trailing_slash = function(path)
+		if string.sub(path, #path, #path) == '/' then return path end
+		return path .. '/'
+	end,
+
+	ensure_no_leading_slash = function(path)
+		if string.sub(path, 1, 1) == '/' then return string.sub(path, 2) end
+		return path
+	end,
+
 	openFloatWindow = function(custom_options)
 		local win_width  = vim.api.nvim_win_get_width(0)
 		local win_height = vim.api.nvim_win_get_height(0)
@@ -52,6 +62,6 @@ return {
 		if options == nil then options = {} end
 		local options = Deepmerge(options, default_options)
 
-		vim.fn.jobstart(command, options)
+		return vim.fn.jobstart(command, options)
 	end,
 }

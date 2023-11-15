@@ -1,3 +1,5 @@
+local utils = require('basicIde.utils')
+
 P = function(table)
 	vim.api.nvim_echo({ { vim.inspect(table) } }, true, {})
 	return table
@@ -14,7 +16,7 @@ File_exists = function(name)
 end
 
 Get_data_directory = function()
-	return vim.fn.stdpath("data") .. "/sessions/" .. vim.fn.getcwd() .. "/"
+	return utils.ensure_trailing_slash(vim.fn.stdpath("data")) .. "sessions/" .. utils.ensure_trailing_slash(utils.ensure_no_leading_slash(vim.fn.getcwd()))
 end
 
 -- taken from http://lua-users.org/wiki/CopyTable

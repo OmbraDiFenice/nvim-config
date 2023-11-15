@@ -17,6 +17,15 @@ local default_settings = {
 	},
 	terminal = {
 		init_environment_cmd = '[[ -d ${VIRTUAL_ENV+x} ]] || source "$VIRTUAL_ENV/bin/activate" ; clear'
+	},
+	remote_sync = {
+		enabled = false,
+		remote_user = nil, -- required
+		remote_host = nil, -- required
+		mappings = { -- required
+			-- { local_prefix_dir, remote_prefix_dir },
+			-- ...
+		},
 	}
 }
 
