@@ -11,20 +11,40 @@ return {
 			run = 'make',
 			cond = vim.fn.executable 'make' == 1
 		}
+
+		use {
+			'nvim-telescope/telescope-smart-history.nvim',
+			requires = { "kkharji/sqlite.lua" }, -- also requires to have sqlite3 binary installed on the system
+		}
 	end,
 
 	configure = function()
 		-- See `:help telescope` and `:help telescope.setup()`
-		require('telescope').setup {
+		local telescope = require('telescope')
+		local telescope_actions = require('telescope.actions')
+
+		telescope.setup {
 			defaults = {
+				wrap_results = true,
+				path_display = { "tail" },
+				cache_picker = {
+					num_pickers = 5,
+				},
+				history = {
+					path = Get_data_directory() .. 'telescope_history.sqlite3',
+					limit = 100,
+				},
 				mappings = {
 					i = {
 						['<C-u>'] = false,
 						['<C-d>'] = false,
+						['<C-j>'] = telescope_actions.cycle_history_next,
+						['<C-k>'] = telescope_actions.cycle_history_prev,
 					},
 				},
 			},
 		}
+		telescope.load_extension('smart_history')
 
 		-- Enable telescope fzf native, if installed
 		pcall(require('telescope').load_extension, 'fzf')
