@@ -48,7 +48,11 @@ function RsyncManager:start_master_ssh()
 		'-o', 'ControlPath=' .. self.ssh_control_master_socket,
 		'-N',
 		self.settings.remote_user .. '@' .. self.settings.remote_host,
-	}, P, { clear_env = false })
+	}, function(output, exit_code)
+		if exit_code ~= 0 then
+			Printlines(output)
+		end
+	end, { clear_env = false })
 end
 
 function RsyncManager:synchronize_file(file_path)
@@ -70,7 +74,11 @@ function RsyncManager:synchronize_file(file_path)
 		source_relative_path,
 		self.settings.remote_user .. '@' .. self.settings.remote_host .. ':' .. destination_root_path
 	}
-	utils.runAndReturnOutput(command, P, { clear_env = false })
+	utils.runAndReturnOutput(command, function(output, exit_code)
+		if exit_code ~= 0 then
+			Printlines(output)
+		end
+	end, { clear_env = false })
 end
 
 return RsyncManager
