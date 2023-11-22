@@ -68,9 +68,10 @@ function RsyncManager:synchronize_file(file_path)
 		'rsync',
 		'-e', 'ssh -l ' .. self.settings.remote_user .. ' -S ' .. self.ssh_control_master_socket,
 		'--executability', -- preserve executability
-		'--times', -- preserve timestamps
+		'--times',       -- preserve timestamps
 		'--compress',
 		'--relative',
+		'--recursive',
 		source_relative_path,
 		self.settings.remote_user .. '@' .. self.settings.remote_host .. ':' .. destination_root_path
 	}
@@ -79,6 +80,14 @@ function RsyncManager:synchronize_file(file_path)
 			Printlines(output)
 		end
 	end, { clear_env = false })
+end
+
+function RsyncManager:synchronize_directory(dir_path)
+	if vim.fn.isdirectory(dir_path) == 1 then
+		dir_path = utils.ensure_trailing_slash(dir_path)
+	end
+
+	self:synchronize_file(dir_path)
 end
 
 return RsyncManager

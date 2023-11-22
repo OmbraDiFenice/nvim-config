@@ -59,6 +59,31 @@ local git_add = function()
 	api.tree.reload()
 end
 
+local synchronize_file_or_dir_remotely = function()
+	local lib = require("nvim-tree.lib")
+	local core = require("nvim-tree.core")
+
+	local node = lib.get_node_at_cursor()
+	if node == nil then return end
+
+	local cmd = "SyncFile"
+	local path = node.absolute_path
+	if node.type == "directory" or node.name == '..' then
+		cmd = "SyncDir"
+	end
+	if node.name == '..' then
+		path = core.get_cwd()
+	end
+
+	vim.api.nvim_exec_autocmds('User', {
+		group = 'BasicIde.RemoteSync',
+		pattern = cmd,
+		data = {
+			path = path,
+		},
+	})
+end
+
 local nvim_tree_key_mappings = function(bufnr)
 	local api = require('nvim-tree.api')
 
@@ -74,6 +99,8 @@ local nvim_tree_key_mappings = function(bufnr)
 	vim.keymap.set('n', 'H', api.tree.collapse_all, opts('Collapse'))
 	vim.keymap.set('n', 'ga', git_add, opts('git_add'))
 	vim.keymap.set('n', '<C-h>', api.tree.close, opts('git_add'))
+
+	vim.keymap.set('n', '<leader>s', synchronize_file_or_dir_remotely, opts('Synchronize file or dir on remote'))
 end
 
 return {
