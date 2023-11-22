@@ -20,6 +20,7 @@ local default_settings = {
 	},
 	remote_sync = {
 		enabled = false,
+		sync_on_save = true,
 		remote_user = nil, -- required
 		remote_host = nil, -- required
 		mappings = { -- required

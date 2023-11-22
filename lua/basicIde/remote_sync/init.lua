@@ -10,12 +10,14 @@ return {
 		local manager = rsync_manager:new(project_settings.remote_sync)
 		manager:start_master_ssh()
 
-		vim.api.nvim_create_autocmd({ 'BufWritePost' }, {
-			desc = 'Synchronize the saved buffer on the remote machine',
-			callback = function(args)
-				manager:synchronize_file(args.file)
-			end,
-		})
+		if project_settings.remote_sync.sync_on_save then
+			vim.api.nvim_create_autocmd({ 'BufWritePost' }, {
+				desc = 'Synchronize the saved buffer on the remote machine',
+				callback = function(args)
+					manager:synchronize_file(args.file)
+				end,
+			})
+		end
 
 		local augroup = vim.api.nvim_create_augroup('BasicIde.RemoteSync', {})
 
