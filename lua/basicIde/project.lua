@@ -1,6 +1,7 @@
 local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 
 local default_settings = {
+	virtual_environment = nil,
 	format_on_save = { -- WARNING: if enabled together with autosave it will pollute the undo history and you won't be able to undo changes anymore
 		enabled = false, -- 1. you make a change -> autosave triggers -> changes go to undo history
                      -- 2. buffer is autoformatted -> buffer is changed -> autosave triggers again -> autoformatting changes go to undo history
