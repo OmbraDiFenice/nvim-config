@@ -1,3 +1,7 @@
+---Adds the dap configurations from projects settings to the system dap configurations.
+---Ensures that there are no duplicates even if called multiple times.
+---@param dap_configurations DapConfigurationExtended
+---@return nil
 local function apply_custom_dap_configurations(dap_configurations)
 	local dap = require('dap')
 
@@ -23,6 +27,7 @@ local function apply_custom_dap_configurations(dap_configurations)
 	end
 end
 
+---@param project_settings ProjectSettings
 return function(project_settings)
 	local debugging_project_settings = project_settings.debugging
 
