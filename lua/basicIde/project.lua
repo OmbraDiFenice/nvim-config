@@ -1,10 +1,11 @@
 local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 
----@alias KeymapsSettings table<string, string>
+---@class FormatOnSaveKeymapsSettings
+---@field format_current_buffer string
 
 ---@class FormatOnSaveSettings
 ---@field enabled boolean
----@field keymaps KeymapsSettings
+---@field keymaps FormatOnSaveKeymapsSettings
 
 ---@class DapConfigurationExtended: Configuration
 ---@field unittest? boolean

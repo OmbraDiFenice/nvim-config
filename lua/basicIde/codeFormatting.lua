@@ -1,3 +1,4 @@
+---@param keymap_settings FormatOnSaveKeymapsSettings
 local function setup_keymaps(keymap_settings)
 	vim.keymap.set({'n', 'v'}, keymap_settings.format_current_buffer, vim.lsp.buf.format, { desc = 'format current buffer' })
 end
