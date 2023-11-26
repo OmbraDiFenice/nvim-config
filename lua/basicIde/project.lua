@@ -1,5 +1,44 @@
 local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 
+---@alias KeymapsSettings table<string, string>
+
+---@class FormatOnSaveSettings
+---@field enabled boolean
+---@field keymaps KeymapsSettings
+
+---@class DapConfigurationExtended: Configuration
+---@field unittest? boolean
+---@field keymap string
+---@field keymap_coverage string
+---@field is_coverage? boolean
+
+---@class DapConfigurationExtendedPython: DapConfigurationExtended
+---@field args string[]
+---@field module string
+
+---@class DapSessionExtended: Session
+---@field is_coverage? boolean
+
+---@class DebuggingSettings
+---@field dap_configurations? DapConfigurationExtended
+
+---@class TerminalSettings
+---@field init_environment_cmd string
+
+---@class RemoteSyncSettings
+---@field enabled boolean
+---@field sync_on_save boolean
+---@field remote_user? string
+---@field remote_host? string
+---@field mappings string[][]
+
+---@class ProjectSettings
+---@field PROJECT_SETTINGS_FILE string
+---@field virtual_environment? string
+---@field format_on_save FormatOnSaveSettings
+---@field debugging DebuggingSettings
+---@field terminal TerminalSettings
+---@field remote_sync RemoteSyncSettings
 local default_settings = {
 	virtual_environment = nil,
 	format_on_save = { -- WARNING: if enabled together with autosave it will pollute the undo history and you won't be able to undo changes anymore
@@ -37,6 +76,7 @@ return {
 
 		if File_exists(PROJECT_SETTINGS_FILE) then
 			local custom_settings = dofile(PROJECT_SETTINGS_FILE)
+			---@cast custom_settings ProjectSettings
 			settings = Deepmerge(settings, custom_settings)
 		end
 
