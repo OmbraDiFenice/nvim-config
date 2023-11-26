@@ -3,6 +3,7 @@ local function setup_keymaps(keymap_settings)
 	vim.keymap.set({'n', 'v'}, keymap_settings.format_current_buffer, vim.lsp.buf.format, { desc = 'format current buffer' })
 end
 
+---@type IdeModule
 return {
 	use_deps = function(use, project_settings)
 		if not project_settings.format_on_save.enabled then return end

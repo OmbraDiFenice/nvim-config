@@ -103,6 +103,7 @@ local nvim_tree_key_mappings = function(bufnr)
 	vim.keymap.set('n', '<leader>s', synchronize_file_or_dir_remotely, opts('Synchronize file or dir on remote'))
 end
 
+---@type IdeModule
 return {
 	use_deps = function(use)
 		use {

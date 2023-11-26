@@ -56,6 +56,7 @@ local function setup_diffview_keymaps()
 		{ desc = 'Open git file/lines history' })
 end
 
+---@type IdeModule
 return {
 	use_deps = function(use)
 		use {

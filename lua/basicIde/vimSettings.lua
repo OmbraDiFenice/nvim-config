@@ -1,3 +1,4 @@
+---@type IdeModule
 return {
 	use_deps = function()
 	end,

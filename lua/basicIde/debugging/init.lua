@@ -7,6 +7,7 @@ local language_modules = {
 	require('basicIde.debugging.languages.javascript'),
 }
 
+---@type IdeModule
 return {
 	use_deps = function(use)
 		use {

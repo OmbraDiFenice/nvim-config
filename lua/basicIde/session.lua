@@ -21,6 +21,7 @@ local open_nvim_tree = function()
 	end
 end
 
+---@type IdeModule
 return {
 	use_deps = function(use)
 		use 'rmagatti/auto-session'

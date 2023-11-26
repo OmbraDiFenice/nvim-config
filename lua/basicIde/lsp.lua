@@ -70,6 +70,7 @@ end
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 
+---@type IdeModule
 return {
 	use_deps = function(use)
 		use "folke/neodev.nvim" -- adds neovim api completion

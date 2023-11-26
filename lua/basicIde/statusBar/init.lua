@@ -1,6 +1,7 @@
 local CodeBreadcrumbs_lualine_component = require('basicIde.statusBar.CodeBreadcrumbs_lualine_component')
 local TestRun_lualine_component = require('basicIde.statusBar.TestRun_lualine_component')
 
+---@type IdeModule
 return {
 	use_deps = function(use)
 		use {

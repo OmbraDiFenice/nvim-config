@@ -80,6 +80,7 @@ local function setup_highlight_identifier_on_cursor_hover()
 	})
 end
 
+---@type IdeModule
 return {
 	use_deps = function(use)
 		use {

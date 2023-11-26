@@ -1,5 +1,6 @@
 local rsync_manager = require('basicIde.remote_sync.rsync_manager')
 
+---@type IdeModule
 return {
 	use_deps = function(use)
 	end,

@@ -29,6 +29,7 @@ local setup_keymaps = function()
 	end, { desc = 'Show coverage summary' })
 end
 
+---@type IdeModule
 return {
 	use_deps = function(use)
 		use({

@@ -1,8 +1,13 @@
 require('basicIde/globals')
 
+---@class IdeModule
+---@field use_deps fun(use: fun(plugin_spec: any), project_settings: ProjectSettings): nil
+---@field configure fun(project_settings: ProjectSettings): nil
+
 local project = require('basicIde/project')
 local project_settings = project.load_settings()
 
+---@type string[]
 local components = {}
 table.insert(components, 'basicIde/theme')
 table.insert(components, 'basicIde/statusBar')
@@ -21,18 +26,23 @@ table.insert(components, 'basicIde/coverage')
 table.insert(components, 'basicIde/codeFormatting')
 table.insert(components, 'basicIde/remote_sync')
 
+---@type { use_deps: fun(use: fun(plugin_sepc: any)), configure: fun() }
 return {
 	use_deps = function(use)
 		for _, component in ipairs(components)
 		do
-			require(component).use_deps(use, project_settings)
+			---@type IdeModule
+			local module = require(component)
+			module.use_deps(use, project_settings)
 		end
 	end,
 
 	configure = function()
 		for _, component in ipairs(components)
 		do
-			require(component).configure(project_settings)
+			---@type IdeModule
+			local module = require(component)
+			module.configure(project_settings)
 		end
 	end,
 }
