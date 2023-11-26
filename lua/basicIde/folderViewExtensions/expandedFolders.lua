@@ -4,11 +4,26 @@ local utils = require('nvim-tree.utils')
 local lib = require('nvim-tree.lib')
 local Event = api.events.Event
 
+---@alias TreeStateExpandedFolders string[]
+
+---@class TreeNode
+---@field type string
+---@field open boolean
+---@field absolute_path string
+---@field nodes TreeNode[]
+
+---@class ExpandedFoldersModule
 local M = {}
 
+---Get the current expanded folders internal state
+---@return TreeStateExpandedFolders
 M.get = function()
+	---@type TreeStateExpandedFolders
 	local expanded_folders = {}
 
+	---Recursively find all the open folders in the tree view.
+	---Puts the result in `expanded_folders`, coming from the closure.
+	---@param root_nodes TreeNode[] # list of root nodes to start the search from
 	local function findOpenFolders(root_nodes)
 		for _, node_data in pairs(root_nodes) do
 			if node_data.type == "directory" and node_data.open then
@@ -19,11 +34,15 @@ M.get = function()
 	end
 
 	local nodes = core.get_explorer().nodes
+	---@cast nodes TreeNode[]
 	findOpenFolders(nodes)
 
 	return expanded_folders
 end
 
+---Initialize the module
+---@param expanded_folders TreeStateExpandedFolders
+---@return nil
 M.setup = function(expanded_folders)
 	-- Apparently Event.Ready is only triggered when the plugin starts the first time
 	-- and then the internal "expanded" status is kept.
@@ -35,13 +54,20 @@ M.setup = function(expanded_folders)
 	end)
 end
 
+---Applies the current state to the tree view, expanding all the folders that should be expanded
+---@param expanded_folders TreeStateExpandedFolders
+---@return nil
 M.apply = function(expanded_folders)
+	---Returns the top level nodes not yet expanded
+	---@return TreeNode[]
 	local function get_expanded_nodes()
 		return utils.get_nodes_by_line(core.get_explorer().nodes, core.get_nodes_starting_line())
 	end
 
 	local expanded_nodes = get_expanded_nodes()
 
+	---@param path string
+	---@return TreeNode? # the tree node corresponding to the `path` if that path matches with the next top level nodes not yet expanded, nil otherwise
 	local function should_expand(path)
 		for _, node in pairs(expanded_nodes) do
 			if path == node.absolute_path then
@@ -60,6 +86,8 @@ M.apply = function(expanded_folders)
 	end
 end
 
+---@param expanded_folders TreeStateExpandedFolders
+---@return string
 M.serialize = function(expanded_folders)
 	local serialized = ''
 
@@ -74,6 +102,8 @@ M.serialize = function(expanded_folders)
 	return serialized
 end
 
+---@param raw_value string
+---@return TreeStateExpandedFolders
 M.deserialize = function(raw_value)
 	local deserialized = {}
 

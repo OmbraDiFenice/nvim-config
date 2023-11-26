@@ -2,11 +2,18 @@ local view = require('nvim-tree.view')
 local api = require('nvim-tree.api')
 local Event = api.events.Event
 
+---@alias TreeStateCursorPosition integer[]
+
+---@class CursorPositionModule
+---@field private _last_position TreeStateCursorPosition
+---@field private _should_apply boolean
 local M = {
 	_last_position = { 1, 0 },
 	_should_apply = true,
 }
 
+---Get the current cursor position internal state
+---@return TreeStateCursorPosition
 M.get = function()
 	local default = { 1, 0 }
 
@@ -18,6 +25,9 @@ M.get = function()
 	return vim.api.nvim_win_get_cursor(window_id)
 end
 
+---Initialize module
+---@param cursor_position TreeStateCursorPosition
+---@return nil
 M.setup = function(cursor_position)
 	M._last_position = cursor_position
 
@@ -47,14 +57,20 @@ M.setup = function(cursor_position)
 	end)
 end
 
+---Set cursor position to the TreeView buffer
+---@param cursor_position TreeStateCursorPosition
 M.apply = function(cursor_position)
 	view.set_cursor(cursor_position)
 end
 
+---@param cursor_position TreeStateCursorPosition
+---@return string
 M.serialize = function(cursor_position)
 	return tostring(cursor_position[1]) .. ',' .. tostring(cursor_position[2])
 end
 
+---@param raw_value string
+---@return TreeStateCursorPosition
 M.deserialize = function(raw_value)
 	local row, column = string.gmatch(raw_value, '(%d+),(%d+)')()
 	local cursor_position = { tonumber(row), tonumber(column) }

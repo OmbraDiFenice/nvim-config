@@ -1,3 +1,10 @@
+---@class TreeState
+---@field cursor_position TreeStateCursorPosition
+---@field expanded_folders string[]
+
+---@class TreeStateManager
+---@field state_filename string
+---@field state TreeState
 M = {
 	state_filename = Get_data_directory() .. 'nvim-tree.state',
 	state = {
@@ -11,6 +18,8 @@ local state_setting_modules = {
 	expanded_folders = require('basicIde/folderViewExtensions/expandedFolders'),
 }
 
+---@param file_name string
+---@return TreeState
 local load_state_from_file = function(file_name)
 	local state = Deepcopy(M.state)
 
@@ -36,10 +45,16 @@ local load_state_from_file = function(file_name)
 	return state
 end
 
+---Load |TreeState| from file.
+---Read the state file and delegates the deserialization of the data related to each field of |TreeState| to the corresponding module.
+---@return nil
 M.load = function()
 	M.state = load_state_from_file(M.state_filename)
 end
 
+---Serializes |TreeState| in the state file.
+---Delegates the serialization to the modules handling each field of |TreeState|
+---@return nil
 M.store = function()
 	local state_file = io.open(M.state_filename, 'w')
 	if state_file == nil then
@@ -59,6 +74,9 @@ M.store = function()
 	state_file:close()
 end
 
+---Recompute the values of |TreeState|.
+---Delegates the computation to each module
+---@return nil
 M.update = function()
 	for key, module in pairs(state_setting_modules) do
 		local value = module.get()
@@ -66,6 +84,9 @@ M.update = function()
 	end
 end
 
+---Inigialize the component.
+---Load the state from file, initializing each modules, and make sure to store the updated state to file before quitting
+---@return nil
 M.setup = function()
 	M.load()
 
