@@ -1,5 +1,8 @@
 local utils = require('basicIde.utils')
 
+---Make sure that the settings are well formatted
+---@param project_settings RemoteSyncSettings
+---@return nil # it cleans the settings in place
 local function clean_settings(project_settings)
 	for i, mapping in ipairs(project_settings.mappings) do
 		project_settings.mappings[i][1] = utils.ensure_trailing_slash(mapping[1])
@@ -7,6 +10,10 @@ local function clean_settings(project_settings)
 	end
 end
 
+---Convert a local absolute path to the pair [local relative path, remote absolute path]
+---@param mappings string[][] # the path mappings from |RemoteSyncSettings|
+---@param file_path string # local absolute path to be mapped
+---@return string|nil, string|nil # local relative path, remtoe absolute path. Both nil if it wasn't possible to map the input
 local function map_file_path(mappings, file_path)
 	local selected_prefix = ''
 	local source_relative_path = nil
@@ -26,8 +33,13 @@ local function map_file_path(mappings, file_path)
 	return source_relative_path, destination_root_path
 end
 
+---@class RsyncManager
+---@field private settings RemoteSyncSettings
 local RsyncManager = {}
 
+---Constructor
+---@param remote_sync_settings RemoteSyncSettings
+---@return RsyncManager
 function RsyncManager:new(remote_sync_settings)
 	clean_settings(remote_sync_settings)
 	local o = {
@@ -40,6 +52,9 @@ function RsyncManager:new(remote_sync_settings)
 	return o
 end
 
+---Starts the master ssh connection to reduce latency on subsequent synchronizations.
+---The master socket is created in the project session folder.
+---@return nil
 function RsyncManager:start_master_ssh()
 	self.ssh_control_master_socket = Get_data_directory() .. 'ssh_control_master'
 	self.master_job_id = utils.runAndReturnOutput({
@@ -55,6 +70,9 @@ function RsyncManager:start_master_ssh()
 	end, { clear_env = false })
 end
 
+---Send a single file to the remote server
+---@param file_path string
+---@return nil
 function RsyncManager:synchronize_file(file_path)
 	if self.settings.mappings == nil then return end
 
@@ -82,6 +100,9 @@ function RsyncManager:synchronize_file(file_path)
 	end, { clear_env = false })
 end
 
+---Send an entire directory (recursively) to the remote server
+---@param dir_path string
+---@return nil
 function RsyncManager:synchronize_directory(dir_path)
 	if vim.fn.isdirectory(dir_path) == 1 then
 		dir_path = utils.ensure_trailing_slash(dir_path)
