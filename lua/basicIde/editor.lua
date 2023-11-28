@@ -1,5 +1,11 @@
+---Close the current buffer completely (not just unload) and switch to the buffer immediately on the left.
+---If there's no buffer available on the left switch to the one on the right.
+---If there's no buffer to the right either falls back to an empty buffer.
+---Closing a buffer completely is necessary to remove it from the list of the buffers in the tab line
+---@return nil
 local close_current_buffer = function()
 	local bufs = vim.fn.getbufinfo()
+	if bufs == nil then bufs = {} end
 	local current_buffer = vim.api.nvim_win_get_buf(0)
 	local current_buffer_idx = nil
 
@@ -44,6 +50,9 @@ local close_current_buffer = function()
 	end
 end
 
+---Close all buffers and quits nvim.
+---Handles special types of buffers needing close in a particular way via special variables set on them, normally when they're created
+---@return nil
 local function close_all()
 	for _, tab_info in ipairs(vim.fn.gettabinfo()) do
 		for variable, value in pairs(tab_info.variables or {}) do
@@ -110,7 +119,7 @@ return {
 			group = vimrc_help_group,
 			pattern = '*.txt',
 			callback = function(args)
-				if vim.api.nvim_buf_get_option(args.buf, 'buftype') == 'help' then
+				if vim.api.nvim_get_option_value('buftype', { buf = args.buf } ) == 'help' then
 					vim.cmd 'wincmd L'
 				end
 			end
