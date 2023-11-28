@@ -3,15 +3,21 @@ local setup_keymaps = function()
 	local report = require('coverage.report')
 	local config = require('coverage.config')
 
+	---Calls `cb` making sure that the coverage data are loaded first.
+	---This is necessary because the plugin doesn't load them until they're required
+	---but then if we call functions to access the coverage data they'll get empty result
+	---because the data is loaded asynchronously.
+	---@param cb fun(): nil
 	local ensureLoaded = function(cb)
 		if not report.is_cached() then
 			local cb_orig = config.opts.load_coverage_cb
+			if cb_orig == nil then
+				cb_orig = function() end
+			end
 
 			config.opts.load_coverage_cb = function(cb_arg)
 				cb()
-				if cb_orig ~= nil then
-					cb_orig(cb_arg)
-				end
+				cb_orig(cb_arg)
 				config.opts.load_coverage_cb = cb_orig
 			end
 
