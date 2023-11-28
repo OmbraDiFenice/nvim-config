@@ -1,7 +1,11 @@
+---@class TestRun
+---@field msg string
 local TestRun_lualine_component = {
 	msg = '',
 }
 
+---Constructor
+---@return TestRun
 function TestRun_lualine_component:new()
 	local o = {}
 	setmetatable(o, self)
@@ -12,6 +16,7 @@ function TestRun_lualine_component:new()
 
 	vim.api.nvim_create_autocmd('User', {
 		pattern = 'UpdateTestStatusBar',
+		---@param data { data: { message: string } }
 		callback = function(data)
 			self.msg = data.data.message
 			require('lualine').refresh()
