@@ -84,6 +84,8 @@ local synchronize_file_or_dir_remotely = function()
 	})
 end
 
+---Sets the nvim-tree keybindings on the nvim-tree buffer
+---@param bufnr integer nvim-tree bufnr
 local nvim_tree_key_mappings = function(bufnr)
 	local api = require('nvim-tree.api')
 
