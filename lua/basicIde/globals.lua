@@ -21,8 +21,9 @@ end
 ---@return boolean
 File_exists = function(name)
 	local f = io.open(name, "r")
+	if f == nil then return false end
 	local closed = io.close(f)
-	return f ~= nil and closed ~= nil and closed
+	return closed ~= nil and closed
 end
 
 ---Returns the directory to be used to store data related to the current nvim session.
