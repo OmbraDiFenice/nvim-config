@@ -29,7 +29,7 @@ return {
 		telescope.setup {
 			defaults = {
 				wrap_results = true,
-				path_display = { "tail" },
+				path_display = { "smart" },
 				cache_picker = {
 					num_pickers = 5,
 				},
