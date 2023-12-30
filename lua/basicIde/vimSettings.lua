@@ -12,6 +12,8 @@ return {
 		vim.cmd [[ set shiftwidth=2 ]]
 		vim.cmd [[ set noexpandtab ]]
 
+		vim.cmd [[ set splitright ]]
+
 		vim.g.mapleader = ' '
 		vim.g.maplocalleader = ' '
 

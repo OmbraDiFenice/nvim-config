@@ -115,3 +115,9 @@ function Map(t, fn)
 	return mapped
 end
 
+function Get_buf_var(buf, var_name, default_value)
+  local s, v = pcall(function()
+    return vim.api.nvim_buf_get_var(buf, var_name)
+  end)
+  if s then return v else return default_value end
+end
