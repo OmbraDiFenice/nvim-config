@@ -12,6 +12,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field keymap string
 ---@field keymap_coverage string
 ---@field is_coverage? boolean
+---@field open_console_on_start? boolean
 
 ---@class DapConfigurationExtendedPython: DapConfigurationExtended
 ---@field args string[]
@@ -21,7 +22,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field is_coverage? boolean
 
 ---@class DebuggingSettings
----@field dap_configurations? DapConfigurationExtended
+---@field dap_configurations? table<string, DapConfigurationExtended[]>
 
 ---@class TerminalSettings
 ---@field init_environment_cmd string

@@ -1,3 +1,20 @@
+local function get_close_strategy(buf)
+	local strategies = {
+		purge = function() vim.api.nvim_buf_delete(buf, { unload = false }) end,
+		force_purge = function() vim.api.nvim_buf_delete(buf, { unload = false, force = true }) end,
+		close_window = function() for _, win in ipairs(vim.fn.win_findbuf(buf)) do vim.api.nvim_win_close(win, true) end end,
+	}
+
+	local strategy = strategies['purge'] -- default strategy
+
+	local buf_close_strategy = Get_buf_var(buf, 'close_strategy')
+	if buf_close_strategy ~= nil and strategies[buf_close_strategy] ~= nil then
+		strategy = strategies[buf_close_strategy]
+	end
+
+	return strategy
+end
+
 ---Close the current buffer completely (not just unload) and switch to the buffer immediately on the left.
 ---If there's no buffer available on the left switch to the one on the right.
 ---If there's no buffer to the right either falls back to an empty buffer.
@@ -39,7 +56,8 @@ local close_current_buffer = function()
 		end
 	end
 
-	vim.api.nvim_buf_delete(current_buffer, { unload = false })
+	local close_fn = get_close_strategy(current_buffer)
+	close_fn()
 
 	if prev_buf then
 		vim.cmd('buffer ' .. prev_buf)
