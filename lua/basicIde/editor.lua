@@ -107,6 +107,22 @@ local function setup_highlight_identifier_on_cursor_hover()
 	})
 end
 
+local function setup_navigation_keybindings()
+	vim.api.nvim_set_keymap('n', '<leader>b', '', {
+		callback = function()
+			require('telescope.builtin').buffers({ sort_mru = true, sort_lastused = true })
+		end,
+		desc = 'show opened buffers',
+	})
+
+	vim.api.nvim_set_keymap('n', '<leader>u', '', {
+		callback = function()
+			require('telescope.builtin').oldfiles()
+		end,
+		desc = 'show/reopen recent buffers',
+	})
+end
+
 ---@type IdeModule
 return {
 	use_deps = function(use)
@@ -122,8 +138,8 @@ return {
 				local ide_autosave_var = vim.fn.getbufvar(buf, 'nvim_ide_autosave')
 
 				return vim.fn.getbufvar(buf, "&modifiable") == 1 and
-					utils.not_in(vim.fn.getbufvar(buf, "&filetype"), {}) and
-					(ide_autosave_var == nil or ide_autosave_var)
+						utils.not_in(vim.fn.getbufvar(buf, "&filetype"), {}) and
+						(ide_autosave_var == nil or ide_autosave_var)
 			end
 		})
 
@@ -137,13 +153,14 @@ return {
 			group = vimrc_help_group,
 			pattern = '*.txt',
 			callback = function(args)
-				if vim.api.nvim_get_option_value('buftype', { buf = args.buf } ) == 'help' then
+				if vim.api.nvim_get_option_value('buftype', { buf = args.buf }) == 'help' then
 					vim.cmd 'wincmd L'
 				end
 			end
 		})
 
 		setup_diagnostics_keybindings()
+		setup_navigation_keybindings()
 
 		setup_highlight_identifier_on_cursor_hover()
 	end
