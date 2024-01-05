@@ -44,5 +44,7 @@ return {
 			local module = require(component)
 			module.configure(project_settings)
 		end
+
+		project.init_custom_scripts(project_settings)
 	end,
 }
