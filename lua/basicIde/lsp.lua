@@ -107,15 +107,23 @@ return {
 		capabilities = require('cmp_nvim_lsp').default_capabilities(default_capabilities)
 
 		local mason_lspconfig = require 'mason-lspconfig'
+		local function default_mason_setup_handler(server_name)
+			require('lspconfig')[server_name].setup {
+				capabilities = capabilities,
+				on_attach = lsp_keybindings,
+				settings = servers_configuration[server_name],
+				cmd = server_commands[server_name],
+			}
+		end
 		mason_lspconfig.setup()
 		mason_lspconfig.setup_handlers {
-			function(server_name)
-				require('lspconfig')[server_name].setup {
-					capabilities = capabilities,
-					on_attach = lsp_keybindings,
-					settings = servers_configuration[server_name],
-					cmd = server_commands[server_name],
-				}
+			default_mason_setup_handler,
+			["pylsp"] = function()
+				default_mason_setup_handler("pylsp")
+				vim.fn.jobstart(
+				{ 'bash', '-c', 'source venv/bin/activate && pip install pylsp-mypy python-lsp-ruff python-lsp-black' }, {
+					cwd = vim.fn.stdpath('data') .. '/mason/packages/python-lsp-server',
+				})
 			end,
 		}
 
@@ -123,13 +131,6 @@ return {
 		mason_registry:on(
 			'package:install:success',
 			vim.schedule_wrap(function(pkg, handle)
-				if pkg.spec.name == 'python-lsp-server'
-				then
-					vim.fn.jobstart(
-					{ 'bash', '-c', 'source venv/bin/activate && pip install pylsp-mypy python-lsp-ruff python-lsp-black' }, {
-						cwd = vim.fn.stdpath('data') .. '/mason/packages/python-lsp-server',
-					})
-				end
 				if pkg.spec.name == 'mypy'
 				then
 					vim.fn.jobstart({ 'bash', '-c', 'source venv/bin/activate && pip install numpy' }, {
