@@ -21,6 +21,37 @@ local open_nvim_tree = function()
 	end
 end
 
+--- Function written following the tutorial at https://github.com/nvim-telescope/telescope.nvim/blob/master/developers.md
+local function edit_session_file()
+	local auto_session = require('auto-session')
+	local pickers = require('telescope.pickers')
+	local finders = require('telescope.finders')
+	local conf = require('telescope.config').values
+	local themes = require('telescope.themes')
+
+	local session_files = auto_session.get_session_files()
+	local function get_display_name(session_entry)
+		if session_entry.display_name ~= nil then return session_entry.display_name end
+		return session_entry.path
+	end
+
+	local opts = themes.get_dropdown({})
+	pickers.new(opts, {
+			finder = finders.new_table {
+				results = session_files,
+				entry_maker = function (entry)
+					return {
+						value = entry,
+						display = function(tbl) return get_display_name(tbl.value) end,
+						ordinal = entry.path,
+						path = auto_session.get_root_dir() .. entry.path,
+					}
+				end,
+			},
+			sorter = conf.generic_sorter(opts),
+		}):find()
+end
+
 ---@type IdeModule
 return {
 	use_deps = function(use)
@@ -40,5 +71,7 @@ return {
 		}
 
 		vim.o.sessionoptions = "blank,buffers,curdir,help,tabpages,winsize,winpos,terminal,localoptions"
+
+		vim.keymap.set('n', '<leader>es', edit_session_file, { desc = "edit session file" })
 	end,
 }
