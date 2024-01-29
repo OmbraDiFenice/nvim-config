@@ -82,6 +82,11 @@ return {
 				'williamboman/mason-lspconfig.nvim',
 			},
 		}
+
+		use { -- Jenkinsfile validation, requires JENKINS_USER_ID, JENKINS_URL, and also either JENKINS_API_TOKEN or JENKINS_PASSWORD set
+			'ckipp01/nvim-jenkinsfile-linter',
+			requires = { "nvim-lua/plenary.nvim" }
+		}
 	end,
 
 	configure = function()
@@ -133,5 +138,13 @@ return {
 				end
 			end)
 		)
+
+		-- Jenkinsfile
+
+		local jenkinsfile_linter = require("jenkinsfile_linter")
+		vim.api.nvim_create_autocmd({"BufWinEnter", "BufWritePost"}, {
+			pattern = "Jenkinsfile",
+			callback = jenkinsfile_linter.validate,
+		})
 	end,
 }
