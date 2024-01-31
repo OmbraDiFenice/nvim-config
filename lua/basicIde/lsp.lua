@@ -87,6 +87,13 @@ return {
 			'ckipp01/nvim-jenkinsfile-linter',
 			requires = { "nvim-lua/plenary.nvim" }
 		}
+
+		use {
+			'mfussenegger/nvim-lint',
+			requires = {
+				'williamboman/mason.nvim',
+			}
+		}
 	end,
 
 	configure = function()
@@ -146,6 +153,17 @@ return {
 		vim.api.nvim_create_autocmd({"BufWinEnter", "BufWritePost"}, {
 			pattern = "Jenkinsfile",
 			callback = jenkinsfile_linter.validate,
+		})
+
+		-- Complementary linters as suggested on Mason readme
+		-- If the LSP server being used is also triggering the same linter then you'll get duplicated linting reports. Make sure to enable only one, either here or on LSP
+
+		-- require('lint').linters_by_ft.python = {'mypy',} -- actually mypy works fine also through LSP plugin, just make sure to install it in the local virtual environment if you have one
+
+		vim.api.nvim_create_autocmd({ "BufWinEnter", "BufWritePost" }, {
+			callback = function()
+				require("lint").try_lint()
+			end,
 		})
 	end,
 }
