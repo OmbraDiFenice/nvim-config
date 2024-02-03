@@ -25,13 +25,7 @@ local function apply_custom_dap_configurations(dap_configurations)
 					function()
 						dap.run(project_configuration)
 						if project_configuration.open_console_on_start then
-							local current_win = vim.api.nvim_get_current_win()
-							vim.cmd [[ vsplit ]]
-							local console_win = vim.api.nvim_get_current_win()
-							local console_buf = dapui.elements.console.buffer()
-							vim.api.nvim_buf_set_var(console_buf, 'close_strategy', 'force_purge') -- TODO this only works well when closing with editor.close_all(), otherwise the session will store a console buffer which cannot be restored
-							vim.api.nvim_win_set_buf(console_win, console_buf)
-							vim.api.nvim_set_current_win(current_win)
+							dapui.float_element('console')
 						end
 					end,
 					{ desc = '[' .. project_configuration.type .. ']' .. ' debug: ' .. project_configuration.name })
