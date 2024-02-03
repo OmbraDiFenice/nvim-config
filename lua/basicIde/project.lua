@@ -41,7 +41,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field debugging DebuggingSettings
 ---@field terminal TerminalSettings
 ---@field remote_sync RemoteSyncSettings
----@field custom_scripts table<string, fun(): nil> -- the key is just a name used for reference and error reporting purposes
+---@field custom_scripts table<string, fun(utils: Utils): nil> -- the key is just a name used for reference and error reporting purposes
 local default_settings = {
 	virtual_environment = nil,
 	format_on_save = { -- WARNING: if enabled together with autosave it will pollute the undo history and you won't be able to undo changes anymore
@@ -95,8 +95,9 @@ return {
 	---Execute the callbacks in `custom_scripts` key
 	---@param settings ProjectSettings
 	init_custom_scripts = function(settings)
+		local utils = require('basicIde.utils')
 		for script_name, callback in pairs(settings.custom_scripts) do
-			callback()
+			callback(utils)
 		end
 	end
 }

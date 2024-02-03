@@ -1,3 +1,4 @@
+---@class Utils
 return {
 	---Ensures that the path string passed in has a trailing forward slash /
 	---@param path string
