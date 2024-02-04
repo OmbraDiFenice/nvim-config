@@ -1,4 +1,5 @@
 local utils = require('basicIde.utils')
+local next = next  -- faster access, see https://stackoverflow.com/a/1252776/4046810
 
 ---Print the given input as nvim message, including tables
 ---@param table any # what to print. It also accepts tables, in which case prints the content recursively
@@ -34,6 +35,12 @@ Get_data_directory = function()
 	---@cast data_path string
 	---@cast cwd_path string
 	return utils.ensure_no_trailing_slash(utils.ensure_trailing_slash(data_path) .. "sessions/" .. utils.ensure_no_leading_slash(cwd_path))
+end
+
+---@param table table
+---@return boolean # true if the table doesn't contain anything, false otherwise
+Is_table_empty = function(table)
+	return next(table) == nil
 end
 
 ---Recursively copy the given value. Applies to tables too.
