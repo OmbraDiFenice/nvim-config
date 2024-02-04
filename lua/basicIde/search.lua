@@ -1,3 +1,5 @@
+local utils = require('basicIde.utils')
+
 ---@type IdeModule
 return {
 	use_deps = function(use)
@@ -67,6 +69,7 @@ return {
 		vim.keymap.set('n', '<leader>sh', telescope_builtin.help_tags, { desc = '[S]earch [H]elp' })
 		vim.keymap.set('n', '<leader>sw', telescope_builtin.grep_string, { desc = '[S]earch current [W]ord' })
 		vim.keymap.set('n', '<leader>sg', telescope_builtin.live_grep, { desc = '[S]earch by [G]rep' })
+		vim.keymap.set('v', '<leader>sg', function () telescope_builtin.live_grep({ default_text = utils.get_visual_selection() }) end, { desc = '[S]earch by [G]rep' })
 		vim.keymap.set('n', '<leader>sd', telescope_builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
 		vim.keymap.set('n', '<leader>sk', telescope_builtin.keymaps, { desc = '[S]earch [K]keymaps' })
 
