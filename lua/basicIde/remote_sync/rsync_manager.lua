@@ -56,7 +56,7 @@ end
 ---The master socket is created in the project session folder.
 ---@return nil
 function RsyncManager:start_master_ssh()
-	self.ssh_control_master_socket = Get_data_directory() .. 'ssh_control_master'
+	self.ssh_control_master_socket = Get_data_directory() .. '/ssh_control_master'
 	self.master_job_id = utils.runAndReturnOutput({
 		'ssh',
 		'-o', 'ControlMaster=yes',

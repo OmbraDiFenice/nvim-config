@@ -32,7 +32,7 @@ return {
 					num_pickers = 5,
 				},
 				history = {
-					path = Get_data_directory() .. 'telescope_history.sqlite3',
+					path = Get_data_directory() .. '/telescope_history.sqlite3',
 					limit = 100,
 				},
 				mappings = {

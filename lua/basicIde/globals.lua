@@ -33,7 +33,7 @@ Get_data_directory = function()
 	local cwd_path = vim.fn.getcwd()
 	---@cast data_path string
 	---@cast cwd_path string
-	return utils.ensure_trailing_slash(data_path) .. "sessions/" .. utils.ensure_trailing_slash(utils.ensure_no_leading_slash(cwd_path))
+	return utils.ensure_no_trailing_slash(utils.ensure_trailing_slash(data_path) .. "sessions/" .. utils.ensure_no_leading_slash(cwd_path))
 end
 
 ---Recursively copy the given value. Applies to tables too.
