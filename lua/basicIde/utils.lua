@@ -12,7 +12,15 @@ return {
 	---@param path string
 	---@return string
 	ensure_no_leading_slash = function(path)
-		if string.sub(path, 1, 1) == '/' then return string.sub(path, 2) end
+		while string.sub(path, 1, 1) == '/' do path = string.sub(path, 2) end
+		return path
+	end,
+
+	---Ensures that the path string passed in has no trailing forward slash /
+	---@param path string
+	---@return string
+	ensure_no_trailing_slash = function(path)
+		while string.sub(path, #path, #path) == '/' do path = string.sub(path, 1, #path-1) end
 		return path
 	end,
 
