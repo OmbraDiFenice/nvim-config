@@ -24,11 +24,27 @@ return {
 		return path
 	end,
 
+	---Removes any line of length 0 from the list of lines
+	---@param lines string[]
+	---@return string[] a new list of lines without the empty ones
+	remove_trailing_empty_lines = function(lines)
+		local cleaned_lines = {}
+
+		for i = #lines, 1, -1 do
+			if #(lines[i]) ~= 0 then
+				table.insert(cleaned_lines, 1, lines[i])
+			end
+		end
+
+		return cleaned_lines
+	end,
+
 	---Open a simple floating window with the given options. The purpose is to give a way to open a float
 	---window that's consistent across the IDE by providing some defaults for the normal options from |vim.api.nvim_open_win()|.
+	---@param bufnr? integer # buffer handle to open in the float window, or nil to open a new buffer
 	---@param custom_options? table # same options passed to |vim.api.nvim_open_win()|. Defaults to a float with a single border and centered in the current window. If provided, those defaults are still used as a base, but you can override whatever you want
-	---@return integer # the bufnr of the buffer contained in the float
-	openFloatWindow = function(custom_options)
+	---@return integer, integer # the bufnr of the buffer contained in the float and the window handle of the float window itself respectively
+	openFloatWindow = function(bufnr, custom_options)
 		local win_width  = vim.api.nvim_win_get_width(0)
 		local win_height = vim.api.nvim_win_get_height(0)
 
@@ -52,10 +68,11 @@ return {
 		if custom_options == nil then custom_options = {} end
 		options = Deepmerge(options, custom_options)
 
-		local buf = vim.api.nvim_create_buf(false, false)
-		vim.api.nvim_open_win(buf, true, options)
+		if bufnr == nil then bufnr = vim.api.nvim_create_buf(false, false) end
 
-		return buf
+		local winnr = vim.api.nvim_open_win(bufnr, true, options)
+
+		return bufnr, winnr
 	end,
 
 	---Runs `command` with |vim.fn.jobstart| and calls `callback` when the process ends with the output of the command and the job exit code as parameters.
