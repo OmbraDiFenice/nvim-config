@@ -96,6 +96,7 @@ M.setup = function()
 
 	vim.api.nvim_create_autocmd('VimLeave', {
 		callback = function()
+			if Is_table_empty(vim.api.nvim_list_uis()) then return end
 			M.update()
 			M.store()
 			return true

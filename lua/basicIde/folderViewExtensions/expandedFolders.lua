@@ -33,9 +33,12 @@ M.get = function()
 		end
 	end
 
-	local nodes = core.get_explorer().nodes
-	---@cast nodes TreeNode[]
-	findOpenFolders(nodes)
+	local explorer = core.get_explorer()
+	if explorer ~= nil then -- could be nil if running in headless mode
+		local nodes = explorer.nodes
+		---@cast nodes TreeNode[]
+		findOpenFolders(nodes)
+	end
 
 	return expanded_folders
 end
