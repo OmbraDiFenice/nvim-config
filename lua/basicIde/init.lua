@@ -46,6 +46,6 @@ return {
 			module.configure(project_settings)
 		end
 
-		project.init_custom_scripts(project_settings)
+		project.init(project_settings)
 	end,
 }

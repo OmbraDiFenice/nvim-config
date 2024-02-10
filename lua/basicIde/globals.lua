@@ -10,10 +10,14 @@ P = function(table)
 end
 
 ---Prints the lines of the given array as a single nvim message
----@param lines string[]
+---@param lines string[]|string
 ---@return nil
 function Printlines(lines)
-	vim.notify(table.concat(lines, '\n'))
+	local output = tostring(lines)
+	if type(lines) == "table" then
+		output = table.concat(lines, '\n')
+	end
+	vim.notify(output)
 end
 
 ---Checks if the given file path exists
