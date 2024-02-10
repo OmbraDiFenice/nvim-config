@@ -34,6 +34,12 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field remote_host? string
 ---@field mappings string[][]
 
+---@class CustomKeymapDef
+---@field mode string? -- default to 'n'
+---@field desc string?
+---@field fun string|fun(utils: Utils): nil -- if string build a simple run command
+---@field verbose boolean -- only applicable when fun is a string
+
 ---@class ProjectSettings
 ---@field PROJECT_SETTINGS_FILE string
 ---@field virtual_environment? string
@@ -41,8 +47,49 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field debugging DebuggingSettings
 ---@field terminal TerminalSettings
 ---@field remote_sync RemoteSyncSettings
----@field custom_scripts table<string, fun(utils: Utils): nil> -- the key is just a name used for reference and error reporting purposes
+---@field custom_startup_scripts table<string, fun(utils: Utils): nil> -- the key is just a name used for reference and error reporting purposes
+---@field custom_keymaps table<string, CustomKeymapDef> -- the key is the keymap shortcut
+
+---Execute the callbacks in `custom_startup_scripts` setting
+---@param settings ProjectSettings
+---@return nil
+local function run_custom_startup_scripts(settings, utils)
+	for script_name, callback in pairs(settings.custom_startup_scripts) do
+		callback(utils)
+	end
+end
+
+---Initialize keymaps from `custom_keymaps` setting
+---@param settings ProjectSettings
+---@return nil
+local function init_custom_keymaps(settings, utils)
+	for shortcut, keymap_def in pairs(settings.custom_keymaps) do
+		local mode = keymap_def.mode
+		if mode == nil then mode = 'n' end
+
+		local desc = keymap_def.desc
+		if desc == nil then desc = 'Custom keymap ' .. shortcut end
+
+		local callback
+		if type(keymap_def.fun) == "string" then
+			local start_log = nil
+			local end_log = nil
+			if keymap_def.verbose then
+				start_log = 'starting ' .. desc
+				end_log = desc .. ' completed'
+			end
+			callback = function () utils.run(keymap_def.fun, start_log, end_log) end
+		else
+			callback = function () keymap_def.fun(utils) end
+		end
+
+		vim.keymap.set(mode, shortcut, callback, { desc = desc })
+	end
+end
+
+---@type ProjectSettings
 local default_settings = {
+	PROJECT_SETTINGS_FILE = '',
 	virtual_environment = nil,
 	format_on_save = { -- WARNING: if enabled together with autosave it will pollute the undo history and you won't be able to undo changes anymore
 		enabled = false, -- 1. you make a change -> autosave triggers -> changes go to undo history
@@ -71,10 +118,12 @@ local default_settings = {
 			-- ...
 		},
 	},
-	custom_scripts = {},
+	custom_startup_scripts = {},
+	custom_keymaps = {},
 }
 
 return {
+	---@return ProjectSettings
 	load_settings = function()
 		local settings = Deepcopy(default_settings)
 
@@ -92,12 +141,11 @@ return {
 		return settings
 	end,
 
-	---Execute the callbacks in `custom_scripts` key
 	---@param settings ProjectSettings
-	init_custom_scripts = function(settings)
+	---@return nil
+	init = function(settings)
 		local utils = require('basicIde.utils')
-		for script_name, callback in pairs(settings.custom_scripts) do
-			callback(utils)
-		end
+		run_custom_startup_scripts(settings, utils)
+		init_custom_keymaps(settings, utils)
 	end
 }
