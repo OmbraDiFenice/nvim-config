@@ -1,6 +1,19 @@
 local lualine = require('lualine')
 local lualine_highlight = require('lualine.highlight')
 
+local key_node_types_per_file_type = {
+	python = {
+		function_definition = { 'identifier' },
+		class_definition = { 'identifier' }
+	},
+	lua = {
+		field = { 'identifier' },
+		function_declaration = { 'identifier', 'method_index_expression' },
+		function_definition = { 'identifier' }
+	},
+}
+SetTableDefault(key_node_types_per_file_type, {})
+
 ---Extract the text from the given `buf` at the given `range`
 ---@param buf integer # the buffer number to get the text from
 ---@param range integer[] # range descriptor as returned by |vim.treesitter.get_range()|
@@ -23,11 +36,12 @@ end
 ---Extract the treesitter identifier node of a given node.
 ---Identifier nodes are children nodes of the actual entity they are identifier of in treesitter.
 ---@param node TSNode
+---@param node_identifier_types string[] # use any of these node types to extract the identifier of `node`
 ---@return TSNode?
-local function get_named_node_identifier(node)
+local function get_named_node_identifier(node, node_identifier_types)
 	for i = 0, node:named_child_count(), 1 do
 		local child = node:named_child(i)
-		if child ~= nil and child:type() == 'identifier' then
+		if child ~= nil and Is_in_list(child:type(), node_identifier_types) then
 			return child
 		end
 	end
@@ -43,9 +57,13 @@ local function find_breadcrumbs(tree_node)
 	---@type TSNode?
 	local last_node = tree_node
 
+	local file_type = vim.api.nvim_get_option_value('filetype', { scope = 'local' })
+	local key_node_types = key_node_types_per_file_type[file_type]
+
 	while last_node ~= nil and not last_node:equal(root) do
-		if Is_in_list(last_node:type(), { 'function_definition', 'class_definition' }) then
-			local node_identifier = get_named_node_identifier(last_node)
+		local node_identifier_types = key_node_types[last_node:type()]
+		if node_identifier_types ~= nil then
+			local node_identifier = get_named_node_identifier(last_node, node_identifier_types)
 			if node_identifier ~= nil then
 				table.insert(path, 1, node_identifier)
 			end
@@ -71,7 +89,7 @@ end
 
 ---Returns the fg color from treesitter highlighting as an integer, or nil if not found
 ---@param capture_data { capture: string, lang: string }
----@return { fg: integer, bold: boolean }
+---@return { fg: integer, bold: boolean }?
 local function get_treesitter_highlighting_group_info(capture_data)
 	local treesitter_highlight_group = '@' .. capture_data.capture
 	local treesitter_specific_highlight_group = treesitter_highlight_group .. '.' .. capture_data.lang

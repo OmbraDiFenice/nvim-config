@@ -147,3 +147,12 @@ function Split (inputstr, sep)
 	end
 	return t
 end
+
+---Sets the default value obtained when accessing an undefined key in a table
+---See https://www.lua.org/pil/13.4.3.html
+---@param table table
+---@param default_value any
+function SetTableDefault(table, default_value)
+	local mt = { __index = function() return default_value end }
+	setmetatable(table, mt)
+end
