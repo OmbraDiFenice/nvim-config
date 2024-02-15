@@ -92,6 +92,10 @@ function RsyncManager:synchronize_file(file_path)
 		'--compress',
 		'--relative',
 		'--recursive',
+		'--delete',
+		'--cvs-exclude',
+		'--links',
+		'--safe-links',
 		source_relative_path,
 		self.settings.remote_user .. '@' .. self.settings.remote_host .. ':' .. destination_root_path
 	}
