@@ -35,7 +35,6 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field mappings string[][]
 
 ---@class CustomKeymapDef
----@field mode string? -- default to 'n'
 ---@field desc string?
 ---@field fun string|fun(utils: Utils): nil -- if string build a simple run command
 ---@field verbose boolean -- only applicable when fun is a string
@@ -48,7 +47,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field terminal TerminalSettings
 ---@field remote_sync RemoteSyncSettings
 ---@field custom_startup_scripts table<string, fun(utils: Utils): nil> -- the key is just a name used for reference and error reporting purposes
----@field custom_keymaps table<string, CustomKeymapDef> -- the key is the keymap shortcut
+---@field custom_keymaps table<string, CustomKeymapDef> -- the key is the keymap shortcut in the format '<mode> <shortcut>' (e.g. 'n <leader>X'). If <mode> is omitted it defaults to n
 
 ---Execute the callbacks in `custom_startup_scripts` setting
 ---@param settings ProjectSettings
@@ -63,9 +62,17 @@ end
 ---@param settings ProjectSettings
 ---@return nil
 local function init_custom_keymaps(settings, utils)
-	for shortcut, keymap_def in pairs(settings.custom_keymaps) do
-		local mode = keymap_def.mode
-		if mode == nil then mode = 'n' end
+	for mode_shortcut, keymap_def in pairs(settings.custom_keymaps) do
+		local splits = Split(mode_shortcut)
+		local mode
+		local shortcut
+		if #splits == 1 then
+			mode = 'n'
+			shortcut = splits[1]
+		else
+			mode = splits[1]
+			shortcut = splits[2]
+		end
 
 		local desc = keymap_def.desc
 		if desc == nil then desc = 'Custom keymap ' .. shortcut end
