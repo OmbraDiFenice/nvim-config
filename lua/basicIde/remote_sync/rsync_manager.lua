@@ -30,6 +30,8 @@ local function map_file_path(mappings, file_path)
 		end
 	end
 
+	source_relative_path = "./" .. source_relative_path
+
 	return source_relative_path, destination_root_path
 end
 
