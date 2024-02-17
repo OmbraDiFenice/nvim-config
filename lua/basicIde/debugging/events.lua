@@ -1,6 +1,7 @@
 local dap = require('dap')
 local dapui = require('dapui')
 local coverage = require('coverage')
+local utils = require('basicIde.utils')
 
 ---Update status in lualine when a dap configuration starts.
 ---This is useful when you run tests multiple times, otherwise you might still have the last outcome displayed
@@ -8,10 +9,7 @@ local coverage = require('coverage')
 ---@param session DapSessionExtended
 ---@return nil
 local function update_lualine_run_started(session)
-	vim.api.nvim_exec_autocmds('User', {
-		pattern = 'UpdateTestStatusBar',
-		data = { message = 'Running ' .. session.config.name },
-	})
+	utils.update_lualine_debug_status('Running ' .. session.config.name)
 end
 
 ---Update status in lualine when a dap configuration ends.
@@ -20,18 +18,16 @@ end
 ---@param data any
 ---@return nil
 local function update_lualine_run_end(session, data)
-	local testOutcome = {
-		message = '%#lualine_test_passed#' .. session.config.name .. ': success'
-	}
+	local testOutcome = session.config.name .. ': success'
+	local color = 'lualine_test_passed'
+
 	if data.exitCode ~= 0 then
-		testOutcome.message = '%#lualine_test_failed#' .. session.config.name .. ': failed'
+		testOutcome = session.config.name .. ': failed'
+		color = 'lualine_test_failed'
 		dapui.float_element('console', { width = 130, height = 60, enter = true })
 	end
 
-	vim.api.nvim_exec_autocmds('User', {
-		pattern = 'UpdateTestStatusBar',
-		data = testOutcome,
-	})
+	utils.update_lualine_debug_status(testOutcome, color)
 end
 
 ---Update the coverage information. Clears them in case the execution failed
