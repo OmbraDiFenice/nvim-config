@@ -149,4 +149,21 @@ M.get_visual_selection = function ()
 	end
 end
 
+---Update status in lualine when a dap configuration starts.
+---This is useful when you run tests multiple times, otherwise you might still have the last outcome displayed
+---and not know exactly if you triggered the tests or not.
+---@param message string
+---@param color string?
+---@return nil
+M.update_lualine_debug_status = function (message, color)
+	if color ~= nil then
+		message = '%#' .. color .. '#' .. message
+	end
+
+	vim.api.nvim_exec_autocmds('User', {
+		pattern = 'UpdateTestStatusBar',
+		data = { message = message },
+	})
+end
+
 return M
