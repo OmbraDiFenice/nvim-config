@@ -137,6 +137,31 @@ return {
 			{ silent = true, noremap = true, desc = "focus tree view" })
 		vim.api.nvim_set_keymap("n", "<C-u>", ":bp<cr>", { silent = true, noremap = true, desc = "previous buffer" })
 		vim.api.nvim_set_keymap("n", "<C-o>", ":bn<cr>", { silent = true, noremap = true, desc = "next buffer" })
+
+		vim.api.nvim_create_autocmd({"BufLeave"}, {
+			callback = function()
+				if vim.fn.exists('b:BasicIdeWinState') == 0 then
+					vim.api.nvim_buf_set_var(0, 'BasicIdeWinState', vim.json.encode({}))
+				end
+				local win_state = vim.json.decode(vim.api.nvim_buf_get_var(0, 'BasicIdeWinState'))
+				local current_win = tostring(vim.api.nvim_get_current_win())
+				win_state[current_win] = vim.fn.winsaveview()
+				vim.api.nvim_buf_set_var(0, 'BasicIdeWinState', vim.json.encode(win_state))
+			end
+		})
+
+		vim.api.nvim_create_autocmd({"BufEnter"}, {
+			callback = function()
+				if vim.fn.exists('b:BasicIdeWinState') == 0 then return end
+				local win_state = vim.json.decode(vim.api.nvim_buf_get_var(0, 'BasicIdeWinState'))
+				local current_win = tostring(vim.api.nvim_get_current_win())
+				local state = win_state[current_win]
+				if state ~= nil then
+					vim.fn.winrestview(state)
+				end
+			end
+		})
+
 		vim.api.nvim_set_keymap("n", "<leader>f", ":NvimTreeFindFile<CR>",
 			{ silent = true, noremap = true, desc = "find current buffer in tree view" })
 
