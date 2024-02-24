@@ -21,5 +21,7 @@ return {
 		vim.wo.signcolumn = 'yes'
 
 		vim.cmd [[ set clipboard+=unnamedplus ]]
+
+		vim.cmd [[ set listchars=eol:¬,tab:>·,trail:~,extends:>,precedes:<,space:␣ ]] -- enable with :set list, disable with :set nolist
 	end,
 }
