@@ -1,5 +1,5 @@
-local CodeBreadcrumbs_lualine_component = require('basicIde.statusBar.CodeBreadcrumbs_lualine_component')
-local TestRun_lualine_component = require('basicIde.statusBar.TestRun_lualine_component')
+local CodeBreadcrumbs = require('basicIde.statusBar.lualine_components.code_breadcrumbs')
+local TestRun = require('basicIde.statusBar.lualine_components.test_run')
 
 ---@type IdeModule
 return {
@@ -11,8 +11,8 @@ return {
 	end,
 
 	configure = function()
-		local testRun = TestRun_lualine_component:new()
-		local breadcrumbs = CodeBreadcrumbs_lualine_component:new()
+		local testRun = TestRun:new()
+		local breadcrumbs = CodeBreadcrumbs:new()
 
 		require('lualine').setup {
 			options = {
