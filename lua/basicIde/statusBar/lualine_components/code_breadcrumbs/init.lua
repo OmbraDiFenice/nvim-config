@@ -1,19 +1,6 @@
 local lualine = require('lualine')
 local lualine_highlight = require('lualine.highlight')
 
-local key_node_types_per_file_type = {
-	python = {
-		function_definition = { 'identifier' },
-		class_definition = { 'identifier' }
-	},
-	lua = {
-		field = { 'identifier' },
-		function_declaration = { 'identifier', 'method_index_expression' },
-		function_definition = { 'identifier' }
-	},
-}
-SetTableDefault(key_node_types_per_file_type, {})
-
 ---Extract the text from the given `buf` at the given `range`
 ---@param buf integer # the buffer number to get the text from
 ---@param range integer[] # range descriptor as returned by |vim.treesitter.get_range()|
@@ -38,7 +25,7 @@ end
 ---@param node TSNode
 ---@param node_identifier_types string[] # use any of these node types to extract the identifier of `node`
 ---@return TSNode?
-local function get_named_node_identifier(node, node_identifier_types)
+local function any_direct_child_of_types(node, node_identifier_types)
 	for i = 0, node:named_child_count(), 1 do
 		local child = node:named_child(i)
 		if child ~= nil and Is_in_list(child:type(), node_identifier_types) then
@@ -46,6 +33,50 @@ local function get_named_node_identifier(node, node_identifier_types)
 		end
 	end
 end
+
+---@param node TSNode
+---@return TSNode?
+local function json_key(node)
+	local key_node = node:named_child(0)
+	if key_node ~= nil then
+		return key_node:child(1)
+	end
+end
+
+---@param start_node TSNode
+---@param max_parent_node TSNode
+local function first_parent_child_of(start_node, max_parent_node)
+	while start_node:parent() ~= nil and not start_node:parent():equal(max_parent_node) do
+		start_node = start_node:parent()
+	end
+	return start_node
+end
+
+---@param node TSNode
+---@param origin_node TSNode
+---@return TSNode?
+local function json_array_index(node, origin_node)
+	local array_elem_node = first_parent_child_of(origin_node, node)
+
+end
+
+---@type table<string, table<string, fun(node: TSNode): TSNode?>>
+local key_node_types_per_file_type = {
+	python = {
+		function_definition = function (node) return any_direct_child_of_types(node, { 'identifier' }) end,
+		class_definition = function (node) return any_direct_child_of_types(node, { 'identifier' }) end,
+	},
+	lua = {
+		field = function (node) return any_direct_child_of_types(node, { 'identifier' }) end,
+		function_declaration = function (node) return any_direct_child_of_types(node, { 'identifier', 'method_index_expression' }) end,
+		function_definition = function (node) return any_direct_child_of_types(node, { 'identifier' }) end,
+	},
+	json = {
+		pair = function (node) return json_key(node) end,
+		array = function (node) return json_key(node) end,
+	},
+}
+SetTableDefault(key_node_types_per_file_type, {})
 
 ---Find the treesitter node path from root of the file to the given `tree_node`
 ---@param tree_node TSNode
@@ -61,9 +92,9 @@ local function find_breadcrumbs(tree_node)
 	local key_node_types = key_node_types_per_file_type[file_type]
 
 	while last_node ~= nil and not last_node:equal(root) do
-		local node_identifier_types = key_node_types[last_node:type()]
-		if node_identifier_types ~= nil then
-			local node_identifier = get_named_node_identifier(last_node, node_identifier_types)
+		local node_identifier_finder = key_node_types[last_node:type()]
+		if node_identifier_finder ~= nil then
+			local node_identifier = node_identifier_finder(last_node)
 			if node_identifier ~= nil then
 				table.insert(path, 1, node_identifier)
 			end
