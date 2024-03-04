@@ -110,6 +110,21 @@ M.runAndReturnOutput = function(command, callback, options)
 	return vim.fn.jobstart(command, options)
 end
 
+---Like runAndReturnOutput but waits until the called command terminates. Returns the output lines and the return code as return values
+---@return string[], integer
+---@see runAndReturnOutput
+M.runAndReturnOutputSync = function(command, options)
+	local output
+	local return_code
+	local job_id = M.runAndReturnOutput(command, function(inner_output, inner_return_code)
+		output = inner_output
+		return_code = inner_return_code
+	end, options)
+
+	vim.fn.jobwait({job_id})
+	return output, return_code
+end
+
 ---Convenience method to run a command. It simply prints any output (combining stdout and stderr) and exits.
 ---If you want to perform actions when the command completes use `runAndReturnOutput` instead.
 ---@param command string[]|string
