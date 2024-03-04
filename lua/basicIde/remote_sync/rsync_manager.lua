@@ -84,6 +84,38 @@ function RsyncManager:synchronize_file(file_path)
 		return
 	end
 
+	local function build_ignore_list()
+		local mktemp_output, mktemp_exit_code = utils.runAndReturnOutputSync('mktemp')
+		if mktemp_exit_code ~= 0 then LogWarning('Unable to create temp file, skipping ignored files on sync') return end
+
+		local temp_filename = mktemp_output[1]
+
+		local temp_file_handle = io.open(temp_filename, 'w')
+		if temp_file_handle == nil then
+			LogWarning('Unable to open temp file, skipping ignored files on sync')
+			return
+		end
+
+		if self.settings.exclude_git_ignored_files then
+			local git_output, git_exit_code = utils.runAndReturnOutputSync('git ls-files --other --ignored --exclude-standard')
+			if git_exit_code ~= 0 then Printlines(git_output) return end
+			for _, exclude in ipairs(git_output) do
+				temp_file_handle:write(exclude .. '\n')
+			end
+		end
+
+		temp_file_handle:flush()
+		temp_file_handle:close()
+
+		return temp_filename
+	end
+
+	local exclude_list_filename = build_ignore_list()
+	local exclude_from_option = ''
+	if exclude_list_filename ~= nil then
+		exclude_from_option = '--exclude-from=' .. exclude_list_filename
+	end
+
 	local command = {
 		'rsync',
 		'-e', 'ssh -l ' .. self.settings.remote_user .. ' -S ' .. self.ssh_control_master_socket,
@@ -95,15 +127,20 @@ function RsyncManager:synchronize_file(file_path)
 		'--delete',
 		'--links',
 		'--safe-links',
+		exclude_from_option,
 		source_relative_path,
 		self.settings.remote_user .. '@' .. self.settings.remote_host .. ':' .. destination_root_path
 	}
+
 	Printlines({'sync started'})
 	utils.runAndReturnOutput(command, function(output, exit_code)
 		if exit_code ~= 0 then
 			Printlines(output)
 		end
 		Printlines({'sync completed'})
+		if exclude_list_filename ~= nil then
+			os.remove(exclude_list_filename)
+		end
 	end, { clear_env = false })
 end
 
