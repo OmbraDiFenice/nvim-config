@@ -92,6 +92,6 @@ return {
 
 		vim.keymap.set('n', '<leader>gc', open_commit_win, { desc = 'git commit' })
 		vim.keymap.set('n', '<leader>gca', function() open_commit_win('--amend') end, { desc = 'git commit --amend' })
-		vim.keymap.set('n', '<leader>gcan', function() open_commit_win('--amend --no-edit') end, { desc = 'git commit --amend --no-edit ' })
+		vim.keymap.set('n', '<leader>gcan', function() vim.api.nvim_command('Git commit --amend --no-edit') end, { desc = 'git commit --amend --no-edit ' })
 	end,
 }
