@@ -156,3 +156,8 @@ function SetTableDefault(table, default_value)
 	local mt = { __index = function() return default_value end }
 	setmetatable(table, mt)
 end
+
+OS = {
+	---directory path separator
+	sep = package.config:sub(1, 1),
+}
