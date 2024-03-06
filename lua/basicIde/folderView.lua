@@ -102,7 +102,7 @@ local nvim_tree_key_mappings = function(bufnr)
 	vim.keymap.set('n', 'ga', git_add, opts('git_add'))
 	vim.keymap.set('n', '<C-h>', api.tree.close, opts('git_add'))
 
-	vim.keymap.set('n', '<leader>s', synchronize_file_or_dir_remotely, opts('Synchronize file or dir on remote'))
+	vim.keymap.set('n', '<leader>S', synchronize_file_or_dir_remotely, opts('Synchronize file or dir on remote'))
 end
 
 ---@type IdeModule
