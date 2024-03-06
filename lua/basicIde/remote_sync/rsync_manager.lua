@@ -58,7 +58,9 @@ end
 ---The master socket is created in the project session folder.
 ---@return nil
 function RsyncManager:start_master_ssh()
-	self.ssh_control_master_socket = Get_data_directory() .. '/ssh_control_master'
+	self.ssh_control_master_socket = vim.fn.tempname()
+	if self.ssh_control_master_socket == nil then LogWarning("unable to create ssh control master socket, remote sync will be slower") return end
+
 	self.master_job_id = utils.runAndReturnOutput({
 		'ssh',
 		'-o', 'ControlMaster=yes',
@@ -85,10 +87,8 @@ function RsyncManager:synchronize_file(file_path)
 	end
 
 	local function build_ignore_list()
-		local mktemp_output, mktemp_exit_code = utils.runAndReturnOutputSync('mktemp')
-		if mktemp_exit_code ~= 0 then LogWarning('Unable to create temp file, skipping ignored files on sync') return end
-
-		local temp_filename = mktemp_output[1]
+		local temp_filename = vim.fn.tempname()
+		if temp_filename == nil then LogWarning('Unable to create temp file, skipping ignored files on sync') return end
 
 		local temp_file_handle = io.open(temp_filename, 'w')
 		if temp_file_handle == nil then
@@ -121,9 +121,15 @@ function RsyncManager:synchronize_file(file_path)
 		exclude_from_option = '--exclude-from=' .. exclude_list_filename
 	end
 
+	local master_socket_option = ''
+	if self.ssh_control_master_socket ~= nil then
+		master_socket_option = 'ssh -l ' .. self.settings.remote_user .. ' -S ' .. self.ssh_control_master_socket
+	end
+
 	local command = {
 		'rsync',
-		'-e', 'ssh -l ' .. self.settings.remote_user .. ' -S ' .. self.ssh_control_master_socket,
+		'-e',
+		master_socket_option,
 		'--executability', -- preserve executability
 		'--times',       -- preserve timestamps
 		'--compress',
