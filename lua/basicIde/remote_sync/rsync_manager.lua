@@ -96,6 +96,11 @@ function RsyncManager:synchronize_file(file_path)
 			return
 		end
 
+		-- first exclude user defined files and dir so they will have precedence over the rest
+		for _, exclude in ipairs(self.settings.exclude_paths) do
+			temp_file_handle:write(exclude .. '\n')
+		end
+
 		if self.settings.exclude_git_ignored_files then
 			local git_output, git_exit_code = utils.runAndReturnOutputSync('git ls-files --other --ignored --exclude-standard')
 			if git_exit_code ~= 0 then Printlines(git_output) return end

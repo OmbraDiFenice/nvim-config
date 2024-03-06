@@ -33,6 +33,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field remote_user? string
 ---@field remote_host? string
 ---@field mappings string[][]
+---@field exclude_paths string[] -- local paths to exclude from sync. To exclude directories the path must end with a slash
 ---@field exclude_git_ignored_files boolean
 
 ---@class CustomKeymapDef
@@ -125,6 +126,7 @@ local default_settings = {
 			-- { local_prefix_dir, remote_prefix_dir },
 			-- ...
 		},
+		exclude_paths = {},
 		exclude_git_ignored_files = true,
 	},
 	custom_startup_scripts = {},
