@@ -1,4 +1,5 @@
 local rsync_manager = require('basicIde.remote_sync.rsync_manager')
+local fs_monitor = vim.loop.new_fs_event()
 
 local function sync_current_file()
 	local path = vim.api.nvim_buf_get_name(0)
@@ -33,6 +34,17 @@ return {
 					manager:synchronize_file(args.file)
 				end,
 			})
+		else
+			local cwd = vim.fn.getcwd(-1, -1)
+			if fs_monitor ~= nil and cwd ~= nil then
+				fs_monitor:start(cwd, { watch_entry = true, stat = false, recursive = true }, vim.schedule_wrap(function (err, filepath, events)
+					-- if string.sub(filepath, #filepath) == '~' then return end
+					local full_path = cwd .. OS.sep .. filepath
+					if File_exists(full_path) then
+						manager:synchronize_file(full_path)
+					end
+				end))
+			end
 		end
 
 		vim.api.nvim_create_autocmd('User', {

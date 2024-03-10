@@ -96,14 +96,17 @@ local function setup_diagnostics_keybindings()
 	})
 end
 
-local function setup_highlight_identifier_on_cursor_hover()
-	vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
-		callback = vim.lsp.buf.document_highlight,
-		desc = 'get document highlights from LSP',
+local function setup_highlight_identifier_keybindings()
+	vim.api.nvim_set_keymap('n', '<leader>ss', '', {
+	  callback = function()
+			vim.lsp.buf.clear_references()
+			vim.lsp.buf.document_highlight()
+		end,
+	  desc = '[S]earch [S]symbol - highlight symbol under cursor with LSP',
 	})
-	vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
+	vim.api.nvim_set_keymap('n', '<leader>sS', '', {
 		callback = vim.lsp.buf.clear_references,
-		desc = 'clear LSP document highlights',
+	  desc = 'clear search symbol LSP highlight',
 	})
 end
 
@@ -162,6 +165,6 @@ return {
 		setup_diagnostics_keybindings()
 		setup_navigation_keybindings()
 
-		setup_highlight_identifier_on_cursor_hover()
+		setup_highlight_identifier_keybindings()
 	end
 }
