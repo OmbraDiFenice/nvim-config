@@ -7,7 +7,7 @@ local M = {
 }
 
 ---@class LanguageBreadcrumbHandler
----@field find_breadcrumbs fun(tree_root: TSNode, starting_node: TSNode): string[] Find the treesitter node path from `tree_root` to the given `starting_node`
+---@field find_breadcrumbs fun(tree_root: TSNode, starting_node: TSNode): string Find the treesitter node path from `tree_root` to the given `starting_node`
 
 ---@type table<string, LanguageBreadcrumbHandler>
 local language_handlers = {
@@ -19,7 +19,7 @@ local language_handlers = {
 ---Find the treesitter node path from root of the file to the given `tree_node`
 ---@param tree_node TSNode
 ---@param language_handler LanguageBreadcrumbHandler
----@return string[]
+---@return string
 local function find_breadcrumbs(tree_node, language_handler)
 	local root = tree_node:tree():root()
 	return language_handler.find_breadcrumbs(root, tree_node)
@@ -56,8 +56,7 @@ function M:update()
 	local language_handler = language_handlers[file_type]
 	if language_handler == nil then return {} end
 
-	local path = find_breadcrumbs(tree_node, language_handler)
-	self.msg = table.concat(path, '.')
+	self.msg = find_breadcrumbs(tree_node, language_handler)
 	lualine.refresh()
 end
 

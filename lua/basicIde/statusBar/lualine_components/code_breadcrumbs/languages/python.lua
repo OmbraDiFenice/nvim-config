@@ -20,6 +20,6 @@ return {
 			last_node = last_node:parent()
 		end
 
-		return path
+		return table.concat(path, '.')
 	end
 }
