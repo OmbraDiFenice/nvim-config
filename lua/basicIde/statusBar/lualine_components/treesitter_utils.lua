@@ -85,6 +85,14 @@ local function find_highlighting_group(node)
 	return '%#' .. lualine_highlight_group .. '#'
 end
 
+---return `text` prefixed with the color code from the provided TSNode
+---@param text string
+---@param color_from TSNode tree node from which to take the color to use
+local colorize_text = function(text, color_from)
+	local node_highlight = find_highlighting_group(color_from)
+	return node_highlight .. text
+end
+
 return {
 	---Extract the treesitter identifier node of a given node.
 	---Identifier nodes are children nodes of the actual entity they are identifier of in treesitter.
@@ -92,8 +100,8 @@ return {
 	---@param node_identifier_types string[] # use any of these node types to extract the identifier of `node`
 	---@return TSNode?
 	any_direct_child_of_types = function(node, node_identifier_types)
-		for i = 0, node:named_child_count(), 1 do
-			local child = node:named_child(i)
+		for i = 0, node:child_count(), 1 do
+			local child = node:child(i)
 			if child ~= nil and Is_in_list(child:type(), node_identifier_types) then
 				return child
 			end
@@ -127,7 +135,22 @@ return {
 		if color_from == nil then color_from = text_from end
 
 		local node_text = buf_range_get_text(vim.api.nvim_get_current_buf(), text_from)
-		local node_highlight = find_highlighting_group(color_from) or ''
-		table.insert(path, 1, node_highlight .. node_text)
+		table.insert(path, 1, colorize_text(node_text, color_from))
+	end,
+
+	get_node_text = function(node) return buf_range_get_text(vim.api.nvim_get_current_buf(), node) end,
+
+	colorize_text = colorize_text,
+
+	---Checks if `parent_node` is a parent of of `node`
+	---@param parent_node TSNode
+	---@param node TSNode?
+	---@return boolean
+	is_parent = function(parent_node, node)
+		while node ~= nil do
+			if node:equal(parent_node) then return true end
+			node = node:parent()
+		end
+		return false
 	end
 }
