@@ -65,7 +65,13 @@ return {
 			})
 		end, { desc = '[/] Fuzzily search in current buffer]' })
 
-		vim.keymap.set('n', '<leader>sf', telescope_builtin.find_files, { desc = '[S]earch [F]iles' })
+		vim.keymap.set('n', '<leader>sf', function()
+			telescope_builtin.find_files({
+				hidden = true,
+				no_ignore = true,
+				no_ignore_parent = true,
+			})
+		end, { desc = '[S]earch [F]iles' })
 		vim.keymap.set('n', '<leader>sh', telescope_builtin.help_tags, { desc = '[S]earch [H]elp' })
 		vim.keymap.set('n', '<leader>sw', telescope_builtin.grep_string, { desc = '[S]earch current [W]ord' })
 		vim.keymap.set('n', '<leader>sg', telescope_builtin.live_grep, { desc = '[S]earch by [G]rep' })
