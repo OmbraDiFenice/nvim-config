@@ -41,6 +41,12 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field fun string|fun(utils: Utils): nil -- if string build a simple run command
 ---@field verbose boolean -- only applicable when fun is a string
 
+---@class LspNotificationSettings
+---@field enabled boolean
+
+---@class LspSettings
+---@field notifications LspNotificationSettings
+
 ---@class ProjectSettings
 ---@field PROJECT_SETTINGS_FILE string
 ---@field virtual_environment? string
@@ -50,6 +56,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field remote_sync RemoteSyncSettings
 ---@field custom_startup_scripts table<string, fun(utils: Utils): nil> -- the key is just a name used for reference and error reporting purposes
 ---@field custom_keymaps table<string, CustomKeymapDef> -- the key is the keymap shortcut in the format '<mode> <shortcut>' (e.g. 'n <leader>X'). If <mode> is omitted it defaults to n
+---@field lsp LspSettings
 
 ---Execute the callbacks in `custom_startup_scripts` setting
 ---@param settings ProjectSettings
@@ -113,6 +120,11 @@ local default_settings = {
 	},
 	debugging = {
 		dap_configurations = nil,
+	},
+	lsp = {
+		notifications = {
+			enabled = true,
+		},
 	},
 	terminal = {
 		init_environment_cmd = '[[ -d ${VIRTUAL_ENV+x} ]] || source "$VIRTUAL_ENV/bin/activate" ; clear'
