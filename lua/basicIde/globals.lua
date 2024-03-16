@@ -86,16 +86,6 @@ function Deepmerge(t1, t2)
 	return t1
 end
 
----Log the given message as warning in nvim messages.
----The message is prefixed with an highlighted 'Warning: ' string
----@param message string
----@return nil
-function LogWarning(message)
-	vim.cmd('echohl WarningMsg')
-	vim.cmd('echomsg "Warning: ' .. message .. '"')
-	vim.cmd('echohl None')
-end
-
 ---Checks if `needle` is contained in `haystack`
 ---@generic T
 ---@param needle T # the value to search for
