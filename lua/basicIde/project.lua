@@ -38,14 +38,28 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 
 ---@class CustomKeymapDef
 ---@field desc string?
----@field fun string|fun(utils: Utils): nil -- if string build a simple run command
----@field verbose boolean -- only applicable when fun is a string
+---@field fun string|fun(...): nil -- if string build a simple run command
+---@field verbose boolean? -- only applicable when fun is a string. Default to false
 
 ---@class LspNotificationSettings
 ---@field enabled boolean
 
 ---@class LspSettings
 ---@field notifications LspNotificationSettings
+
+---@class TokenPattern
+---@field type 'token'|'node_type'
+---@field value string
+
+---@class CodeLayoutLanguageConfig
+---@field node_types string[] treesitter node types to consider when building the layout
+---@field stop_at_tokens TokenPattern[] stop extracting node signature when any of these tokens are matched within it
+---@field ignore_tokens TokenPattern[] skip extracting text for node signature from any of the matching nodes
+
+---@class CodeLayoutConfig
+---@field languages table<string, CodeLayoutLanguageConfig>
+---@field indent_width integer how much to indent each entry in the code layout. The indent is relative to the position of that node counting only the specific language node types
+---@field keymaps table<string, CustomKeymapDef> function will receive a reference to the instance of code layout being interacted with
 
 ---@class ProjectSettings
 ---@field PROJECT_SETTINGS_FILE string
@@ -55,8 +69,9 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field terminal TerminalSettings
 ---@field remote_sync RemoteSyncSettings
 ---@field custom_startup_scripts table<string, fun(utils: Utils): nil> -- the key is just a name used for reference and error reporting purposes
----@field custom_keymaps table<string, CustomKeymapDef> -- the key is the keymap shortcut in the format '<mode> <shortcut>' (e.g. 'n <leader>X'). If <mode> is omitted it defaults to n
+---@field custom_keymaps table<string, CustomKeymapDef> -- the key is the keymap shortcut in the format '<mode> <shortcut>' (e.g. 'n <leader>X'). If <mode> is omitted it defaults to n. Callbacks will receive a reference to the basicIde.utils module
 ---@field lsp LspSettings
+---@field code_layout CodeLayoutConfig
 
 ---Execute the callbacks in `custom_startup_scripts` setting
 ---@param settings ProjectSettings
@@ -72,34 +87,8 @@ end
 ---@return nil
 local function init_custom_keymaps(settings, utils)
 	for mode_shortcut, keymap_def in pairs(settings.custom_keymaps) do
-		local splits = Split(mode_shortcut)
-		local mode
-		local shortcut
-		if #splits == 1 then
-			mode = 'n'
-			shortcut = splits[1]
-		else
-			mode = splits[1]
-			shortcut = splits[2]
-		end
-
-		local desc = keymap_def.desc
-		if desc == nil then desc = 'Custom keymap ' .. shortcut end
-
-		local callback
-		if type(keymap_def.fun) == "string" then
-			local start_log = nil
-			local end_log = nil
-			if keymap_def.verbose then
-				start_log = 'starting ' .. desc
-				end_log = desc .. ' completed'
-			end
-			callback = function () utils.run(keymap_def.fun, start_log, end_log) end
-		else
-			callback = function () keymap_def.fun(utils) end
-		end
-
-		vim.keymap.set(mode, shortcut, callback, { desc = desc })
+		local mode, shortcut, callback, desc = utils.parse_custom_keymap_config(mode_shortcut, keymap_def)
+		vim.keymap.set(mode, shortcut, function() callback(utils) end, { desc = desc })
 	end
 end
 
@@ -143,6 +132,45 @@ local default_settings = {
 	},
 	custom_startup_scripts = {},
 	custom_keymaps = {},
+	code_layout = {
+		indent_width = 2,
+		languages = {
+			python = {
+				node_types = {'class_definition', 'function_definition'},
+				stop_at_tokens = { { type = 'token', value = ':' }, },
+				ignore_tokens = { { type = 'node_type', value = 'comment' }, },
+			},
+		},
+		keymaps = {
+			['q'] = {
+				desc = '[Code layout] close code layout',
+				fun = function(code_layout)
+					code_layout:close_code_layout_window()
+				end
+			},
+			['<CR>'] = {
+				desc = '[Code layout] goto to symbol and close layout',
+				fun = function(code_layout)
+					code_layout:navigate_to_source()
+					code_layout:close_code_layout_window()
+				end
+			},
+			['l'] = {
+				desc = '[Code layout] goto to symbol and close layout',
+				fun = function(code_layout)
+					code_layout:navigate_to_source()
+					code_layout:close_code_layout_window()
+				end
+			},
+			['h'] = {
+				desc = '[Code layout] goto to symbol and close layout',
+				fun = function(code_layout)
+					code_layout:navigate_to_source()
+					code_layout:close_code_layout_window()
+				end
+			},
+		},
+	}
 }
 
 return {

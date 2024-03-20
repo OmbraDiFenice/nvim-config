@@ -42,14 +42,6 @@ local function buf_range_get_text(buf, node)
 	local Range = require('vim.treesitter._range')
 	local range = vim.treesitter.get_range(node, buf)
 	local start_row, start_col, end_row, end_col = Range.unpack4(range)
-	if end_col == 0 then
-		if start_row == end_row then
-			start_col = -1
-			start_row = start_row - 1
-		end
-		end_col = -1
-		end_row = end_row - 1
-	end
 	local lines = vim.api.nvim_buf_get_text(buf, start_row, start_col, end_row, end_col, {})
 	return table.concat(lines, '\n')
 end
@@ -138,7 +130,7 @@ return {
 		table.insert(path, 1, colorize_text(node_text, color_from))
 	end,
 
-	get_node_text = function(node) return buf_range_get_text(vim.api.nvim_get_current_buf(), node) end,
+	get_node_text = function(node, buf) return buf_range_get_text(buf or vim.api.nvim_get_current_buf(), node) end,
 
 	colorize_text = colorize_text,
 
