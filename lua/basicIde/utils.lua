@@ -181,4 +181,43 @@ M.update_lualine_debug_status = function (message, color)
 	})
 end
 
+---Parse the definition of a custom keymap from the config.
+---This utility function can be used by different plugins and allow to have a
+---standardized format for the configuration of custom keymaps in the IDE.
+---@param mode_shortcut string keymap shortcut in the format '<mode> <shortcut>' (e.g. 'n <leader>X'). If <mode> is omitted it defaults to n
+---@param keymap_def CustomKeymapDef
+---@return string, string, fun(...), string # mode, shortcut, callback, description
+M.parse_custom_keymap_config = function(mode_shortcut, keymap_def)
+		local splits = Split(mode_shortcut)
+		local mode
+		local shortcut
+		if #splits == 1 then
+			mode = 'n'
+			shortcut = splits[1]
+		else
+			mode = splits[1]
+			shortcut = splits[2]
+		end
+
+		local desc = keymap_def.desc
+		if desc == nil then desc = 'Custom keymap ' .. shortcut end
+
+		local callback
+		if type(keymap_def.fun) == "string" then
+			local fun = keymap_def.fun
+			---@cast fun string
+			local start_log = nil
+			local end_log = nil
+			if keymap_def.verbose then
+				start_log = 'starting ' .. desc
+				end_log = desc .. ' completed'
+			end
+			callback = function () M.run(fun, start_log, end_log) end
+		else
+			callback = function (...) keymap_def.fun(...) end
+		end
+
+		return mode, shortcut, callback, desc
+end
+
 return M
