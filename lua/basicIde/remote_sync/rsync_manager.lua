@@ -37,6 +37,7 @@ end
 
 ---@class RsyncManager
 ---@field private settings RemoteSyncSettings
+---@field _timer userdata?
 local RsyncManager = {}
 
 ---Constructor
@@ -46,6 +47,7 @@ function RsyncManager:new(remote_sync_settings)
 	clean_settings(remote_sync_settings)
 	local o = {
 		settings = remote_sync_settings,
+		_timer = nil,
 	}
 
 	setmetatable(o, self)
@@ -79,6 +81,7 @@ end
 ---@return nil
 function RsyncManager:synchronize_file(file_path)
 	if self.settings.mappings == nil then return end
+	if self._timer ~= nil then self._timer:stop() end
 
 	local source_relative_path, destination_root_path = map_file_path(self.settings.mappings, file_path)
 	if source_relative_path == nil or destination_root_path == nil then
@@ -143,16 +146,18 @@ function RsyncManager:synchronize_file(file_path)
 		self.settings.remote_user .. '@' .. self.settings.remote_host .. ':' .. destination_root_path
 	}
 
-	Printlines({'sync started'})
-	utils.runAndReturnOutput(command, function(output, exit_code)
-		if exit_code ~= 0 then
-			Printlines(output)
-		end
-		Printlines({'sync completed'})
-		if exclude_list_filename ~= nil then
-			os.remove(exclude_list_filename)
-		end
-	end, { clear_env = false })
+	self._timer = utils.debounce({ timer = self._timer }, function()
+		Printlines({'sync started'})
+		utils.runAndReturnOutput(command, vim.schedule_wrap(function(output, exit_code)
+			if exit_code ~= 0 then
+				Printlines(output)
+			end
+			Printlines({'sync completed'})
+			if exclude_list_filename ~= nil then
+				os.remove(exclude_list_filename)
+			end
+		end), { clear_env = false })
+	end)
 end
 
 ---Send an entire directory (recursively) to the remote server
