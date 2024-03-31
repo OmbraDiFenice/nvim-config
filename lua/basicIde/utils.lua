@@ -220,4 +220,30 @@ M.parse_custom_keymap_config = function(mode_shortcut, keymap_def)
 		return mode, shortcut, callback, desc
 end
 
+---Debounce the passed function so that it's not called more than once
+---@param options? { timeout: integer, timer: userdata? }
+---@param fn fun(...)
+---@return unknown
+M.debounce = function (options, fn, ...)
+	local defaults = {
+		timeout = 1000, -- ms
+		timer = nil,
+	}
+	local actual_options = Deepmerge(defaults, options or {})
+
+	local timer = actual_options.timer
+	if timer ~= nil then timer:stop() end
+
+	timer = vim.uv.new_timer()
+	local args = ...
+
+	timer:start(actual_options.timeout, 0, vim.schedule_wrap(function()
+		timer:stop()
+		fn(args)
+		timer = nil
+	end))
+
+	return timer
+end
+
 return M
