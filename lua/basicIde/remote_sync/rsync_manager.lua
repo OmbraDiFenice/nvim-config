@@ -147,12 +147,13 @@ function RsyncManager:synchronize_file(file_path)
 	}
 
 	self._timer = utils.debounce({ timer = self._timer }, function()
-		Printlines({'sync started'})
+		local notification
+		if self.settings.notifications.enabled then notification = vim.notify('sync started') end
 		utils.runAndReturnOutput(command, vim.schedule_wrap(function(output, exit_code)
 			if exit_code ~= 0 then
 				Printlines(output)
 			end
-			Printlines({'sync completed'})
+			if self.settings.notifications.enabled then vim.notify('sync completed', notification.level, { replace = notification }) end
 			if exclude_list_filename ~= nil then
 				os.remove(exclude_list_filename)
 			end

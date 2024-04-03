@@ -1,5 +1,8 @@
 local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 
+---@class NotificationSettings
+---@field enabled boolean
+
 ---@class FormatOnSaveKeymapsSettings
 ---@field format_current_buffer string
 
@@ -35,17 +38,15 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field mappings string[][]
 ---@field exclude_paths string[] -- local paths to exclude from sync. To exclude directories the path must end with a slash
 ---@field exclude_git_ignored_files boolean
+---@field notifications NotificationSettings
 
 ---@class CustomKeymapDef
 ---@field desc string?
 ---@field fun string|fun(...): nil -- if string build a simple run command
 ---@field verbose boolean? -- only applicable when fun is a string. Default to false
 
----@class LspNotificationSettings
----@field enabled boolean
-
 ---@class LspSettings
----@field notifications LspNotificationSettings
+---@field notifications NotificationSettings
 
 ---@class TokenPattern
 ---@field type 'token'|'node_type'
@@ -140,6 +141,9 @@ local default_settings = {
 		},
 		exclude_paths = {},
 		exclude_git_ignored_files = true,
+		notifications = {
+			enabled = true,
+		},
 	},
 	custom_startup_scripts = {},
 	custom_keymaps = {},
