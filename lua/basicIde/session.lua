@@ -58,7 +58,16 @@ return {
 		use 'rmagatti/auto-session'
 	end,
 
-	configure = function()
+	---@param settings ProjectSettings
+	configure = function(settings)
+		local pre_save_cmds = {}
+		local post_restore_cmds = {}
+
+		if settings.editor.open_tree_view_on_start then
+			table.insert(pre_save_cmds, close_nvim_tree)
+			table.insert(post_restore_cmds, open_nvim_tree)
+		end
+
 		require('auto-session').setup {
 			log_level = "error",
 			auto_session_root_dir = Get_data_directory(),
@@ -66,8 +75,8 @@ return {
 			auto_session_use_git_branch = true,
 
 			-- can't be done in nvim-tree, see https://github.com/nvim-tree/nvim-tree.lua/issues/1992#issuecomment-1455504628
-			pre_save_cmds = { close_nvim_tree },
-			post_restore_cmds = { open_nvim_tree },
+			pre_save_cmds = pre_save_cmds,
+			post_restore_cmds = post_restore_cmds,
 		}
 
 		vim.o.sessionoptions = "blank,buffers,curdir,help,tabpages,winsize,winpos,terminal,localoptions"

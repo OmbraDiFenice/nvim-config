@@ -138,8 +138,9 @@ return {
 		vim.api.nvim_set_keymap("n", "<C-u>", ":bp<cr>", { silent = true, noremap = true, desc = "previous buffer" })
 		vim.api.nvim_set_keymap("n", "<C-o>", ":bn<cr>", { silent = true, noremap = true, desc = "next buffer" })
 
-		vim.api.nvim_create_autocmd({"BufLeave"}, {
-			callback = function()
+		vim.api.nvim_create_autocmd({"BufLeave", "CursorMoved", "CursorMovedI"}, {
+			callback = function(ev)
+				if vim.api.nvim_get_option_value('filetype', { buf = ev.bufnr }) == "NvimTree" then return end -- NvimTree already restores the cursor where it was by itself
 				if vim.fn.exists('b:BasicIdeWinState') == 0 then
 					vim.api.nvim_buf_set_var(0, 'BasicIdeWinState', vim.json.encode({}))
 				end
