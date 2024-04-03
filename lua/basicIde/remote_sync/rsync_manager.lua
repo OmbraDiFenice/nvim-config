@@ -71,7 +71,7 @@ function RsyncManager:start_master_ssh()
 		self.settings.remote_user .. '@' .. self.settings.remote_host,
 	}, function(output, exit_code)
 		if exit_code ~= 0 then
-			Printlines(output)
+			vim.notify(output, vim.log.levels.ERROR)
 		end
 	end, { clear_env = false })
 end
@@ -106,7 +106,7 @@ function RsyncManager:synchronize_file(file_path)
 
 		if self.settings.exclude_git_ignored_files then
 			local git_output, git_exit_code = utils.runAndReturnOutputSync('git ls-files --other --ignored --exclude-standard')
-			if git_exit_code ~= 0 then Printlines(git_output) return end
+			if git_exit_code ~= 0 then vim.notify(git_output, vim.log.levels.ERROR) return end
 			for _, exclude in ipairs(git_output) do
 				temp_file_handle:write(exclude .. '\n')
 			end
@@ -151,7 +151,7 @@ function RsyncManager:synchronize_file(file_path)
 		if self.settings.notifications.enabled then notification = vim.notify('sync started') end
 		utils.runAndReturnOutput(command, vim.schedule_wrap(function(output, exit_code)
 			if exit_code ~= 0 then
-				Printlines(output)
+				vim.notify(output, vim.log.levels.ERROR)
 			end
 			if self.settings.notifications.enabled then vim.notify('sync completed', notification.level, { replace = notification }) end
 			if exclude_list_filename ~= nil then

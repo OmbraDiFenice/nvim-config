@@ -9,17 +9,6 @@ P = function(table)
 	return table
 end
 
----Prints the lines of the given array as a single nvim message
----@param lines string[]|string
----@return nil
-function Printlines(lines)
-	local output = tostring(lines)
-	if type(lines) == "table" then
-		output = table.concat(lines, '\n')
-	end
-	vim.notify(output)
-end
-
 ---Checks if the given file path exists
 ---taken from https://stackoverflow.com/a/54775280/4046810
 ---@param name string # the path to the file to check

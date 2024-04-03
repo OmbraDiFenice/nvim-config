@@ -21,7 +21,14 @@ return {
 			render = 'wrapped-compact',
 		})
 
-		vim.notify = notify
+		vim.notify = function(msg, ...)
+			local output = tostring(msg)
+			if type(msg) == "table" then
+				local lines = Map(msg, tostring)
+				output = table.concat(lines, '\n')
+			end
+			return notify(output, ...)
+		end
 		vim.keymap.set('n', '<leader>sn', telescope.extensions.notify.notify, { desc = "Search in notifications" })
 
 		if project_settings.lsp.notifications.enabled then
