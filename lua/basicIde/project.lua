@@ -62,6 +62,9 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field indent_width integer how much to indent each entry in the code layout. The indent is relative to the position of that node counting only the specific language node types
 ---@field keymaps table<string, CustomKeymapDef> function will receive a reference to the instance of code layout being interacted with
 
+---@class EditorConfig
+---@field open_tree_view_on_start boolean
+
 ---@class ProjectSettings
 ---@field PROJECT_SETTINGS_FILE string
 ---@field virtual_environment? string
@@ -73,6 +76,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field custom_keymaps table<string, CustomKeymapDef>
 ---@field lsp LspSettings
 ---@field code_layout CodeLayoutConfig
+---@field editor EditorConfig
 
 ---@class UserProjectSettings
 ---@field virtual_environment? string
@@ -84,6 +88,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field custom_keymaps? table<string, CustomKeymapDef> the key is the keymap shortcut in the format '<mode> <shortcut>' (e.g. 'n <leader>X'). If <mode> is omitted it defaults to n. Callbacks will receive a reference to the basicIde.utils module
 ---@field lsp? LspSettings
 ---@field code_layout? CodeLayoutConfig
+---@field editor EditorConfig?
 
 ---Execute the callbacks in `custom_startup_scripts` setting
 ---@param settings ProjectSettings
@@ -185,6 +190,9 @@ local default_settings = {
 				end
 			},
 		},
+	},
+	editor = {
+		open_tree_view_on_start = true,
 	}
 }
 
