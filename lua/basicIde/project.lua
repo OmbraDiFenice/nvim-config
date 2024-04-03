@@ -68,10 +68,21 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field debugging DebuggingSettings
 ---@field terminal TerminalSettings
 ---@field remote_sync RemoteSyncSettings
----@field custom_startup_scripts table<string, fun(utils: Utils): nil> -- the key is just a name used for reference and error reporting purposes
----@field custom_keymaps table<string, CustomKeymapDef> -- the key is the keymap shortcut in the format '<mode> <shortcut>' (e.g. 'n <leader>X'). If <mode> is omitted it defaults to n. Callbacks will receive a reference to the basicIde.utils module
+---@field custom_startup_scripts table<string, fun(utils: Utils): nil>
+---@field custom_keymaps table<string, CustomKeymapDef>
 ---@field lsp LspSettings
 ---@field code_layout CodeLayoutConfig
+
+---@class UserProjectSettings
+---@field virtual_environment? string
+---@field format_on_save? FormatOnSaveSettings
+---@field debugging? DebuggingSettings
+---@field terminal? TerminalSettings
+---@field remote_sync? RemoteSyncSettings
+---@field custom_startup_scripts? table<string, fun(utils: Utils): nil> the key is just a name used for reference and error reporting purposes
+---@field custom_keymaps? table<string, CustomKeymapDef> the key is the keymap shortcut in the format '<mode> <shortcut>' (e.g. 'n <leader>X'). If <mode> is omitted it defaults to n. Callbacks will receive a reference to the basicIde.utils module
+---@field lsp? LspSettings
+---@field code_layout? CodeLayoutConfig
 
 ---Execute the callbacks in `custom_startup_scripts` setting
 ---@param settings ProjectSettings

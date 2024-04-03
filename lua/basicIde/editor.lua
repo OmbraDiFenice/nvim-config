@@ -134,7 +134,7 @@ return {
 		}
 	end,
 
-	configure = function()
+	configure = function(project_settings)
 		require('auto-save').setup({
 			condition = function(buf)
 				local utils = require("auto-save.utils.data")
@@ -160,6 +160,27 @@ return {
 					vim.cmd 'wincmd L'
 				end
 			end
+		})
+
+		-- Add autocomplete support for lua classes from basicIde.
+		-- Useful while editing PROJECT_SETTINGS_FILE in other projects, however it will be added to the generic lua LSP server
+		vim.filetype.add({
+			filename = {
+				[project_settings.PROJECT_SETTINGS_FILE] = function()
+					return 'lua', function()
+						local ide_folder = table.concat({vim.fn.stdpath('config'), 'lua'}, OS.sep)
+						require('lspconfig').lua_ls.setup({
+							settings = {
+								Lua = {
+									workspace = {
+										library = { ide_folder },
+									}
+								}
+							}
+						})
+					end
+				end
+			}
 		})
 
 		setup_diagnostics_keybindings()
