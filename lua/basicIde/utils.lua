@@ -134,13 +134,13 @@ end
 ---@see runAndReturnOutput
 M.run = function(command, log_before, log_after)
 	if log_before ~= nil then
-		Printlines(log_before)
+		vim.notify(log_before)
 	end
 	M.runAndReturnOutput(command, function (output_lines)
-		Printlines(output_lines)
+		vim.notify(output_lines)
 
 		if log_after ~= nil then
-			Printlines(log_after)
+			vim.notify(log_after)
 		end
 	end, {})
 end
