@@ -1,9 +1,8 @@
-local dap = require('dap')
-
 ---Create a temporary dap configuration wrapping the provided one but gathering code coverage about execution and run it
 ---@param dap_configuration DapConfigurationExtendedPython # the Python DAP configuration to run with coverage
 ---@return nil # `dap_configuration` is wrapped and ran immediately
 local function run_with_coverage(dap_configuration)
+	local dap = require('dap')
 	local coverage_configuration = Deepcopy(dap_configuration)
 	coverage_configuration.name = dap_configuration.name .. ' with coverage'
 	coverage_configuration.args = { 'run', '-m', dap_configuration.module, }
@@ -19,6 +18,7 @@ end
 ---Creates the keymap for the run python dap configurations having a `keymap_coverage` option.
 ---Note that if multiple configurations have the same keymap set, the last one processed will override the others.
 local function add_run_debug_with_coverage_keymaps()
+	local dap = require('dap')
 	for language, dap_configs in pairs(dap.configurations) do
 		if language == 'python' then
 			---@cast dap_configs DapConfigurationExtendedPython[]

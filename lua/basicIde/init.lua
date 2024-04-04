@@ -34,18 +34,28 @@ return {
 	use_deps = function(use)
 		for _, component in ipairs(components)
 		do
-			---@type IdeModule
-			local module = require(component)
-			module.use_deps(use, project_settings)
+			---@type boolean, IdeModule
+			local ok, module = pcall(require, component)
+			if ok then
+				module.use_deps(use, project_settings)
+			else
+				vim.notify('error while loading module ' .. component .. '. Skipping for now, try relunch nvim again to see if it gets fixed', vim.log.levels.WARN)
+				vim.notify('error message:\n' .. module, vim.log.levels.DEBUG)
+			end
 		end
 	end,
 
 	configure = function()
 		for _, component in ipairs(components)
 		do
-			---@type IdeModule
-			local module = require(component)
-			module.configure(project_settings)
+			---@type boolean, IdeModule
+			local ok, module = pcall(require, component)
+			if ok then
+				module.configure(project_settings)
+			else
+				vim.notify('error while configuring module ' .. component .. '. Skipping for now, try relunch nvim again to see if it gets fixed', vim.log.levels.WARN)
+				vim.notify('error message:\n' .. module, vim.log.levels.DEBUG)
+			end
 		end
 
 		project.init(project_settings)

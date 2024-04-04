@@ -1,7 +1,3 @@
-local setup_listeners = require('basicIde.debugging.events')
-local setup_project_settings = require('basicIde.debugging.project_settings')
-local setup_default_ui = require('basicIde.debugging.default_ui')
-
 local language_modules = {
 	require('basicIde.debugging.languages.python'),
 	require('basicIde.debugging.languages.javascript'),
@@ -16,7 +12,8 @@ return {
 		use {
 			'rcarriga/nvim-dap-ui',
 			requires = {
-				'mfussenegger/nvim-dap'
+				'mfussenegger/nvim-dap',
+				'nvim-neotest/nvim-nio',
 			}
 		}
 
@@ -26,6 +23,10 @@ return {
 	end,
 
 	configure = function(project_settings)
+		local setup_listeners = require('basicIde.debugging.events')
+		local setup_project_settings = require('basicIde.debugging.project_settings')
+		local setup_default_ui = require('basicIde.debugging.default_ui')
+
 		setup_default_ui()
 		setup_listeners()
 
