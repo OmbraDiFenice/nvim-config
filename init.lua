@@ -11,13 +11,16 @@ end
 
 ensure_packer()
 local packer = require('packer')
-packer.init()
+packer.util = require('packer.util')
+local basicIde = require('basicIde')
+
+packer.init({
+	snapshot = 'packer.snapshot',
+	snapshot_path = packer.util.join_paths(vim.fn.stdpath('config'), 'lua', 'basicIde'),
+})
 packer.reset()
 
 packer.use 'wbthomason/packer.nvim'
-
-require('basicIde').use_deps(packer.use)
-
+basicIde.use_deps(packer.use)
 packer.install()
-
-require('basicIde').configure()
+basicIde.configure()
