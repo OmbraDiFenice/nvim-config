@@ -163,5 +163,8 @@ return {
 		setup_navigation_keybindings()
 
 		setup_highlight_identifier_keybindings()
+
+		local buffer_stack = require('basicIde.editor.buffer_stack')
+		buffer_stack.init()
 	end
 }
