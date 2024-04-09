@@ -1,12 +1,12 @@
 local utils = require('basicIde.utils')
 
 ---Make sure that the settings are well formatted
----@param project_settings RemoteSyncSettings
+---@param settings RemoteSyncSettings
 ---@return nil # it cleans the settings in place
-local function clean_settings(project_settings)
-	for i, mapping in ipairs(project_settings.mappings) do
-		project_settings.mappings[i][1] = utils.ensure_trailing_slash(mapping[1])
-		project_settings.mappings[i][2] = utils.ensure_trailing_slash(mapping[2])
+local function clean_settings(settings)
+	for i, mapping in ipairs(settings.mappings) do
+		settings.mappings[i][1] = utils.ensure_trailing_slash(mapping[1])
+		settings.mappings[i][2] = utils.ensure_trailing_slash(mapping[2])
 	end
 end
 
@@ -24,13 +24,15 @@ local function map_file_path(mappings, file_path)
 		local remote_prefix = mapping[2]
 
 		if file_path:find(local_prefix, 1, true) == 1 and #selected_prefix < #local_prefix then
-			source_relative_path = utils.ensure_no_leading_slash(string.sub(file_path, #local_prefix))
+			source_relative_path = string.sub(file_path, #local_prefix)
 			destination_root_path = remote_prefix
 			selected_prefix = local_prefix
 		end
 	end
 
-	source_relative_path = "./" .. source_relative_path
+	if source_relative_path ~= nil then
+		source_relative_path = utils.ensure_no_leading_slash("./" .. source_relative_path)
+	end
 
 	return source_relative_path, destination_root_path
 end
@@ -61,7 +63,7 @@ end
 ---@return nil
 function RsyncManager:start_master_ssh()
 	self.ssh_control_master_socket = vim.fn.tempname()
-	if self.ssh_control_master_socket == nil then vim.notify("unable to create ssh control master socket, remote sync will be slower") return end
+	if self.ssh_control_master_socket == nil then vim.notify("unable to create ssh control master socket, remote sync will be slower", vim.log.levels.WARN) return end
 
 	self.master_job_id = utils.runAndReturnOutput({
 		'ssh',
@@ -85,17 +87,17 @@ function RsyncManager:synchronize_file(file_path)
 
 	local source_relative_path, destination_root_path = map_file_path(self.settings.mappings, file_path)
 	if source_relative_path == nil or destination_root_path == nil then
-		vim.notify('unable to map ' .. file_path .. ' to  a remote directory.')
+		vim.notify('unable to map ' .. file_path .. ' to a remote directory.', vim.log.levels.ERROR)
 		return
 	end
 
 	local function build_ignore_list()
 		local temp_filename = vim.fn.tempname()
-		if temp_filename == nil then vim.notify('Unable to create temp file, skipping ignored files on sync') return end
+		if temp_filename == nil then vim.notify('Unable to create temp file, skipping ignored files on sync', vim.log.levels.WARN) return end
 
 		local temp_file_handle = io.open(temp_filename, 'w')
 		if temp_file_handle == nil then
-			vim.notify('Unable to open temp file, skipping ignored files on sync')
+			vim.notify('Unable to open temp file, skipping ignored files on sync', vim.log.levels.WARN)
 			return
 		end
 
@@ -151,7 +153,7 @@ function RsyncManager:synchronize_file(file_path)
 		if self.settings.notifications.enabled then notification = vim.notify('sync started', vim.log.levels.INFO, { on_close = function() notification = nil end }) end
 		utils.runAndReturnOutput(command, vim.schedule_wrap(function(output, exit_code)
 			if exit_code ~= 0 then
-				vim.notify(output, vim.log.levels.ERROR)
+				vim.notify(output, vim.log.levels.ERROR, { replace = notification })
 			end
 			if self.settings.notifications.enabled then vim.notify('sync completed', vim.log.levels.INFO, { replace = notification }) end
 			if exclude_list_filename ~= nil then
