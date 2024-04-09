@@ -12,9 +12,13 @@ end
 
 ---Convert a local absolute path to the pair [local relative path, remote absolute path]
 ---@param mappings string[][] # the path mappings from |RemoteSyncSettings|
----@param file_path string # local absolute path to be mapped
----@return string|nil, string|nil # local relative path, remtoe absolute path. Both nil if it wasn't possible to map the input
+---@param file_path string # local path to be mapped. If the path doesn't start with a path separator it's assumed to be a relative path, and it's prepended with the root path
+---@return string|nil, string|nil # local relative path, remote absolute path. Both nil if it wasn't possible to map the input
 local function map_file_path(mappings, file_path)
+	if file_path:sub(1, 1) ~= OS.sep then
+		file_path = table.concat({utils.ensure_no_trailing_slash(vim.fn.getcwd()), file_path}, OS.sep)
+	end
+
 	local selected_prefix = ''
 	local source_relative_path = nil
 	local destination_root_path = nil
