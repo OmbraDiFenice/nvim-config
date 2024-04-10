@@ -65,9 +65,13 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@class EditorConfig
 ---@field open_tree_view_on_start boolean
 
+---@class LoaderConfig
+---@field virtual_environment? string
+---@field environment table<string, string> environment variables <name, value> to set before launching nvim via the loader. Use ${env:PATH} to include values from the existing PATH environment variable
+
 ---@class ProjectSettings
 ---@field PROJECT_SETTINGS_FILE string
----@field virtual_environment? string
+---@field loader LoaderConfig
 ---@field format_on_save FormatOnSaveSettings
 ---@field debugging DebuggingSettings
 ---@field terminal TerminalSettings
@@ -79,7 +83,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field editor EditorConfig
 
 ---@class UserProjectSettings
----@field virtual_environment? string
+---@field loader? LoaderConfig
 ---@field format_on_save? FormatOnSaveSettings
 ---@field debugging? DebuggingSettings
 ---@field terminal? TerminalSettings
@@ -112,7 +116,10 @@ end
 ---@type ProjectSettings
 local default_settings = {
 	PROJECT_SETTINGS_FILE = '',
-	virtual_environment = nil,
+	loader = {
+		virtual_environment = nil,
+		environment = {},
+	},
 	format_on_save = { -- WARNING: if enabled together with autosave it will pollute the undo history and you won't be able to undo changes anymore
 		enabled = false, -- 1. you make a change -> autosave triggers -> changes go to undo history
                      -- 2. buffer is autoformatted -> buffer is changed -> autosave triggers again -> autoformatting changes go to undo history
