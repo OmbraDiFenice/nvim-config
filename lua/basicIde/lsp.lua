@@ -128,7 +128,7 @@ return {
 			["pylsp"] = function()
 				default_mason_setup_handler("pylsp")
 				vim.fn.jobstart(
-				{ 'bash', '-c', 'source venv/bin/activate && pip install pylsp-mypy python-lsp-ruff python-lsp-black' }, {
+				{ 'bash', '-c', 'source venv/bin/activate && pip install python-lsp-black' }, {
 					cwd = vim.fn.stdpath('data') .. '/mason/packages/python-lsp-server',
 				})
 			end,
@@ -158,7 +158,7 @@ return {
 		-- Complementary linters as suggested on Mason readme
 		-- If the LSP server being used is also triggering the same linter then you'll get duplicated linting reports. Make sure to enable only one, either here or on LSP
 
-		-- require('lint').linters_by_ft.python = {'mypy',} -- actually mypy works fine also through LSP plugin, just make sure to install it in the local virtual environment if you have one
+		require('lint').linters_by_ft.python = {'mypy', 'pylint'}
 
 		vim.api.nvim_create_autocmd({ "BufWinEnter", "BufWritePost" }, {
 			callback = function()
