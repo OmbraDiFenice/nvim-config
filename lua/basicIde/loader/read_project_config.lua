@@ -56,6 +56,8 @@ local function main()
 		print(parseable_environment(proj_config.loader.environment))
 	elseif command == "init_script" then
 		print(evaluatable_script_string(proj_config.loader.init_script))
+	elseif command == "data_directory" then
+		print(proj_config.DATA_DIRECTORY)
 	end
 end
 

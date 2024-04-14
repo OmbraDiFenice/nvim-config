@@ -26,7 +26,7 @@ function get_config() {
 VENVPATH=$(get_config virtual_environment | tr --delete '\n\r')
 ENVIRONMENT_VARIABLES=$(get_config environment)
 INIT_SCRIPT=$(get_config init_script | tr --delete '\r')
-PIPE="$(nvim --headless -c 'GetDataDirectory' -c 'qa!' 2>&1)/nvim_server.pipe"
+PIPE="$(get_config data_directory | tr --delete '\n\r')/nvim_server.pipe"
 # uncomment this when/if nvim will add support for --remote-wait
 # export GIT_EDITOR="nvim --server $PIPE --remote-wait"
 
