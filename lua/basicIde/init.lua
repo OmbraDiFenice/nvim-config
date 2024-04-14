@@ -25,7 +25,6 @@ table.insert(components, 'basicIde/debugging')
 table.insert(components, 'basicIde/coverage')
 table.insert(components, 'basicIde/codeFormatting')
 table.insert(components, 'basicIde/remote_sync')
-table.insert(components, 'basicIde/loader')
 table.insert(components, 'basicIde/notifications')
 table.insert(components, 'basicIde/code_layout')
 

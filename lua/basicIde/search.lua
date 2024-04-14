@@ -21,7 +21,7 @@ return {
 		}
 	end,
 
-	configure = function()
+	configure = function(project_settings)
 		-- See `:help telescope` and `:help telescope.setup()`
 		local telescope = require('telescope')
 		local telescope_actions = require('telescope.actions')
@@ -34,7 +34,7 @@ return {
 					num_pickers = 5,
 				},
 				history = {
-					path = Get_data_directory() .. '/telescope_history.sqlite3',
+					path = table.concat({project_settings.DATA_DIRECTORY , 'telescope_history.sqlite3'}, OS.sep),
 					limit = 100,
 				},
 				mappings = {

@@ -72,6 +72,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 
 ---@class ProjectSettings
 ---@field PROJECT_SETTINGS_FILE string
+---@field DATA_DIRECTORY string
 ---@field loader LoaderConfig
 ---@field format_on_save FormatOnSaveSettings
 ---@field debugging DebuggingSettings
@@ -117,6 +118,7 @@ end
 ---@type ProjectSettings
 local default_settings = {
 	PROJECT_SETTINGS_FILE = '',
+	DATA_DIRECTORY = '',
 	loader = {
 		virtual_environment = nil,
 		environment = {},
@@ -216,10 +218,11 @@ return {
 			settings = Deepmerge(settings, custom_settings)
 		end
 
-		-- Read only field.
-		-- It's intentionally not customizable from project file,
+		-- Read only fields.
+		-- They're intentionally not customizable from project file,
 		-- only available to be referenced by plugins if needed (see e.g. debugging)
 		settings.PROJECT_SETTINGS_FILE = PROJECT_SETTINGS_FILE
+		settings.DATA_DIRECTORY = Get_data_directory()
 
 		return settings
 	end,
