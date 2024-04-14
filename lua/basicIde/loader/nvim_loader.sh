@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+PROJECT_ROOT="$PWD"
+
 # Uses nvim as lua interpreter for the given script file.
 # The script can take optional arguments.
 # This will solve problems related to the version of lua installed on the system:
@@ -14,11 +17,15 @@ function nlua() {
 	cat "$LUA_SCRIPT_FILE" | nvim --clean -n -i NONE -l - $@ 2>&1
 }
 
-SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+# Convenience function to get data from the project configuration
+function get_config() {
+	local CONFIG="$1"
+	nlua "$SCRIPTPATH/read_project_config.lua" "$PROJECT_ROOT" "$CONFIG"
+}
 
-VENVPATH=$(nlua "$SCRIPTPATH/read_project_config.lua" "$PWD" virtual_environment | tr --delete '\n\r')
-ENVIRONMENT_VARIABLES=$(nlua "$SCRIPTPATH/read_project_config.lua" "$PWD" environment)
-INIT_SCRIPT=$(nlua "$SCRIPTPATH/read_project_config.lua" "$PWD" init_script | tr --delete '\r')
+VENVPATH=$(get_config virtual_environment | tr --delete '\n\r')
+ENVIRONMENT_VARIABLES=$(get_config environment)
+INIT_SCRIPT=$(get_config init_script | tr --delete '\r')
 PIPE="$(nvim --headless -c 'GetDataDirectory' -c 'qa!' 2>&1)/nvim_server.pipe"
 # uncomment this when/if nvim will add support for --remote-wait
 # export GIT_EDITOR="nvim --server $PIPE --remote-wait"
