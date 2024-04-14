@@ -2,6 +2,7 @@
 
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 PROJECT_ROOT="$PWD"
+NVIM_ARGS=""
 
 # Uses nvim as lua interpreter for the given script file.
 # The script can take optional arguments.
@@ -26,7 +27,11 @@ function get_config() {
 VENVPATH=$(get_config virtual_environment | tr --delete '\n\r')
 ENVIRONMENT_VARIABLES=$(get_config environment)
 INIT_SCRIPT=$(get_config init_script | tr --delete '\r')
-PIPE="$(get_config data_directory | tr --delete '\n\r')/nvim_server.pipe"
+DATA_DIRECTORY=$(get_config data_directory | tr --delete '\n\r')
+if [[ ${DATA_DIRECTORY:-} != "" ]]
+then
+	PIPE="$DATA_DIRECTORY/nvim_server.pipe"
+fi
 # uncomment this when/if nvim will add support for --remote-wait
 # export GIT_EDITOR="nvim --server $PIPE --remote-wait"
 
@@ -41,4 +46,8 @@ done
 
 eval "$INIT_SCRIPT"
 
-nvim --listen "$PIPE" $@
+if ! echo "$@" | grep -- '--listen' && [[ ! -z "$PIPE" ]]
+then
+	NVIM_ARGS="$NVIM_ARGS --listen '$PIPE'"
+fi
+nvim $NVIM_ARGS $@
