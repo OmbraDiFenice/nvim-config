@@ -18,6 +18,7 @@ SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
 VENVPATH=$(nlua "$SCRIPTPATH/read_project_config.lua" "$PWD" virtual_environment | tr --delete '\n\r')
 ENVIRONMENT_VARIABLES=$(nlua "$SCRIPTPATH/read_project_config.lua" "$PWD" environment)
+INIT_SCRIPT=$(nlua "$SCRIPTPATH/read_project_config.lua" "$PWD" init_script | tr --delete '\r')
 PIPE="$(nvim --headless -c 'GetDataDirectory' -c 'qa!' 2>&1)/nvim_server.pipe"
 # uncomment this when/if nvim will add support for --remote-wait
 # export GIT_EDITOR="nvim --server $PIPE --remote-wait"
@@ -30,4 +31,7 @@ do
 done
 
 [[ ${VENVPATH:-} != "" && -z "$VIRTUAL_ENV" ]] && source "$VENVPATH/bin/activate"
+
+eval "$INIT_SCRIPT"
+
 nvim --listen "$PIPE" $@

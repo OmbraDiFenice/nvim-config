@@ -68,6 +68,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@class LoaderConfig
 ---@field virtual_environment? string
 ---@field environment table<string, string> environment variables <name, value> to set before launching nvim via the loader. Use ${env:PATH} to include values from the existing PATH environment variable
+---@field init_script string script to be executed before starting nvim, after having sourced the venv and loaded the environment from this config. The interpreter is the same used in nvim_loader.sh
 
 ---@class ProjectSettings
 ---@field PROJECT_SETTINGS_FILE string
@@ -119,6 +120,7 @@ local default_settings = {
 	loader = {
 		virtual_environment = nil,
 		environment = {},
+		init_script = '',
 	},
 	format_on_save = { -- WARNING: if enabled together with autosave it will pollute the undo history and you won't be able to undo changes anymore
 		enabled = false, -- 1. you make a change -> autosave triggers -> changes go to undo history

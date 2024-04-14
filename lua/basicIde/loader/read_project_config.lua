@@ -36,6 +36,14 @@ local function parseable_environment(environment)
 	return str
 end
 
+---Return a string that can be passed to `eval` in the loader shell script
+---@param script string
+---@return string
+local function evaluatable_script_string(script)
+	script, _ = script:gsub("[	\r]", '') -- remove tabs and carriage return since they're not understood when the string is evaluated by bash
+	return script
+end
+
 ---Load the project file and prints the `virtual_environment` field, so the shell script can source it
 local function main()
 	local project_root_dir = arg[1]
@@ -46,6 +54,8 @@ local function main()
 		print(prefix(project_root_dir, proj_config.loader.virtual_environment))
 	elseif command == "environment" then
 		print(parseable_environment(proj_config.loader.environment))
+	elseif command == "init_script" then
+		print(evaluatable_script_string(proj_config.loader.init_script))
 	end
 end
 
