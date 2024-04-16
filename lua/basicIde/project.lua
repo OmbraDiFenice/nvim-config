@@ -212,7 +212,7 @@ return {
 	load_settings = function()
 		local settings = Deepcopy(default_settings)
 
-		if File_exists(PROJECT_SETTINGS_FILE) then
+		if Path_exists(PROJECT_SETTINGS_FILE) then
 			local custom_settings = dofile(PROJECT_SETTINGS_FILE)
 			---@cast custom_settings ProjectSettings
 			settings = Deepmerge(settings, custom_settings)
