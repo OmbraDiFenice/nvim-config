@@ -28,7 +28,7 @@ local function map_file_path(mappings, file_path)
 		local remote_prefix = mapping[2]
 
 		if file_path:find(local_prefix, 1, true) == 1 and #selected_prefix < #local_prefix then
-			source_relative_path = string.sub(file_path, #local_prefix)
+			source_relative_path = utils.ensure_no_leading_slash(string.sub(file_path, #local_prefix))
 			destination_root_path = remote_prefix
 			selected_prefix = local_prefix
 		end
@@ -154,7 +154,7 @@ function RsyncManager:synchronize_file(file_path)
 
 	self._timer = utils.debounce({ timer = self._timer }, function()
 		local notification
-		if self.settings.notifications.enabled then notification = vim.notify('sync started', vim.log.levels.INFO, { on_close = function() notification = nil end }) end
+		if self.settings.notifications.enabled then notification = vim.notify('sync started: '..source_relative_path, vim.log.levels.INFO, { on_close = function() notification = nil end }) end
 		utils.runAndReturnOutput(command, vim.schedule_wrap(function(output, exit_code)
 			if exit_code ~= 0 then
 				vim.notify(output, vim.log.levels.ERROR, { replace = notification })
