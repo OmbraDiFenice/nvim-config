@@ -9,17 +9,6 @@ P = function(table)
 	return table
 end
 
----Checks if the given file path exists
----taken from https://stackoverflow.com/a/54775280/4046810
----@param name string # the path to the file to check
----@return boolean
-File_exists = function(name)
-	local f = io.open(name, "r")
-	if f == nil then return false end
-	local closed = io.close(f)
-	return closed ~= nil and closed
-end
-
 ---Checks if the given path exists (dir or file)
 ---@param path string
 ---@return boolean
