@@ -20,6 +20,15 @@ File_exists = function(name)
 	return closed ~= nil and closed
 end
 
+---Checks if the given path exists (dir or file)
+---@param path string
+---@return boolean
+Path_exists = function(path)
+	local fail, err, _ = vim.uv.fs_stat(path)
+	if fail == nil then vim.notify(err, vim.log.levels.WARN); return false end
+	return true
+end
+
 ---Returns the directory to be used to store data related to the current nvim session.
 ---@return string # the full path to the folder holding session data
 Get_data_directory = function()

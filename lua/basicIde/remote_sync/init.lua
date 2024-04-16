@@ -1,5 +1,6 @@
 local rsync_manager = require('basicIde.remote_sync.rsync_manager')
 local fs_monitor = vim.loop.new_fs_event()
+local git_monitor = vim.loop.new_fs_event()
 
 local function sync_current_file()
 	local path = vim.api.nvim_buf_get_name(0)
@@ -10,6 +11,35 @@ local function sync_current_file()
 			path = path,
 		},
 	})
+end
+
+---Setup file watcher to trigger repository sync on git worktree changes (checkout, stash etc)
+---@param project_root_path string
+local function setup_sync_on_git_changes(project_root_path)
+	if git_monitor == nil then vim.notify('unable to create watch event for git sync on changes. Files won\'t be synchronized automatically on checkouts'); return end
+	local git_head_path = table.concat({ project_root_path, '.git', 'HEAD' }, OS.sep)
+
+	local function start_monitoring()
+		git_monitor:start(git_head_path,
+			{ watch_entry = true },
+			function(err, _, events)
+				if err ~= nil then vim.notify(err, vim.log.levels.ERROR); return end
+				git_monitor:stop()
+				start_monitoring()
+				if events.change == nil then return end
+				vim.schedule_wrap(function()
+					vim.api.nvim_exec_autocmds('User', {
+						group = 'BasicIde.RemoteSync',
+						pattern = 'SyncDir',
+						data = {
+							path = project_root_path,
+						},
+					})
+				end)()
+		end)
+	end
+
+	start_monitoring()
 end
 
 ---@type IdeModule
@@ -65,6 +95,10 @@ return {
 			end
 		})
 
-		vim.keymap.set('n', '<leader>rs', sync_current_file, { desc = 'Send the current file to the remote machine' })
+		vim.keymap.set('n', '<leader>rs', sync_current_file, { desc = 'Synch current file to the remote machine' })
+
+		if Path_exists(table.concat({ vim.fn.getcwd(), ".git" }, OS.sep)) then
+			setup_sync_on_git_changes(vim.fn.getcwd(-1, -1))
+		end
 	end
 }
