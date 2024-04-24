@@ -19,6 +19,7 @@ local function load_proj_file()
 		table.concat({vim.fn.stdpath('config'), 'lua', '?.lua'}, '/'),
 	}, ';')
 	require('basicIde/globals')
+	vim.notify = function() end -- silence warnings which would otherwise be picked up by the loader script
 	local project = require('basicIde.project')
 	return project.load_settings()
 end
