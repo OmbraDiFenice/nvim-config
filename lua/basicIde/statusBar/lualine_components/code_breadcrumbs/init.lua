@@ -47,8 +47,8 @@ function M:update()
 	local parsers = vim.treesitter.language.get_filetypes(lang)
 	if #parsers == 0 then return end
 
-	local tree_node = vim.treesitter.get_node()
-	if tree_node == nil then return end
+	local success, tree_node = pcall(vim.treesitter.get_node)
+	if not success or tree_node == nil then return end
 
 	local file_type = vim.api.nvim_get_option_value('filetype', { scope = 'local' })
 	if file_type == nil then return end
