@@ -29,7 +29,8 @@ local server_commands = {
 	}
 }
 
-local lsp_keybindings = function(_, bufnr)
+---@param project_settings ProjectSettings
+local lsp_keybindings = function(_, bufnr, project_settings)
 	local nmap = function(keys, func, desc)
 		if desc then
 			desc = 'LSP: ' .. desc
@@ -65,7 +66,17 @@ local lsp_keybindings = function(_, bufnr)
 	end, { desc = 'Format current buffer with LSP' })
 
 	-- refactoring
-	nmap('<F6>', vim.lsp.buf.rename, 'Rename symbol under cursor')
+	nmap('<F6>', function()
+		vim.lsp.buf.rename()
+		if project_settings.editor.autosave then
+			-- not working so well. We would need to know:
+			--   - that the rename has completed on all buffers before
+			--   - which buffers where touched and where (so we can both optimize only saving those and also build a command to rollback the operation)
+			-- nvim lua interface apparently is not exposing these info, so disable this behavior for now
+
+			-- vim.cmd [[ :wa ]]
+		end
+	end, 'Rename symbol under cursor')
 end
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -96,7 +107,7 @@ return {
 		}
 	end,
 
-	configure = function()
+	configure = function(project_settings)
 		require('neodev').setup() -- must be called before lspconfig
 
 		-- mason
@@ -117,7 +128,7 @@ return {
 		local function default_mason_setup_handler(server_name)
 			require('lspconfig')[server_name].setup {
 				capabilities = capabilities,
-				on_attach = lsp_keybindings,
+				on_attach = function(client, bufnr) lsp_keybindings(client, bufnr, project_settings) end,
 				settings = servers_configuration[server_name],
 				cmd = server_commands[server_name],
 			}
