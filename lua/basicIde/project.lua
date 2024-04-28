@@ -63,6 +63,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field keymaps table<string, CustomKeymapDef> function will receive a reference to the instance of code layout being interacted with
 
 ---@class EditorConfig
+---@field autosave boolean
 ---@field open_tree_view_on_start boolean
 
 ---@class LoaderConfig
@@ -203,6 +204,7 @@ local default_settings = {
 		},
 	},
 	editor = {
+		autosave = true,
 		open_tree_view_on_start = true,
 	}
 }
