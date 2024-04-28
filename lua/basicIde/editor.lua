@@ -136,6 +136,7 @@ return {
 
 	configure = function(project_settings)
 		require('auto-save').setup({
+			enabled = project_settings.editor.autosave,
 			condition = function(buf)
 				local utils = require("auto-save.utils.data")
 				local ide_autosave_var = vim.fn.getbufvar(buf, 'nvim_ide_autosave')
