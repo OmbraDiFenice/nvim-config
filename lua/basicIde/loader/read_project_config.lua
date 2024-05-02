@@ -31,7 +31,6 @@ end
 local function parseable_environment(environment)
 	local str = ""
 	for variable, value in pairs(environment) do
-		value, _ = string.gsub(value, "%${env:(%a+)}", function (capture) return os.getenv(capture) end)
 		str = str .. variable .. '=' .. value .. '\n'
 	end
 	return str
