@@ -209,6 +209,33 @@ local default_settings = {
 	}
 }
 
+
+---Resolves special variable names in environment variable setting
+---
+---Supported variables are:
+---
+---  Environment variables: the pattern ${env:VARIABLE_NAME} will be replaced with the value from the environment variable VARIABLE_NAME.
+---                         If the variable doesn't exist it's replaced with an empty string.
+---                         The variable name is not recursively expanded
+---
+---  IDE variables: the pattern ${ide:IDE_VARIABLE} is replaced with the value provided by  the IDE itself.
+---                 Here's the list of variables currently supported:
+---     							- PROJECT_ROOT: the full path to the project root (where the .nvim.proj.lua file is located)
+---@param environment_settings table<string, string>
+local function resolve_variables(environment_settings)
+	local resolved_environment = {}
+	for variable, value in pairs(environment_settings) do
+		value, _ = string.gsub(value, "%${env:(%a+)}", function (capture)
+			local env_value = os.getenv(capture)
+			if env_value == nil then return "" end
+			return env_value:gsub('\r', '')
+		end)
+		value, _ = string.gsub(value, "%${ide:PROJECT_ROOT}", vim.fn.getcwd(-1, -1))
+		resolved_environment[variable] = value
+	end
+	return resolved_environment
+end
+
 return {
 	---@return ProjectSettings
 	load_settings = function()
@@ -226,6 +253,8 @@ return {
 			---@cast custom_settings ProjectSettings
 			settings = Deepmerge(settings, custom_settings)
 		end
+
+		settings.loader.environment = resolve_variables(settings.loader.environment)
 
 		-- Read only fields.
 		-- They're intentionally not customizable from project file,
