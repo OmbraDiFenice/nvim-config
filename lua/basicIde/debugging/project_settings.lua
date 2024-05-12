@@ -48,7 +48,11 @@ local function apply_environment_configurations(loader_settings)
 	local loader_environment = loader_settings.environment
 	for _, dap_configurations in pairs(dap.configurations) do
 		for _, dap_configuration in ipairs(dap_configurations) do
-			dap_configuration.env = Deepmerge(Deepcopy(loader_environment), dap_configuration.env)
+			if dap_configuration.env ~= nil then
+				dap_configuration.env = Deepmerge(Deepcopy(loader_environment), dap_configuration.env)
+			else
+				dap_configuration.env = Deepcopy(loader_environment)
+			end
 		end
 	end
 end
