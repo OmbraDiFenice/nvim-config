@@ -69,18 +69,33 @@ return {
 		}
 
 		-- diffview
-
+		local diffview_actions = require('diffview.actions')
 		require('diffview').setup {
 			keymaps = {
-				view = { { 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } } },
-				diff1 = { { 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } } },
-				diff2 = { { 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } } },
-				diff3 = { { 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } } },
-				diff4 = { { 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } } },
+				view = {
+					{ 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } },
+					{ 'n', '<C-H>', diffview_actions.focus_files, { desc = 'Diffview: goto file panel' } },
+				},
+				diff1 = {
+					{ 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } },
+				},
+				diff2 = {
+					{ 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } },
+				},
+				diff3 = {
+					{ 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } },
+				},
+				diff4 = {
+					{ 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } },
+				},
 				file_panel = {
-					{ 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } } },
+					{ 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } },
+					{ 'n', '<C-H>', diffview_actions.focus_entry, { desc = 'Diffview: focus entry' } },
+				},
 				file_history_panel = {
-					{ 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } } },
+					{ 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } },
+					{ 'n', '<C-H>', diffview_actions.focus_entry, { desc = 'Diffview: focus entry' } },
+				},
 			},
 			hooks = {
 				view_opened = function(view)
