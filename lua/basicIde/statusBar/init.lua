@@ -10,9 +10,25 @@ return {
 		}
 	end,
 
-	configure = function()
+	configure = function(project_settings)
 		local testRun = TestRun:new()
 		local breadcrumbs = CodeBreadcrumbs:new()
+
+		local right_side = {
+			function() return testRun.msg end,
+		}
+
+		if project_settings.ai.enabled and project_settings.ai.show_in_status_bar then
+			table.insert(right_side, function()
+				local success, res = pcall(vim.fn['codeium#GetStatusString'])
+				if not success then return '' end
+				return res
+			end)
+		end
+
+		table.insert(right_side, 'encoding')
+		table.insert(right_side, 'fileformat')
+		table.insert(right_side, 'filetype')
 
 		require('lualine').setup {
 			options = {
@@ -34,12 +50,7 @@ return {
 					},
 					function() return breadcrumbs.msg end,
 				},
-				lualine_x = {
-					function() return testRun.msg end,
-					'encoding',
-					'fileformat',
-					'filetype',
-				},
+				lualine_x = right_side,
 			}
 		}
 	end,

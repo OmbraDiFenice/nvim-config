@@ -71,6 +71,15 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field environment table<string, string> environment variables <name, value> to set before launching nvim via the loader. Use ${env:PATH} to include values from the existing PATH environment variable
 ---@field init_script string script to be executed before starting nvim, after having sourced the venv and loaded the environment from this config. The interpreter is the same used in nvim_loader.sh
 
+---@class AiConfig
+---@field enabled boolean
+---@field disable_for_all_filetypes boolean
+---@field filetypes table<string, boolean> -- explicitly enable or disable AI for specific filetypes. The default for unspecified filetypes depends on disable_for_all_filetypes. There are some default applied implicitly (see the module config code), but they can always be overridden manually
+---@field manual boolean
+---@field render_suggestion boolean
+---@field keymaps table<string, string[]> -- they keys are fixed and associated to each possible AI action. The value is a list of keys to use to trigger the action. These keymaps are always set for insert mode
+---@field show_in_status_bar boolean
+
 ---@class ProjectSettings
 ---@field PROJECT_SETTINGS_FILE string
 ---@field DATA_DIRECTORY string
@@ -84,6 +93,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field lsp LspSettings
 ---@field code_layout CodeLayoutConfig
 ---@field editor EditorConfig
+---@field ai AiConfig
 
 ---@class UserProjectSettings
 ---@field loader? LoaderConfig
@@ -96,6 +106,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field lsp? LspSettings
 ---@field code_layout? CodeLayoutConfig
 ---@field editor EditorConfig?
+---@field ai AiConfig?
 
 ---Execute the callbacks in `custom_startup_scripts` setting
 ---@param settings ProjectSettings
@@ -206,7 +217,21 @@ local default_settings = {
 	editor = {
 		autosave = true,
 		open_tree_view_on_start = true,
-	}
+	},
+	ai = {
+		enabled = false,
+		disable_for_all_filetypes = false,
+		filetypes = {},
+		manual = false,
+		render_suggestion = true,
+		show_in_status_bar = true,
+		keymaps = {
+			accept_current_suggestion = {'<C-g>'},
+			clear_current_suggestion = {'<C-x>'},
+			next_suggestion = {'<C-l>'},
+			previous_suggestion = {'<C-h>'},
+		},
+	},
 }
 
 
