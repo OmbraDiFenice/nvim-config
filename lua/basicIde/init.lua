@@ -27,6 +27,7 @@ table.insert(components, 'basicIde/codeFormatting')
 table.insert(components, 'basicIde/remote_sync')
 table.insert(components, 'basicIde/notifications')
 table.insert(components, 'basicIde/code_layout')
+table.insert(components, 'basicIde/ai')
 
 ---@type { use_deps: fun(use: fun(plugin_sepc: any)), configure: fun() }
 return {
