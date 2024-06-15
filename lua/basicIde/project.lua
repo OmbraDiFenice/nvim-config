@@ -234,8 +234,21 @@ local default_settings = {
 	},
 }
 
+---Helper function for resolve_variables.
+---Replaces any supported variable placeholder with the corrsponding computed value
+local function resolve_variable(orig_value)
+	local value = orig_value
+	value, _ = string.gsub(value, "%${env:(%a+)}", function (capture)
+		local env_value = os.getenv(capture)
+		if env_value == nil then return "" end
+		return env_value:gsub('\r', '')
+	end)
+	value, _ = string.gsub(value, "%${ide:PROJECT_ROOT}", vim.fn.getcwd(-1, -1))
+	return value
+end
 
----Resolves special variable names in environment variable setting
+
+---Resolves special variable names anywhere in the settings
 ---
 ---Supported variables are:
 ---
@@ -243,22 +256,17 @@ local default_settings = {
 ---                         If the variable doesn't exist it's replaced with an empty string.
 ---                         The variable name is not recursively expanded
 ---
----  IDE variables: the pattern ${ide:IDE_VARIABLE} is replaced with the value provided by  the IDE itself.
+---  IDE variables: the pattern ${ide:IDE_VARIABLE} is replaced with the value provided by the IDE itself.
 ---                 Here's the list of variables currently supported:
 ---     							- PROJECT_ROOT: the full path to the project root (where the .nvim.proj.lua file is located)
----@param environment_settings table<string, string>
-local function resolve_variables(environment_settings)
-	local resolved_environment = {}
-	for variable, value in pairs(environment_settings) do
-		value, _ = string.gsub(value, "%${env:(%a+)}", function (capture)
-			local env_value = os.getenv(capture)
-			if env_value == nil then return "" end
-			return env_value:gsub('\r', '')
+---@param settings table<string, string>
+local function resolve_variables(settings)
+	return Deepmap(settings, function(config)
+			if type(config) == 'string' then
+				return resolve_variable(config)
+			end
+			return config
 		end)
-		value, _ = string.gsub(value, "%${ide:PROJECT_ROOT}", vim.fn.getcwd(-1, -1))
-		resolved_environment[variable] = value
-	end
-	return resolved_environment
 end
 
 return {
@@ -279,7 +287,7 @@ return {
 			settings = Deepmerge(settings, custom_settings)
 		end
 
-		settings.loader.environment = resolve_variables(settings.loader.environment)
+		settings = resolve_variables(settings)
 
 		-- Read only fields.
 		-- They're intentionally not customizable from project file,
