@@ -54,6 +54,26 @@ function Deepcopy(orig)
 	return copy
 end
 
+---Recursively traverse obj and returns a copy of it applying fn to each element.
+---If a table is encountered, applies fn to both keys and values.
+---@param orig any # object to traverse
+---@param fn fun(obj: any): any # function that will be invoked on each element. Returns the eventually modified parameter. If no modification is needed, it should just return the parameter
+---@return any obj # copy of obj with all keys and values changed by fn
+function Deepmap(orig, fn)
+	local orig_type = type(orig)
+	local copy
+	if orig_type == 'table' then
+		copy = {}
+		for orig_key, orig_value in next, orig, nil do
+			copy[Deepmap(orig_key, fn)] = Deepmap(orig_value, fn)
+		end
+		setmetatable(copy, Deepcopy(getmetatable(orig)))
+	else -- number, string, boolean, etc
+		copy = fn(orig)
+	end
+	return copy
+end
+
 ---Overwrites value of table t1 with corresponding values from t2.
 ---Mutate and return t1
 ---taken from https://stackoverflow.com/a/7470789
