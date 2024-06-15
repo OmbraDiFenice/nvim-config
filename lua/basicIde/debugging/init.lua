@@ -30,12 +30,13 @@ return {
 		setup_default_ui()
 		setup_listeners()
 
-		setup_project_settings(project_settings)
-
-		-- this must be done after the generic configurations are done
-		-- particularly after applying project settings
 		for _, language_module in ipairs(language_modules) do
 			language_module.configure(project_settings)
 		end
+
+		-- this needs to be done after configuring all the language language modules
+		-- otherwise the default dap configurations created by the modules will not exist yet
+		-- and they need to be patched as well (e.g. to set/extend the environment variables)
+		setup_project_settings(project_settings)
 	end
 }
