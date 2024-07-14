@@ -85,6 +85,26 @@ local colorize_text = function(text, color_from)
 	return node_highlight .. text
 end
 
+---Extract the first treesitter node matching one of the given `node_types` starting from `node`.
+---The search is depth first, so the first child of that type is returned, regardless of how deep in the structure.
+---@param node TSNode? starting node
+---@param node_types string[] node types to search for
+---@return TSNode?
+local function first_deep_child_of_types(node, node_types)
+	if node == nil then return nil end
+	for i = 0, node:child_count(), 1 do
+		local child = node:child(i)
+		if child ~= nil then
+			if Is_in_list(child:type(), node_types) then
+				return child
+			else
+				local deep_child = first_deep_child_of_types(child, node_types)
+				if deep_child ~= nil then return deep_child end
+			end
+		end
+	end
+end
+
 return {
 	---Extract the treesitter identifier node of a given node.
 	---Identifier nodes are children nodes of the actual entity they are identifier of in treesitter.
@@ -99,6 +119,8 @@ return {
 			end
 		end
 	end,
+
+	first_deep_child_of_types = first_deep_child_of_types,
 
 	---@param node TSNode
 	---@return TSNode?

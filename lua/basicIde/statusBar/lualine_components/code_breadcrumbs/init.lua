@@ -14,6 +14,8 @@ local language_handlers = {
 	python = require('basicIde.statusBar.lualine_components.code_breadcrumbs.languages.python'),
 	json = require('basicIde.statusBar.lualine_components.code_breadcrumbs.languages.json'),
 	lua = require('basicIde.statusBar.lualine_components.code_breadcrumbs.languages.lua'),
+	c = require('basicIde.statusBar.lualine_components.code_breadcrumbs.languages.c'),
+	cpp = require('basicIde.statusBar.lualine_components.code_breadcrumbs.languages.c'), -- C headers are still identified as cpp file type
 }
 
 ---Find the treesitter node path from root of the file to the given `tree_node`
