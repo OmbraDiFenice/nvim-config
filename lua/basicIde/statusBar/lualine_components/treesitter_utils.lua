@@ -55,10 +55,16 @@ local function find_highlighting_group(node)
 	local captures = vim.treesitter.get_captures_at_pos(0, row, col)
 	if captures == nil or #captures == 0 then return '' end
 
-	local capture_data = captures[#captures] -- apparently the last one in the list is the most specific one
+	local capture_data
+	local treesitter_highlight_group_info
+	for i = #captures, 1, -1 do -- search backwards. Apparently the last one in the list is the most specific one, but it's not always defined
+		capture_data = captures[i]
+		treesitter_highlight_group_info = get_treesitter_highlighting_group_info(capture_data)
+		if treesitter_highlight_group_info ~= nil then break end
+	end
 
-	local treesitter_highlight_group_info = get_treesitter_highlighting_group_info(capture_data)
 	if treesitter_highlight_group_info == nil then return '' end
+	-- at this point capture_data points to the specific capture corresponding to treesitter_highlight_group_info data
 
 	local treesitter_int_fg_color = treesitter_highlight_group_info.fg
 
