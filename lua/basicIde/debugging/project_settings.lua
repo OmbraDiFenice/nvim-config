@@ -57,22 +57,25 @@ local function apply_environment_configurations(loader_settings)
 	end
 end
 
----@param project_settings ProjectSettings
-return function(project_settings)
-	local debugging_project_settings = project_settings.debugging
+return {
+	apply_custom_dap_configurations = apply_custom_dap_configurations,
 
-	local dap_configurations = debugging_project_settings.dap_configurations
-	if dap_configurations == nil then return end
+	---@param project_settings ProjectSettings
+	setup_project_settings = function(project_settings)
+		local debugging_project_settings = project_settings.debugging
 
-	apply_custom_dap_configurations(dap_configurations)
-	apply_environment_configurations(project_settings.loader)
+		local dap_configurations = debugging_project_settings.dap_configurations
+		if dap_configurations == nil then return end
 
-	-- Reload dap configurations on change without requiring to restart nvim.
-	-- This is the reason why we have to remove existing dap configurations from the config list every time,
-	-- but it's much more convenient for the user
-	vim.api.nvim_create_autocmd('BufWritePost', {
-		pattern = project_settings.PROJECT_SETTINGS_FILE,
-		desc = 'reload ' .. project_settings.PROJECT_SETTINGS_FILE .. ' on save',
-		callback = apply_custom_dap_configurations,
-	})
-end
+		apply_environment_configurations(project_settings.loader)
+
+		-- Reload dap configurations on change without requiring to restart nvim.
+		-- This is the reason why we have to remove existing dap configurations from the config list every time,
+		-- but it's much more convenient for the user
+		vim.api.nvim_create_autocmd('BufWritePost', {
+			pattern = project_settings.PROJECT_SETTINGS_FILE,
+			desc = 'reload ' .. project_settings.PROJECT_SETTINGS_FILE .. ' on save',
+			callback = apply_custom_dap_configurations,
+		})
+	end
+}
