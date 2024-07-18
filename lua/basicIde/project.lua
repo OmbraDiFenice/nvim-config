@@ -148,7 +148,7 @@ local default_settings = {
 		}
 	},
 	debugging = {
-		dap_configurations = nil,
+		dap_configurations = {},
 	},
 	lsp = {
 		notifications = {
