@@ -32,9 +32,9 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 
 ---@class RemoteSyncSettings
 ---@field enabled boolean
+---@field strategy string -- 'rsync'
+---@field rsync_settings RsyncStrategySettings
 ---@field sync_on_save boolean
----@field remote_user? string
----@field remote_host? string
 ---@field mappings string[][] -- mapping of the folders to sync in the form of { { local_path1, remote_path1}, {local_path2, remote_path_2} ...} . Both local and remote paths must be absolute
 ---@field exclude_paths string[] -- local paths to exclude from sync. To exclude directories the path must end with a slash
 ---@field exclude_git_ignored_files boolean
@@ -160,9 +160,12 @@ local default_settings = {
 	},
 	remote_sync = {
 		enabled = false,
+		strategy = 'rsync',
+		rsync_settings = {
+			remote_user = nil, -- required
+			remote_host = nil, -- required
+		},
 		sync_on_save = true,
-		remote_user = nil, -- required
-		remote_host = nil, -- required
 		mappings = { -- required
 			-- { local_prefix_dir, remote_prefix_dir },
 			-- ...

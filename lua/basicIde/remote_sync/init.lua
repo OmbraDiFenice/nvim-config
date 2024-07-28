@@ -13,6 +13,17 @@ local function sync_current_file()
 	})
 end
 
+---@param project_settings ProjectSettings
+local function get_manager(project_settings)
+	local manager = nil
+	if project_settings.remote_sync.strategy == 'rsync' then
+		manager = rsync_manager:new(project_settings.remote_sync)
+		manager:start_master_ssh()
+	end
+
+	return manager
+end
+
 ---Setup file watcher to trigger repository sync on git worktree changes (checkout, stash etc)
 ---@param project_root_path string
 local function setup_sync_on_git_changes(project_root_path)
@@ -53,8 +64,11 @@ return {
 
 		if not project_settings.remote_sync.enabled then return end
 
-		local manager = rsync_manager:new(project_settings.remote_sync)
-		manager:start_master_ssh()
+		local manager = get_manager(project_settings)
+		if manager == nil then
+			vim.notify('unsupported remote sync strategy: ' .. project_settings.remote_sync.strategy, vim.log.levels.ERROR)
+			return
+		end
 
 		if project_settings.remote_sync.sync_on_save then
 			vim.api.nvim_create_autocmd({ 'BufWritePost' }, {

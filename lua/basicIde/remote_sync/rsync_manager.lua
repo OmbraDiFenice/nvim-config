@@ -1,5 +1,9 @@
 local utils = require('basicIde.utils')
 
+---@class RsyncStrategySettings
+---@field remote_user string
+---@field remote_host string
+
 ---Make sure that the settings are well formatted
 ---@param settings RemoteSyncSettings
 ---@return nil # it cleans the settings in place
@@ -74,7 +78,7 @@ function RsyncManager:start_master_ssh()
 		'-o', 'ControlMaster=yes',
 		'-o', 'ControlPath=' .. self.ssh_control_master_socket,
 		'-N',
-		self.settings.remote_user .. '@' .. self.settings.remote_host,
+		self.settings.rsync_settings.remote_user .. '@' .. self.settings.rsync_settings.remote_host,
 	}, function(output, exit_code)
 		if exit_code ~= 0 then
 			vim.notify(output, vim.log.levels.ERROR)
@@ -132,7 +136,7 @@ function RsyncManager:synchronize_file(file_path)
 
 	local master_socket_option = ''
 	if self.ssh_control_master_socket ~= nil then
-		master_socket_option = 'ssh -l ' .. self.settings.remote_user .. ' -S ' .. self.ssh_control_master_socket
+		master_socket_option = 'ssh -l ' .. self.settings.rsync_settings.remote_user .. ' -S ' .. self.ssh_control_master_socket
 	end
 
 	local command = {
@@ -149,7 +153,7 @@ function RsyncManager:synchronize_file(file_path)
 		'--safe-links',
 		exclude_from_option,
 		source_relative_path,
-		self.settings.remote_user .. '@' .. self.settings.remote_host .. ':' .. destination_root_path
+		self.settings.rsync_settings.remote_user .. '@' .. self.settings.rsync_settings.remote_host .. ':' .. destination_root_path
 	}
 
 	self._timer = utils.debounce({ timer = self._timer }, function()
