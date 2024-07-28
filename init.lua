@@ -19,6 +19,7 @@ packer.init({
 	snapshot_path = packer.util.join_paths(vim.fn.stdpath('config'), 'lua', 'basicIde'),
 })
 packer.reset()
+require('packer.luarocks').install_commands()
 
 packer.use 'wbthomason/packer.nvim'
 basicIde.use_deps(packer.use, packer.use_rocks)
