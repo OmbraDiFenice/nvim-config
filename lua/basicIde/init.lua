@@ -1,7 +1,7 @@
 require('basicIde/globals')
 
 ---@class IdeModule
----@field use_deps fun(use: fun(plugin_spec: any), project_settings: ProjectSettings): nil
+---@field use_deps fun(use: fun(plugin_spec: any), project_settings: ProjectSettings, use_rocks: fun(plugin_spec: any)): nil
 ---@field configure fun(project_settings: ProjectSettings): nil
 
 local project = require('basicIde/project')
@@ -29,15 +29,15 @@ table.insert(components, 'basicIde/notifications')
 table.insert(components, 'basicIde/code_layout')
 table.insert(components, 'basicIde/ai')
 
----@type { use_deps: fun(use: fun(plugin_sepc: any)), configure: fun() }
+---@type { use_deps: fun(use: fun(plugin_sepc: any), use_rocks: fun(plugin_spec: any)), configure: fun() }
 return {
-	use_deps = function(use)
+	use_deps = function(use, use_rocks)
 		for _, component in ipairs(components)
 		do
 			---@type boolean, IdeModule
 			local ok, module = pcall(require, component)
 			if ok then
-				module.use_deps(use, project_settings)
+				module.use_deps(use, project_settings, use_rocks)
 			else
 				vim.notify('error while loading module ' .. component .. '. Skipping for now, try relunch nvim again to see if it gets fixed', vim.log.levels.WARN)
 				vim.notify('error message:\n' .. module, vim.log.levels.DEBUG)

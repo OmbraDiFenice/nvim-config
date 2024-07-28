@@ -21,6 +21,6 @@ packer.init({
 packer.reset()
 
 packer.use 'wbthomason/packer.nvim'
-basicIde.use_deps(packer.use)
+basicIde.use_deps(packer.use, packer.use_rocks)
 packer.install()
 basicIde.configure()
