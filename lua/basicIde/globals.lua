@@ -18,6 +18,13 @@ Path_exists = function(path)
 	return true
 end
 
+Load_file = function(path)
+	if not Path_exists(path) then return nil end
+	local fd = io.open(path, "r")
+	if fd == nil then return nil end
+	return fd:read("*a")
+end
+
 ---Returns the directory to be used to store data related to the current nvim session.
 ---@return string # the full path to the folder holding session data
 Get_data_directory = function()
