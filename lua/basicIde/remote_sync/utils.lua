@@ -31,6 +31,28 @@ local function map_file_path(mappings, file_path)
 	return source_relative_path, destination_root_path
 end
 
+---@param exclude_paths string[]
+---@param exclude_git_ignored_files boolean
+---@return string[]
+local function build_ignore_list(exclude_paths, exclude_git_ignored_files)
+	local ignore_list = {}
+
+	-- first exclude user defined files and dir so they will have precedence over the rest
+	ignore_list = vim.tbl_extend('force', ignore_list, exclude_paths)
+
+	if exclude_git_ignored_files then
+		local git_output, git_exit_code = utils.runAndReturnOutputSync('git ls-files --other --ignored --exclude-standard')
+		if git_exit_code ~= 0 then vim.notify(git_output, vim.log.levels.ERROR); goto exit end
+		for _, exclude in ipairs(git_output) do
+			table.insert(ignore_list, exclude)
+		end
+	end
+
+	::exit::
+	return ignore_list
+end
+
 return {
 	map_file_path = map_file_path,
+	build_ignore_list = build_ignore_list
 }

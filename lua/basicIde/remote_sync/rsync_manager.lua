@@ -79,17 +79,9 @@ function RsyncManager:synchronize_file(file_path)
 			return
 		end
 
-		-- first exclude user defined files and dir so they will have precedence over the rest
-		for _, exclude in ipairs(self.settings.exclude_paths) do
+		local ignore_list = remote_sync_utils.build_ignore_list(self.settings.exclude_paths, self.settings.exclude_git_ignored_files)
+		for _, exclude in ipairs(ignore_list) do
 			temp_file_handle:write(exclude .. '\n')
-		end
-
-		if self.settings.exclude_git_ignored_files then
-			local git_output, git_exit_code = utils.runAndReturnOutputSync('git ls-files --other --ignored --exclude-standard')
-			if git_exit_code ~= 0 then vim.notify(git_output, vim.log.levels.ERROR) return end
-			for _, exclude in ipairs(git_output) do
-				temp_file_handle:write(exclude .. '\n')
-			end
 		end
 
 		temp_file_handle:flush()
