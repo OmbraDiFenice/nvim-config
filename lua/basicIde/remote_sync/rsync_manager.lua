@@ -58,8 +58,9 @@ end
 
 ---Send a single file to the remote server
 ---@param file_path string
+---@param ignore_list string[]?
 ---@return nil
-function RsyncManager:synchronize_file(file_path)
+function RsyncManager:synchronize_file(file_path, ignore_list)
 	if self.settings.mappings == nil then return end
 	if self._timer ~= nil then self._timer:stop() end
 
@@ -79,7 +80,10 @@ function RsyncManager:synchronize_file(file_path)
 			return
 		end
 
-		local ignore_list = remote_sync_utils.build_ignore_list(self.settings.exclude_paths, self.settings.exclude_git_ignored_files)
+		if ignore_list == nil then
+			-- having ignore list in input allow to compute it only once when synchronizing directories
+			ignore_list = remote_sync_utils.build_ignore_list(self.settings.exclude_paths, self.settings.exclude_git_ignored_files)
+		end
 		for _, exclude in ipairs(ignore_list) do
 			temp_file_handle:write(exclude .. '\n')
 		end
@@ -141,7 +145,8 @@ function RsyncManager:synchronize_directory(dir_path)
 		dir_path = utils.ensure_trailing_slash(dir_path)
 	end
 
-	self:synchronize_file(dir_path)
+	local ignore_list = remote_sync_utils.build_ignore_list(self.settings.exclude_paths, self.settings.exclude_git_ignored_files)
+	self:synchronize_file(dir_path, ignore_list)
 end
 
 return RsyncManager
