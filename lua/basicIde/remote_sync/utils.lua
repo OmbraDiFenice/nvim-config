@@ -55,7 +55,18 @@ local function build_ignore_list(exclude_paths, exclude_git_ignored_files)
 	return ignore_list
 end
 
+local function build_ignore_table(ignore_list)
+	local ignore_table = {}
+	local project_root = vim.fn.getcwd(-1, -1)
+	for _, exclude in ipairs(ignore_list) do
+		local exclude_full_path = table.concat({ project_root, utils.ensure_no_leading_slash(exclude) }, OS.sep)
+		ignore_table[exclude_full_path] = true
+	end
+	return ignore_table
+end
+
 return {
 	map_file_path = map_file_path,
-	build_ignore_list = build_ignore_list
+	build_ignore_list = build_ignore_list,
+	build_ignore_table = build_ignore_table,
 }

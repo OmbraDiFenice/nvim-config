@@ -1,4 +1,5 @@
 local rsync_manager = require('basicIde.remote_sync.rsync_manager')
+local quantconnect_manager = require('basicIde.remote_sync.quantconnect')
 local fs_monitor = vim.loop.new_fs_event()
 local git_monitor = vim.loop.new_fs_event()
 
@@ -19,6 +20,9 @@ local function get_manager(project_settings)
 	if project_settings.remote_sync.strategy == 'rsync' then
 		manager = rsync_manager:new(project_settings.remote_sync)
 		manager:start_master_ssh()
+	elseif project_settings.remote_sync.strategy == 'quantconnect' then
+		manager = quantconnect_manager.new(project_settings.remote_sync)
+		manager:init()
 	end
 
 	return manager
@@ -55,7 +59,9 @@ end
 
 ---@type IdeModule
 return {
-	use_deps = function(use)
+	use_deps = function(use, _, use_rocks)
+		use 'nvim-lua/plenary.nvim'
+		use_rocks { 'base64', 'http', 'json-lua', 'urlencode' }
 	end,
 
 	configure = function(project_settings)
