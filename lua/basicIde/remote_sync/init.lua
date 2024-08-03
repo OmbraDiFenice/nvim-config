@@ -117,7 +117,7 @@ return {
 
 		vim.keymap.set('n', '<leader>rs', sync_current_file, { desc = 'Synch current file to the remote machine' })
 
-		if Path_exists(table.concat({ vim.fn.getcwd(), ".git" }, OS.sep)) then
+		if project_settings.remote_sync.sync_on_git_head_change and Path_exists(table.concat({ vim.fn.getcwd(), ".git" }, OS.sep)) then
 			setup_sync_on_git_changes(vim.fn.getcwd(-1, -1))
 		end
 	end
