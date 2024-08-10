@@ -21,7 +21,7 @@ local function get_manager(project_settings)
 		manager = rsync_manager:new(project_settings.remote_sync)
 		manager:start_master_ssh()
 	elseif project_settings.remote_sync.strategy == 'quantconnect' then
-		manager = quantconnect_manager.new(project_settings.remote_sync)
+		manager = quantconnect_manager:new(project_settings.remote_sync)
 		manager:init()
 	end
 
