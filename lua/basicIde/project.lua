@@ -44,8 +44,8 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 
 ---@class CustomKeymapDef
 ---@field desc string?
----@field fun string|fun(...): nil -- if string build a simple run command
----@field verbose boolean? -- only applicable when fun is a string. Default to false
+---@field fun string|fun(utils: Utils, settings: ProjectSettings): nil -- if string build a simple run command
+---@field verbose boolean? -- only applicable when fun is a string. Print information about start and end of called external command. Default to false
 
 ---@class LspSettings
 ---@field notifications NotificationSettings
@@ -112,6 +112,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 
 ---Execute the callbacks in `custom_startup_scripts` setting
 ---@param settings ProjectSettings
+---@param utils Utils
 ---@return nil
 local function run_custom_startup_scripts(settings, utils)
 	for script_name, callback in pairs(settings.custom_startup_scripts) do
@@ -121,11 +122,12 @@ end
 
 ---Initialize keymaps from `custom_keymaps` setting
 ---@param settings ProjectSettings
+---@param utils Utils
 ---@return nil
 local function init_custom_keymaps(settings, utils)
 	for mode_shortcut, keymap_def in pairs(settings.custom_keymaps) do
 		local mode, shortcut, callback, desc = utils.parse_custom_keymap_config(mode_shortcut, keymap_def)
-		vim.keymap.set(mode, shortcut, function() callback(utils) end, { desc = desc })
+		vim.keymap.set(mode, shortcut, function() callback(utils, settings) end, { desc = desc })
 	end
 end
 
