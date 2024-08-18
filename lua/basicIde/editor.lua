@@ -132,6 +132,10 @@ return {
 		use {
 			'Pocco81/auto-save.nvim',
 		}
+
+		use {
+			'chentoast/marks.nvim',
+		}
 	end,
 
 	configure = function(project_settings)
@@ -195,5 +199,20 @@ return {
 		setup_navigation_keybindings()
 
 		setup_highlight_identifier_keybindings()
+
+		-- ------------------- MARKS -------------------
+		require('marks').setup({
+			--default_mappings = false,
+			mappings = {
+				annotate = "<leader>ma",
+			},
+			force_write_shada = true,
+			excluded_buftype = {
+				"gitcommit",
+				"gitrebase",
+				"toggleterm",
+				"NvimTree",
+			},
+		})
 	end
 }
