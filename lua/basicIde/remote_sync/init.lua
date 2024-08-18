@@ -61,7 +61,7 @@ end
 return {
 	use_deps = function(use, _, use_rocks)
 		use 'nvim-lua/plenary.nvim'
-		use_rocks { 'base64', 'http', 'json-lua', 'urlencode' }
+		use_rocks { 'base64', 'json-lua', 'urlencode' }
 	end,
 
 	configure = function(project_settings)
