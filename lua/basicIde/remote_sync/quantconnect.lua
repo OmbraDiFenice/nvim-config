@@ -57,13 +57,13 @@ function QuantConnectManager:synchronize_file(file_path, ignore_table)
 		if self._remote_cache[destination_path] == nil then
 			if self.settings.notifications.enabled then notification = vim.notify('remote file not found, creating it', vim.log.levels.INFO, { replace = notification }) end
 			self._client:create_file(self.settings.quantconnect_settings.project_id, destination_path, local_content)
-			self._remote_cache[destination_path] = self._client:get_file(self.settings.quantconnect_settings.project_id, destination_path)
+			self._client:get_file(self.settings.quantconnect_settings.project_id, destination_path, function(file_content) self._remote_cache[destination_path] = file_content end)
 			if self.settings.notifications.enabled then vim.notify('done: ' .. file_path .. ' -> ' .. destination_path, vim.log.levels.INFO, { replace = notification}) end
 		elseif self._remote_cache[destination_path].content ~= local_content then
 			if self.settings.notifications.enabled then notification = vim.notify('remote file changed, updating it', vim.log.levels.INFO, { replace = notification }) end
 			self._client:update_file_content(self.settings.quantconnect_settings.project_id, destination_path, local_content)
 			if self.settings.notifications.enabled then vim.notify('done: ' .. file_path .. ' -> ' .. destination_path, vim.log.levels.INFO, { replace = notification}) end
-			self._remote_cache[destination_path] = self._client:get_file(self.settings.quantconnect_settings.project_id, destination_path)
+			self._client:get_file(self.settings.quantconnect_settings.project_id, destination_path, function(file_content) self._remote_cache[destination_path] = file_content end)
 		else
 			if self.settings.notifications.enabled then vim.notify('remote file up to date', vim.log.levels.INFO, { replace = notification }) end
 			return
@@ -104,12 +104,13 @@ function QuantConnectManager:synchronize_directory(dir_path)
 end
 
 function QuantConnectManager:init()
-	local remote_file_data = self._client:get_files(self.settings.quantconnect_settings.project_id)
-	if remote_file_data == nil then return end
+	self._client:get_files(self.settings.quantconnect_settings.project_id, function(remote_file_data)
+		if remote_file_data == nil then return end
 
-	for _, file_data in ipairs(remote_file_data) do
-		self._remote_cache[file_data.name] = file_data
-	end
+		for _, file_data in ipairs(remote_file_data) do
+			self._remote_cache[file_data.name] = file_data
+		end
+	end)
 end
 
 ---@return QuantConnectManager
