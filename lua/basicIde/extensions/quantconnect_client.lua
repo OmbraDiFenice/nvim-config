@@ -16,6 +16,11 @@
 ---@field compile_project function(self: QuantConnectClient, project_id: string): string?
 ---@field run_backtest function(self: QuantConnectClient, project_id: string): nil
 
+---@class HttpJsonResponse
+---@field status number
+---@field json any
+---@field json_error any
+
 local QuantConnectClient = {}
 
 ---Constructor
@@ -61,29 +66,39 @@ end
 ---@param path string the path of the QusantConnect endpoint for the request, including the leading / and without the host part
 ---@param data table? the data to send. Only used in POST requests
 ---@param headers table<string, string>?
----@return {status: number, json: any, json_error: any}
-function QuantConnectClient:_request(method, path, data, headers)
+---@param callback function?(response: HttpJsonResponse) if provided, the request will be executed asynchronously and the callback will be called when the response is received
+---@return HttpJsonResponse|Job
+function QuantConnectClient:_request(method, path, data, headers, callback)
 	local curl = require('plenary.curl')
 	local json = require('JSON')
 
 	if headers == nil then headers = {} end
 
-	local res = curl.request({
+	local parsed_response = nil
+
+	local job = curl.request({
 		url = 'https://www.quantconnect.com/api/v2' .. path,
 		method = method,
 		headers = vim.tbl_extend('force', headers, self:_get_api_token_headers()),
 		data = data,
+		callback = function(res)
+			local json_res, err = json:decode(res.body)
+			res.json = json_res
+			res.json_error = err
+			parsed_response = res
+
+			if err ~= nil then vim.notify(err, vim.log.levels.ERROR) end
+			if callback ~= nil then callback(res) end
+		end,
 	})
 
-	local json_res, err = json:decode(res.body)
-	if err ~= nil then
-		vim.notify(err, vim.log.levels.ERROR)
+	if callback ~= nil then
+		return job
+	else
+		job:sync()
+		assert(parsed_response ~= nil)
+		return parsed_response
 	end
-
-	res.json = json_res
-	res.json_error = err
-
-	return res
 end
 
 ---Run a request to QuantConnect to check if the authentication is successful
@@ -94,26 +109,30 @@ end
 
 ---Get the list of files from the given project
 ---@param project string
----@return RemoteFileData[]
-function QuantConnectClient:get_files(project)
-	local res = self:_request('POST', '/files/read', {
+---@param callback function?(response: HttpJsonResponse)
+function QuantConnectClient:get_files(project, callback)
+	if callback == nil then callback = function(_) end end
+	self:_request('POST', '/files/read', {
 		projectId = project,
-	})
-	if res.json == nil or res.json.success ~= true then return {} end
-	return res.json.files
+	}, nil, function(res)
+		if res.json == nil or res.json.success ~= true then return {} end
+		callback(res.json)
+	end)
 end
 
 ---Get a single file from the given project
 ---@param project string
 ---@param name string path of the file to get relative to the remote project root
----@return RemoteFileData
-function QuantConnectClient:get_file(project, name)
-	local res = self:_request('POST', '/files/read', {
+---@param callback function?(response: HttpJsonResponse)
+function QuantConnectClient:get_file(project, name, callback)
+	if callback == nil then callback = function(_) end end
+	self:_request('POST', '/files/read', {
 		projectId = project,
 		name = name,
-	})
-	if res.json == nil or res.json.success ~= true then return nil end
-	return res.json
+	}, nil, function(res)
+		if res.json == nil or res.json.success ~= true then return nil end
+		callback(res.json)
+	end)
 end
 
 ---Create a new file in the given project
@@ -123,18 +142,19 @@ end
 function QuantConnectClient:create_file(project, name, content)
 	local urlencode = require('urlencode')
 
-	local res = self:_request('POST', '/files/create', {
+	self:_request('POST', '/files/create', {
 		projectId = project,
 		name = name,
 		content = urlencode.encode_url(content),
-	})
-	if res.json == nil then
-		vim.notify('error creating ' .. name, vim.log.levels.ERROR)
-	elseif res.json.success ~= true then
-		vim.notify(res.json.errors, vim.log.levels.ERROR)
-	else
-		vim.notify('created ' .. name, vim.log.levels.INFO)
-	end
+	}, nil, function(res)
+		if res.json == nil then
+			vim.notify('error creating ' .. name, vim.log.levels.ERROR)
+		elseif res.json.success ~= true then
+			vim.notify(res.json.errors, vim.log.levels.ERROR)
+		else
+			vim.notify('created ' .. name, vim.log.levels.INFO)
+		end
+	end)
 end
 
 ---Update the content of the given file
@@ -144,18 +164,19 @@ end
 function QuantConnectClient:update_file_content(project, name, content)
 	local urlencode = require('urlencode')
 
-	local res = self:_request('POST', '/files/update', {
+	self:_request('POST', '/files/update', {
 		projectId = project,
 		name = name,
 		content = urlencode.encode_url(content),
-	})
-	if res.json == nil then
-		vim.notify('error updating ' .. name, vim.log.levels.ERROR)
-	elseif res.json.success ~= true then
-		vim.notify(res.json.errors, vim.log.levels.ERROR)
-	else
-		vim.notify('updated ' .. name, vim.log.levels.INFO)
-	end
+	}, nil, function(res)
+		if res.json == nil then
+			vim.notify('error updating ' .. name, vim.log.levels.ERROR)
+		elseif res.json.success ~= true then
+			vim.notify(res.json.errors, vim.log.levels.ERROR)
+		else
+			vim.notify('updated ' .. name, vim.log.levels.INFO)
+		end
+	end)
 end
 
 ---Synchronously compile the remote compilation of the given project.
@@ -210,21 +231,21 @@ function QuantConnectClient:run_backtest(project)
 	if compile_id == nil then return end
 
 	local notif = vim.notify('running backtest', vim.log.levels.INFO)
-
-	local res = self:_request('POST', '/backtests/create', {
+	self:_request('POST', '/backtests/create', {
 		projectId = project,
 		compileId = compile_id,
 		backtestName = 'backtest',
-	})
-	if res.status ~= 200 or res.json == nil then
-		vim.notify('error running backtest', vim.log.levels.ERROR, { replace = notif })
-		return
-	elseif res.json.success ~= true then
-		vim.notify(res.json.errors, vim.log.levels.ERROR, { replace = notif })
-		return
-	end
+	}, nil, function(res)
+		if res.status ~= 200 or res.json == nil then
+			vim.notify('error running backtest', vim.log.levels.ERROR, { replace = notif })
+			return
+		elseif res.json.success ~= true then
+			vim.notify(res.json.errors, vim.log.levels.ERROR, { replace = notif })
+			return
+		end
 
-	vim.notify('backtest status: ' .. res.json.backtest.status, vim.log.levels.INFO, { replace = notif })
+		vim.notify('backtest status: ' .. res.json.backtest.status, vim.log.levels.INFO, { replace = notif })
+	end)
 end
 
 return QuantConnectClient
