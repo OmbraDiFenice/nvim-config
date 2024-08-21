@@ -25,7 +25,7 @@ function get_config() {
 }
 
 VENVPATH=$(get_config virtual_environment | tr --delete '\n\r')
-ENVIRONMENT_VARIABLES=$(get_config environment)
+ENVIRONMENT_VARIABLES=$(get_config environment | tr --delete '\r')
 INIT_SCRIPT=$(get_config init_script | tr --delete '\r')
 DATA_DIRECTORY=$(get_config data_directory | tr --delete '\n\r')
 if [[ ${DATA_DIRECTORY:-} != "" ]]
