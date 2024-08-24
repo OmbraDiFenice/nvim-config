@@ -11,11 +11,13 @@ end
 
 ---Checks if the given path exists (dir or file)
 ---@param path string
+---@param verbose boolean? when false doesn't warn if the file doesn't exists. Defaults to true
 ---@return boolean
-Path_exists = function(path)
+Path_exists = function(path, verbose)
+	if verbose == nil then verbose = true end
 	local fail, err, _ = vim.uv.fs_stat(path)
-	if fail == nil then vim.notify(err, vim.log.levels.WARN); return false end
-	return true
+	if fail == nil and verbose then vim.notify(err, vim.log.levels.WARN); end
+	return fail ~= nil
 end
 
 Load_file = function(path)
