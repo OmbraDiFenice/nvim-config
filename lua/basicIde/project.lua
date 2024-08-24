@@ -283,13 +283,13 @@ return {
 		local settings = Deepcopy(default_settings)
 
 		local user_default_settings_file = table.concat({vim.fn.expand('$HOME'), PROJECT_SETTINGS_FILE}, OS.sep)
-		if Path_exists(user_default_settings_file) then
+		if Path_exists(user_default_settings_file, false) then
 			local user_default_settings = dofile(user_default_settings_file)
 			---@cast user_default_settings ProjectSettings
 			settings = Deepmerge(settings, user_default_settings)
 		end
 
-		if Path_exists(PROJECT_SETTINGS_FILE) then
+		if Path_exists(PROJECT_SETTINGS_FILE, false) then
 			local custom_settings = dofile(PROJECT_SETTINGS_FILE)
 			---@cast custom_settings ProjectSettings
 			settings = Deepmerge(settings, custom_settings)
