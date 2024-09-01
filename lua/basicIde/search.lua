@@ -25,6 +25,7 @@ return {
 		-- See `:help telescope` and `:help telescope.setup()`
 		local telescope = require('telescope')
 		local telescope_actions = require('telescope.actions')
+		local telescope_actions_generate = require('telescope.actions.generate')
 
 		telescope.setup {
 			defaults = {
@@ -44,6 +45,9 @@ return {
 						['<C-j>'] = telescope_actions.cycle_history_next,
 						['<C-k>'] = telescope_actions.cycle_history_prev,
 					},
+					n = {
+						['?'] = telescope_actions_generate.which_key({}),
+					}
 				},
 			},
 		}
