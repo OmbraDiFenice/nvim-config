@@ -1,3 +1,18 @@
+---Apply some preprocessing to the data coming from project settings.
+---This is mainly meant to make it easier for the user to provide configuration without
+---having to worry too much about lua/dap input requirements format.
+---
+---WARNING: despite the fact it returns the object, input is mutated
+---@param project_configuration DapConfigurationExtended
+---@return DapConfigurationExtended
+local function preprocess_project_config(project_configuration)
+	if type(project_configuration.args) == "string" then
+		project_configuration.args = vim.split(project_configuration.args, " +", { plain = false, trimempty = true})
+	end
+
+	return project_configuration
+end
+
 ---Adds the dap configurations from projects settings to the system dap configurations.
 ---Ensures that there are no duplicates even if called multiple times.
 ---@param dap_configurations table<string, DapConfigurationExtended[]>
@@ -17,7 +32,8 @@ local function apply_custom_dap_configurations(dap_configurations)
 				end
 			end
 
-			table.insert(dap.configurations[language], project_configuration)
+			local processed_project_configuration = preprocess_project_config(project_configuration)
+			table.insert(dap.configurations[language], processed_project_configuration)
 
 			-- setup keymap if the extra keymap field is specified in the dap configuration at project setting level
 			if project_configuration.keymap then
