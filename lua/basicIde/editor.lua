@@ -184,6 +184,13 @@ return {
 			}
 		})
 
+		-- Disable diagnostics sign on the left side bar
+		-- This avoids that the signs override the markers used to show which line was changed with git.
+		-- The diagnostic is still tracked and displayed as virtual text anyway
+		vim.diagnostic.config({
+			signs = false,
+		})
+
 		setup_diagnostics_keybindings()
 		setup_navigation_keybindings()
 
