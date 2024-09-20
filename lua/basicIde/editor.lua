@@ -136,6 +136,10 @@ return {
 		use {
 			'chentoast/marks.nvim',
 		}
+
+		use {
+			'OmbraDiFenice/floating-input.nvim',
+		}
 	end,
 
 	configure = function(project_settings)
