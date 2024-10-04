@@ -71,9 +71,9 @@ return {
 
 		vim.keymap.set('n', '<leader>sf', function()
 			telescope_builtin.find_files({
-				hidden = true,
-				no_ignore = true,
-				no_ignore_parent = true,
+				hidden = false,
+				no_ignore = false,
+				no_ignore_parent = false,
 			})
 		end, { desc = '[S]earch [F]iles' })
 		vim.keymap.set('n', '<leader>sh', telescope_builtin.help_tags, { desc = '[S]earch [H]elp' })
