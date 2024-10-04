@@ -37,6 +37,7 @@ local function edit_session_file()
 
 	local opts = themes.get_dropdown({})
 	pickers.new(opts, {
+			initial_mode = 'insert',
 			finder = finders.new_table {
 				results = session_files,
 				entry_maker = function (entry)
@@ -72,7 +73,8 @@ return {
 			log_level = "error",
 			auto_session_root_dir = settings.DATA_DIRECTORY,
 			auto_session_suppress_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
-			auto_session_use_git_branch = true,
+			auto_session_use_git_branch = false, -- bug in auto-session: this causes the *entire* path to be escaped at some point
+																					 -- which results in the session file being placed in a folder other than the auto_session_root_dir
 
 			-- can't be done in nvim-tree, see https://github.com/nvim-tree/nvim-tree.lua/issues/1992#issuecomment-1455504628
 			pre_save_cmds = pre_save_cmds,
