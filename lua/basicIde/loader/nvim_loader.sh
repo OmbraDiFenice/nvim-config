@@ -4,6 +4,21 @@ SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 PROJECT_ROOT="$PWD"
 NVIM_ARGS=""
 
+function set-title() {
+	# will be set when available
+	return 0
+}
+
+# support setting the title with oh-my-zsh
+if [ -n "$ZSH" ]
+then
+	DISABLE_AUTO_TITLE="true"
+	function set-title(){
+		TITLE="\e]2;$*\a"
+		echo -n -e ${TITLE}
+	}
+fi
+
 # Uses nvim as lua interpreter for the given script file.
 # The script can take optional arguments.
 # This will solve problems related to the version of lua installed on the system:
@@ -28,6 +43,8 @@ VENVPATH=$(get_config virtual_environment | tr --delete '\n\r')
 ENVIRONMENT_VARIABLES=$(get_config environment | tr --delete '\r')
 INIT_SCRIPT=$(get_config init_script | tr --delete '\r')
 DATA_DIRECTORY=$(get_config data_directory | tr --delete '\n\r')
+PROJECT_TITLE=$(get_config project_title | tr --delete '\n\r')
+
 if [[ ${DATA_DIRECTORY:-} != "" ]]
 then
 	PIPE="$DATA_DIRECTORY/nvim_server.pipe"
@@ -50,4 +67,6 @@ if ! echo "$@" | grep -- '--listen' && [[ ! -z "$PIPE" ]]
 then
 	NVIM_ARGS="$NVIM_ARGS --listen '$PIPE'"
 fi
+
+set-title "$PROJECT_TITLE"
 nvim $NVIM_ARGS $@
