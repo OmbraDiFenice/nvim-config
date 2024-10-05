@@ -85,6 +85,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@class ProjectSettings
 ---@field PROJECT_SETTINGS_FILE string
 ---@field DATA_DIRECTORY string
+---@field project_title string
 ---@field loader LoaderConfig
 ---@field format_on_save FormatOnSaveSettings
 ---@field debugging DebuggingSettings
@@ -135,6 +136,7 @@ end
 local default_settings = {
 	PROJECT_SETTINGS_FILE = '',
 	DATA_DIRECTORY = '',
+	project_title = '[nvim IDE] ' .. vim.fn.getcwd(-1, -1),
 	loader = {
 		virtual_environment = nil,
 		environment = {},
@@ -246,7 +248,7 @@ local default_settings = {
 ---Replaces any supported variable placeholder with the corrsponding computed value
 local function resolve_variable(orig_value)
 	local value = orig_value
-	value, _ = string.gsub(value, "%${env:(%a+)}", function (capture)
+	value, _ = string.gsub(value, "%${env:([%w_]+)}", function (capture)
 		local env_value = os.getenv(capture)
 		if env_value == nil then return "" end
 		return env_value:gsub('\r', '')
