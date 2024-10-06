@@ -43,7 +43,6 @@ end
 ---the request to make it valid
 ---@return {Authorization: string, Timestamp: number}
 function QuantConnectClient:_get_api_token_headers()
-	local base64 = require('base64')
 	local sha = require('basicIde.vendor.sha2')
 
 	local user_id = self.settings.quantconnect_settings.user_id
@@ -53,7 +52,7 @@ function QuantConnectClient:_get_api_token_headers()
 	local timestamped_token = string.format('%s:%s', token, timestamp)
 	local hashed_token = sha.sha256(timestamped_token)
 
-	local api_token = base64.encode(string.format('%s:%s', user_id, hashed_token))
+	local api_token = vim.base64.encode(string.format('%s:%s', user_id, hashed_token))
 
 	return {
 		['Authorization'] = 'Basic ' .. api_token,
