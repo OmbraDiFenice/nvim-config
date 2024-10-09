@@ -1,5 +1,16 @@
 local utils = require('basicIde.utils')
 
+local function build_search_in_scope_prompt_title(default_prompt_title)
+	local neoscopes = require('neoscopes')
+	local prompt_title = default_prompt_title
+	local current_scope = neoscopes.get_current_scope()
+	if current_scope then
+		prompt_title = prompt_title .. ' in ' .. current_scope.name .. ' scope'
+	end
+
+	return prompt_title
+end
+
 ---@type IdeModule
 return {
 	use_deps = function(use)
@@ -18,6 +29,14 @@ return {
 		use {
 			'nvim-telescope/telescope-smart-history.nvim',
 			requires = { "kkharji/sqlite.lua" }, -- also requires to have sqlite3 binary installed on the system
+		}
+
+		use {
+			'OmbraDiFenice/neoscopes-telescope',
+			requires = {
+				'nvim-telescope/telescope.nvim',
+				'smartpde/neoscopes',
+			}
 		}
 	end,
 
@@ -56,6 +75,18 @@ return {
 		-- Enable telescope fzf native, if installed
 		pcall(require('telescope').load_extension, 'fzf')
 
+		-- Enable neoscopes-telescope
+		local neoscopes_config_filename = project_settings.DATA_DIRECTORY.. OS.sep .. "neoscopes.confg.json"
+		require('neoscopes').setup({
+			neoscopes_config_filename = neoscopes_config_filename,
+		})
+		local neoscopes_telescope = require('neoscopes-telescope')
+		neoscopes_telescope.setup({
+			scopes = {
+				persist_file = neoscopes_config_filename,
+			}
+		})
+
 		-- See `:help telescope.builtin`
 		local telescope_builtin = require('telescope.builtin')
 
@@ -69,17 +100,57 @@ return {
 			})
 		end, { desc = '[/] Fuzzily search in current buffer]' })
 
+		local search_files_options = {
+			hidden = false,
+			no_ignore = false,
+			no_ignore_parent = false,
+		}
 		vim.keymap.set('n', '<leader>sf', function()
-			telescope_builtin.find_files({
-				hidden = false,
-				no_ignore = false,
-				no_ignore_parent = false,
+			neoscopes_telescope.file_search({
+				use_last_scope = true,
+				remember_last_scope_used = true,
+				telescope_options = vim.tbl_deep_extend("force", {
+					prompt_title = build_search_in_scope_prompt_title('Find Files'),
+				}, search_files_options),
 			})
 		end, { desc = '[S]earch [F]iles' })
+
+		vim.keymap.set('n', '<leader>sF', function()
+			neoscopes_telescope.file_search({
+				use_last_scope = false,
+				remember_last_scope_used = true,
+				telescope_options = vim.tbl_deep_extend("force", {
+					prompt_title = build_search_in_scope_prompt_title('Find Files'),
+				}, search_files_options),
+			})
+		end, { desc = '[S]earch [F]iles in scope' })
+
+		vim.keymap.set('n', '<leader>sg', function()
+			neoscopes_telescope.grep_search({
+				use_last_scope = true,
+				remember_last_scope_used = true,
+				telescope_options = vim.tbl_deep_extend("force", {
+					prompt_title = build_search_in_scope_prompt_title('Live Grep'),
+				}, search_files_options),
+			})
+		end, { desc = '[S]earch by [G]rep' })
+
+		vim.keymap.set('v', '<leader>sg', function()
+			telescope_builtin.live_grep({
+				initial_mode = 'normal',
+				default_text = utils.get_visual_selection(),
+				telescope_options = vim.tbl_deep_extend("force", {
+					prompt_title = build_search_in_scope_prompt_title('Live Grep'),
+				}, search_files_options),
+			})
+		end, { desc = '[S]earch selection by [G]rep' })
+
+		vim.keymap.set('n', '<leader>Ss', require('neoscopes').select, { desc = '[S]cope [s]elect' })
+		vim.keymap.set('n', '<leader>Sc', neoscopes_telescope.new_scope, { desc = '[S]cope [c]reate' })
+		vim.keymap.set('n', '<leader>Sd', neoscopes_telescope.delete_scope, { desc = '[S]cope [d]elete' })
+
 		vim.keymap.set('n', '<leader>sh', telescope_builtin.help_tags, { desc = '[S]earch [H]elp' })
 		vim.keymap.set('n', '<leader>sw', telescope_builtin.grep_string, { desc = '[S]earch current [W]ord' })
-		vim.keymap.set('n', '<leader>sg', telescope_builtin.live_grep, { desc = '[S]earch by [G]rep' })
-		vim.keymap.set('v', '<leader>sg', function () telescope_builtin.live_grep({ default_text = utils.get_visual_selection() }) end, { desc = '[S]earch by [G]rep' })
 		vim.keymap.set('n', '<leader>sd', telescope_builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
 		vim.keymap.set('n', '<leader>sk', telescope_builtin.keymaps, { desc = '[S]earch [K]keymaps' })
 
