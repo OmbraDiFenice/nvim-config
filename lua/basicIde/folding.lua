@@ -22,6 +22,9 @@ return {
 			highlight = {
 				enable = true,
 			},
+			ignore_install = {
+				"groovy", -- groovy query.lua is broken
+			},
 			incremental_selection = {
 				enable = true,
 				keymaps = {
