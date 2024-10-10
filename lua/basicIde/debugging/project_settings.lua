@@ -41,7 +41,7 @@ local function apply_custom_dap_configurations(dap_configurations)
 					function()
 						dap.run(project_configuration)
 						if project_configuration.open_console_on_start then
-							dapui.float_element('console')
+							dapui.float_element('console', { width = 130, height = 60 })
 						end
 					end,
 					{ desc = '[' .. project_configuration.type .. ']' .. ' debug: ' .. project_configuration.name })
