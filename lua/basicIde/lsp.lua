@@ -178,5 +178,16 @@ return {
 		})
 
 		vim.lsp.set_log_level("OFF")
+
+		-- diagnostic settings
+		vim.diagnostic.config({
+			virtual_text = {
+				source = true,
+			},
+			float = {
+				source = true,
+				border = 'rounded',
+			},
+		})
 	end,
 }
