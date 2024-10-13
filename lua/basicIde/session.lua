@@ -37,7 +37,7 @@ local function edit_session_file()
 
 	local opts = themes.get_dropdown({})
 	pickers.new(opts, {
-			initial_mode = 'insert',
+			initial_mode = 'normal',
 			finder = finders.new_table {
 				results = session_files,
 				entry_maker = function (entry)
@@ -45,7 +45,7 @@ local function edit_session_file()
 						value = entry,
 						display = function(tbl) return get_display_name(tbl.value) end,
 						ordinal = entry.path,
-						path = auto_session.get_root_dir() .. entry.path,
+						path = entry.path,
 					}
 				end,
 			},
@@ -83,6 +83,6 @@ return {
 
 		vim.o.sessionoptions = "blank,buffers,curdir,help,tabpages,winsize,winpos,terminal,localoptions"
 
-		vim.keymap.set('n', '<leader>es', edit_session_file, { desc = "edit session file" })
+		vim.keymap.set('n', '<leader>es', function() edit_session_file() end, { desc = "edit session file" })
 	end,
 }
