@@ -77,14 +77,15 @@ return {
 
 		-- Enable neoscopes-telescope
 		local neoscopes_config_filename = project_settings.DATA_DIRECTORY.. OS.sep .. "neoscopes.confg.json"
-		require('neoscopes').setup({
-			neoscopes_config_filename = neoscopes_config_filename,
-		})
 		local neoscopes_telescope = require('neoscopes-telescope')
-		neoscopes_telescope.setup({
+		neoscopes_telescope.setup({ -- must be done before configuring neoscopes so we can load the last used scope
 			scopes = {
 				persist_file = neoscopes_config_filename,
 			}
+		})
+		require('neoscopes').setup({
+			neoscopes_config_filename = neoscopes_config_filename,
+			current_scope = neoscopes_telescope.get_last_scope(),
 		})
 
 		-- See `:help telescope.builtin`
@@ -109,9 +110,8 @@ return {
 			neoscopes_telescope.file_search({
 				use_last_scope = true,
 				remember_last_scope_used = true,
-				telescope_options = vim.tbl_deep_extend("force", {
-					prompt_title = build_search_in_scope_prompt_title('Find Files'),
-				}, search_files_options),
+				dynamic_prompt_title = function() return build_search_in_scope_prompt_title('Find Files') end,
+				telescope_options = search_files_options,
 			})
 		end, { desc = '[S]earch [F]iles' })
 
@@ -119,19 +119,17 @@ return {
 			neoscopes_telescope.file_search({
 				use_last_scope = false,
 				remember_last_scope_used = true,
-				telescope_options = vim.tbl_deep_extend("force", {
-					prompt_title = build_search_in_scope_prompt_title('Find Files'),
-				}, search_files_options),
+				dynamic_prompt_title = function() return build_search_in_scope_prompt_title('Find Files') end,
+				telescope_options = search_files_options,
 			})
-		end, { desc = '[S]earch [F]iles in scope' })
+		end, { desc = '[S]earch [F]iles (explicitly select scope)' })
 
 		vim.keymap.set('n', '<leader>sg', function()
 			neoscopes_telescope.grep_search({
 				use_last_scope = true,
 				remember_last_scope_used = true,
-				telescope_options = vim.tbl_deep_extend("force", {
-					prompt_title = build_search_in_scope_prompt_title('Live Grep'),
-				}, search_files_options),
+				dynamic_prompt_title = function() return build_search_in_scope_prompt_title('Live Grep') end,
+				telescope_options = search_files_options,
 			})
 		end, { desc = '[S]earch by [G]rep' })
 
@@ -139,9 +137,8 @@ return {
 			telescope_builtin.live_grep({
 				initial_mode = 'normal',
 				default_text = utils.get_visual_selection(),
-				telescope_options = vim.tbl_deep_extend("force", {
-					prompt_title = build_search_in_scope_prompt_title('Live Grep'),
-				}, search_files_options),
+				dynamic_prompt_title = function() return build_search_in_scope_prompt_title('Live Grep') end,
+				telescope_options = search_files_options,
 			})
 		end, { desc = '[S]earch selection by [G]rep' })
 
