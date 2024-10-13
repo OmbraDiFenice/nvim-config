@@ -31,7 +31,7 @@ return {
 		}
 	end,
 
-	configure = function()
+	configure = function(project_settings)
 		require('gitsigns').setup {
 			on_attach = function(bufnr)
 				local gs = package.loaded.gitsigns
@@ -70,6 +70,7 @@ return {
 
 		-- diffview
 		local diffview_actions = require('diffview.actions')
+		local diffview_lib = require('diffview.lib')
 		require('diffview').setup {
 			keymaps = {
 				view = {
@@ -95,6 +96,25 @@ return {
 				file_history_panel = {
 					{ 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } },
 					{ 'n', '<C-H>', diffview_actions.focus_entry, { desc = 'Diffview: focus entry' } },
+					{ 'n', '<C-s>', function()
+						local view = diffview_lib.get_current_view()
+						if view ~= nil and view.panel:is_focused() then
+							local item = view.panel:get_item_at_cursor()
+							if item then
+								local commit_hash = item.commit.hash
+								if commit_hash ~= nil then
+									local remote_commit_url = project_settings.build_remote_url(commit_hash)
+									if remote_commit_url == nil then return end
+
+									local exit_code, error = vim.ui.open(remote_commit_url)
+									if error ~= nil then
+										vim.notify(error .. '(exit code: ' .. vim.inspect(exit_code) .. ')', vim.log.levels.ERROR)
+									end
+								end
+							end
+						end
+					end,
+					{	desc = 'Diffview (file history): open current commit in browser' } }
 				},
 			},
 			hooks = {
