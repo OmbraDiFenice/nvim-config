@@ -117,13 +117,6 @@ local function setup_navigation_keybindings()
 		end,
 		desc = 'show opened buffers',
 	})
-
-	vim.api.nvim_set_keymap('n', '<leader>u', '', {
-		callback = function()
-			require('telescope.builtin').oldfiles()
-		end,
-		desc = 'show/reopen recent buffers',
-	})
 end
 
 ---@type IdeModule
@@ -139,6 +132,13 @@ return {
 
 		use {
 			'OmbraDiFenice/floating-input.nvim',
+		}
+
+		use {
+			"jiaoshijie/undotree",
+			requires = {
+				"nvim-lua/plenary.nvim",
+			},
 		}
 	end,
 
@@ -218,5 +218,18 @@ return {
 				"NvimTree",
 			},
 		})
+
+		-- ------------------- UNDOTREE -------------------
+		vim.o.undodir = Get_data_directory() .. OS.sep .. "undodir" .. OS.sep .. OS.sep
+		vim.o.undofile = true
+		vim.o.undolevels = 1000
+		vim.o.undoreload = 10000
+
+		local undotree = require("undotree")
+		undotree.setup({
+			float_diff = true,
+		})
+
+		vim.keymap.set("n", "<leader>u", undotree.open, { desc = "Open undo tree view" })
 	end
 }
