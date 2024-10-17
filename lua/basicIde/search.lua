@@ -145,6 +145,7 @@ return {
 		vim.keymap.set('n', '<leader>Ss', require('neoscopes').select, { desc = '[S]cope [s]elect' })
 		vim.keymap.set('n', '<leader>Sc', neoscopes_telescope.new_scope, { desc = '[S]cope [c]reate' })
 		vim.keymap.set('n', '<leader>Sd', neoscopes_telescope.delete_scope, { desc = '[S]cope [d]elete' })
+		vim.keymap.set('n', '<leader>SC', neoscopes_telescope.clone_scope, { desc = '[S]cope [C]lone' })
 
 		vim.keymap.set('n', '<leader>sh', telescope_builtin.help_tags, { desc = '[S]earch [H]elp' })
 		vim.keymap.set('n', '<leader>sw', telescope_builtin.grep_string, { desc = '[S]earch current [W]ord' })
