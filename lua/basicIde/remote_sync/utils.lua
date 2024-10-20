@@ -41,7 +41,7 @@ local function build_ignore_list(exclude_paths, exclude_git_ignored_files)
 	ignore_list = vim.tbl_extend('force', ignore_list, exclude_paths)
 
 	if exclude_git_ignored_files then
-		local git_output, git_exit_code = utils.runAndReturnOutputSync('git ls-files --other --ignored --exclude-standard')
+		local git_output, git_exit_code = utils.proc.runAndReturnOutputSync('git ls-files --other --ignored --exclude-standard')
 		if git_exit_code ~= 0 then vim.notify(git_output, vim.log.levels.ERROR); goto exit end
 		for _, exclude in ipairs(git_output) do
 			if #exclude == 0 then goto continue end
