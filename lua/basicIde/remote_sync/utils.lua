@@ -6,7 +6,7 @@ local utils = require('basicIde.utils')
 ---@return string|nil, string|nil # local relative path, remote absolute path. Both nil if it wasn't possible to map the input
 local function map_file_path(mappings, file_path)
 	if file_path:sub(1, 1) ~= OS.sep then
-		file_path = table.concat({utils.ensure_no_trailing_slash(vim.fn.getcwd()), file_path}, OS.sep)
+		file_path = table.concat({utils.paths.ensure_no_trailing_slash(vim.fn.getcwd()), file_path}, OS.sep)
 	end
 
 	local selected_prefix = ''
@@ -18,14 +18,14 @@ local function map_file_path(mappings, file_path)
 		local remote_prefix = mapping[2]
 
 		if file_path:find(local_prefix, 1, true) == 1 and #selected_prefix < #local_prefix then
-			source_relative_path = utils.ensure_no_leading_slash(string.sub(file_path, #local_prefix+1))
+			source_relative_path = utils.paths.ensure_no_leading_slash(string.sub(file_path, #local_prefix+1))
 			destination_root_path = remote_prefix
 			selected_prefix = local_prefix
 		end
 	end
 
 	if source_relative_path ~= nil then
-		source_relative_path = utils.ensure_no_leading_slash("./" .. source_relative_path)
+		source_relative_path = utils.paths.ensure_no_leading_slash("./" .. source_relative_path)
 	end
 
 	return source_relative_path, destination_root_path
@@ -59,7 +59,7 @@ local function build_ignore_table(ignore_list)
 	local ignore_table = {}
 	local project_root = vim.fn.getcwd(-1, -1)
 	for _, exclude in ipairs(ignore_list) do
-		local exclude_full_path = table.concat({ project_root, utils.ensure_no_leading_slash(exclude) }, OS.sep)
+		local exclude_full_path = table.concat({ project_root, utils.paths.ensure_no_leading_slash(exclude) }, OS.sep)
 		ignore_table[exclude_full_path] = true
 	end
 	return ignore_table

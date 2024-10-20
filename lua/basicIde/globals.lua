@@ -34,7 +34,7 @@ Get_data_directory = function()
 	local cwd_path = vim.fn.getcwd()
 	---@cast data_path string
 	---@cast cwd_path string
-	return utils.ensure_no_trailing_slash(utils.ensure_trailing_slash(data_path) .. "sessions/" .. utils.ensure_no_leading_slash(cwd_path))
+	return utils.paths.ensure_no_trailing_slash(utils.paths.ensure_trailing_slash(data_path) .. "sessions/" .. utils.paths.ensure_no_leading_slash(cwd_path))
 end
 
 ---@param table table

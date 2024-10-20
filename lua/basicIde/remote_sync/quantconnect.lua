@@ -40,7 +40,7 @@ function QuantConnectManager:synchronize_file(file_path, ignore_table)
 
 	local destination_path = destination_root_path
 	if source_relative_path ~= '' then
-		destination_path = utils.ensure_no_leading_slash(table.concat({ destination_root_path, source_relative_path }, OS.sep))
+		destination_path = utils.paths.ensure_no_leading_slash(table.concat({ destination_root_path, source_relative_path }, OS.sep))
 	end
 
 	vim.schedule_wrap(function()
@@ -92,7 +92,7 @@ function QuantConnectManager:synchronize_directory(dir_path)
 				if ignore_table[file_path] == true then goto continue end
 				self:synchronize_file(file_path, ignore_table)
 			elseif file_mode == 'directory' then
-				if ignore_table[utils.ensure_trailing_slash(file_path)] == true then goto continue end
+				if ignore_table[utils.paths.ensure_trailing_slash(file_path)] == true then goto continue end
 				_inner(file_path)
 			end
 

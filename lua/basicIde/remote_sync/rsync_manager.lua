@@ -10,8 +10,8 @@ local remote_sync_utils = require('basicIde.remote_sync.utils')
 ---@return nil # it cleans the settings in place
 local function clean_settings(settings)
 	for i, mapping in ipairs(settings.mappings) do
-		settings.mappings[i][1] = utils.ensure_trailing_slash(mapping[1])
-		settings.mappings[i][2] = utils.ensure_trailing_slash(mapping[2])
+		settings.mappings[i][1] = utils.paths.ensure_trailing_slash(mapping[1])
+		settings.mappings[i][2] = utils.paths.ensure_trailing_slash(mapping[2])
 	end
 end
 
@@ -142,7 +142,7 @@ end
 ---@return nil
 function RsyncManager:synchronize_directory(dir_path)
 	if vim.fn.isdirectory(dir_path) == 1 then
-		dir_path = utils.ensure_trailing_slash(dir_path)
+		dir_path = utils.paths.ensure_trailing_slash(dir_path)
 	end
 
 	local ignore_list = remote_sync_utils.build_ignore_list(self.settings.exclude_paths, self.settings.exclude_git_ignored_files)
