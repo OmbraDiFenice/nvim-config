@@ -43,7 +43,7 @@ function RsyncManager:start_master_ssh()
 	self.ssh_control_master_socket = vim.fn.tempname()
 	if self.ssh_control_master_socket == nil then vim.notify("unable to create ssh control master socket, remote sync will be slower", vim.log.levels.WARN) return end
 
-	self.master_job_id = utils.runAndReturnOutput({
+	self.master_job_id = utils.proc.runAndReturnOutput({
 		'ssh',
 		'-o', 'ControlMaster=yes',
 		'-o', 'ControlPath=' .. self.ssh_control_master_socket,
@@ -125,7 +125,7 @@ function RsyncManager:synchronize_file(file_path, ignore_list)
 	self._timer = utils.debounce({ timer = self._timer }, function()
 		local notification
 		if self.settings.notifications.enabled then notification = vim.notify('sync started: '..source_relative_path, vim.log.levels.INFO, { on_close = function() notification = nil end }) end
-		utils.runAndReturnOutput(command, vim.schedule_wrap(function(output, exit_code)
+		utils.proc.runAndReturnOutput(command, vim.schedule_wrap(function(output, exit_code)
 			if exit_code ~= 0 then
 				vim.notify(output, vim.log.levels.ERROR, { replace = notification })
 			end
