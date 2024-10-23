@@ -77,6 +77,9 @@ return {
 
 		-- Enable neoscopes-telescope
 		local neoscopes_config_filename = project_settings.DATA_DIRECTORY.. OS.sep .. "neoscopes.confg.json"
+		if vim.fn.filereadable(neoscopes_config_filename) == 0 then
+			vim.fn.writefile({ "{}" }, neoscopes_config_filename)
+		end
 		local neoscopes_telescope = require('neoscopes-telescope')
 		neoscopes_telescope.setup({ -- must be done before configuring neoscopes so we can load the last used scope
 			scopes = {
