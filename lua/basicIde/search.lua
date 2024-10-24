@@ -134,11 +134,14 @@ return {
 		end, { desc = '[S]earch by [G]rep' })
 
 		vim.keymap.set('v', '<leader>sg', function()
-			telescope_builtin.live_grep({
-				initial_mode = 'normal',
-				default_text = utils.get_visual_selection(),
+			neoscopes_telescope.grep_search({
+				use_last_scope = true,
+				remember_last_scope_used = true,
 				dynamic_prompt_title = function() return build_search_in_scope_prompt_title('Live Grep') end,
-				telescope_options = search_files_options,
+				telescope_options = vim.tbl_deep_extend('force', search_files_options, {
+					initial_mode = 'normal',
+					default_text = utils.get_visual_selection(),
+				}),
 			})
 		end, { desc = '[S]earch selection by [G]rep' })
 
