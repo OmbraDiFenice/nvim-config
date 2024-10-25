@@ -59,5 +59,15 @@ return {
 		end
 
 		project.init(project_settings)
+
+		vim.api.nvim_create_autocmd('BufWritePost', {
+			pattern = project_settings.PROJECT_SETTINGS_FILE,
+			desc = 'reload ' .. project_settings.PROJECT_SETTINGS_FILE .. ' on save',
+			callback = function()
+				-- need to mutate the existing object so that every component gets the update on the shared object
+				Deepmerge(project_settings, project.load_settings())
+				vim.api.nvim_exec_autocmds('User', { pattern = 'ProjectSettingsChanged' })
+			end,
+		})
 	end,
 }

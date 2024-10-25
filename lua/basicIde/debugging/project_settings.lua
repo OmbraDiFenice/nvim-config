@@ -88,10 +88,12 @@ return {
 		-- Reload dap configurations on change without requiring to restart nvim.
 		-- This is the reason why we have to remove existing dap configurations from the config list every time,
 		-- but it's much more convenient for the user
-		vim.api.nvim_create_autocmd('BufWritePost', {
-			pattern = project_settings.PROJECT_SETTINGS_FILE,
+		vim.api.nvim_create_autocmd('User', {
+			pattern = 'ProjectSettingsChanged',
 			desc = 'reload ' .. project_settings.PROJECT_SETTINGS_FILE .. ' on save',
-			callback = apply_custom_dap_configurations,
+			callback = function()
+				apply_custom_dap_configurations(debugging_project_settings.dap_configurations)
+			end,
 		})
 	end
 }
