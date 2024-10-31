@@ -1,3 +1,4 @@
+local utils = require('basicIde.utils')
 local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 
 ---@class NotificationSettings
@@ -273,7 +274,7 @@ end
 ---     							- PROJECT_ROOT: the full path to the project root (where the .nvim.proj.lua file is located)
 ---@param settings table<string, string>
 local function resolve_variables(settings)
-	return Deepmap(settings, function(config)
+	return utils.tables.deepmap(settings, function(config)
 			if type(config) == 'string' then
 				return resolve_variable(config)
 			end
@@ -284,19 +285,19 @@ end
 return {
 	---@return ProjectSettings
 	load_settings = function()
-		local settings = Deepcopy(default_settings)
+		local settings = utils.tables.deepcopy(default_settings)
 
-		local user_default_settings_file = table.concat({vim.fn.expand('$HOME'), PROJECT_SETTINGS_FILE}, OS.sep)
-		if Path_exists(user_default_settings_file, false) then
+		local user_default_settings_file = table.concat({vim.fn.expand('$HOME'), PROJECT_SETTINGS_FILE}, utils.files.OS.sep)
+		if utils.files.path_exists(user_default_settings_file, false) then
 			local user_default_settings = dofile(user_default_settings_file)
 			---@cast user_default_settings ProjectSettings
-			settings = Deepmerge(settings, user_default_settings)
+			settings = utils.tables.deepmerge(settings, user_default_settings)
 		end
 
-		if Path_exists(PROJECT_SETTINGS_FILE, false) then
+		if utils.files.path_exists(PROJECT_SETTINGS_FILE, false) then
 			local custom_settings = dofile(PROJECT_SETTINGS_FILE)
 			---@cast custom_settings ProjectSettings
-			settings = Deepmerge(settings, custom_settings)
+			settings = utils.tables.deepmerge(settings, custom_settings)
 		end
 
 		settings = resolve_variables(settings)
@@ -305,7 +306,7 @@ return {
 		-- They're intentionally not customizable from project file,
 		-- only available to be referenced by plugins if needed (see e.g. debugging)
 		settings.PROJECT_SETTINGS_FILE = PROJECT_SETTINGS_FILE
-		settings.DATA_DIRECTORY = Get_data_directory()
+		settings.DATA_DIRECTORY = utils.get_data_directory()
 
 		return settings
 	end,
@@ -313,7 +314,6 @@ return {
 	---@param settings ProjectSettings
 	---@return nil
 	init = function(settings)
-		local utils = require('basicIde.utils')
 		run_custom_startup_scripts(settings, utils)
 		init_custom_keymaps(settings, utils)
 	end

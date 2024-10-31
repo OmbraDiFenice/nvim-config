@@ -1,3 +1,4 @@
+local utils = require('basicIde.utils')
 local treesitter_utils = require('basicIde.statusBar.lualine_components.treesitter_utils')
 
 ---@type LanguageBreadcrumbHandler
@@ -11,7 +12,7 @@ return {
 
 		while last_node ~= nil and not last_node:equal(tree_root) do
 			local node_type = last_node:type()
-			if Is_in_list(node_type, { 'function_definition', 'class_definition' }) then
+			if utils.tables.is_in_list(node_type, { 'function_definition', 'class_definition' }) then
 				local node_identifier = treesitter_utils.any_direct_child_of_types(last_node, { 'identifier' })
 				if node_identifier ~= nil then
 					treesitter_utils.add_crumb(path, node_identifier)

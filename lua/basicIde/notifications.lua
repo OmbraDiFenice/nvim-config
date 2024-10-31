@@ -1,3 +1,5 @@
+local utils = require('basicIde.utils')
+
 ---@type IdeModule
 return {
 	use_deps = function(use)
@@ -24,7 +26,7 @@ return {
 		vim.notify = function(msg, ...)
 			local output = tostring(msg)
 			if type(msg) == "table" then
-				local lines = Map(msg, tostring)
+				local lines = utils.tables.map(msg, tostring)
 				output = table.concat(lines, '\n')
 			end
 			return notify(output, ...)

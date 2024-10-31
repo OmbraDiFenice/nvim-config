@@ -39,4 +39,19 @@ M.remove_trailing_empty_lines = function(lines)
 	return cleaned_lines
 end
 
+---Split a string in an array over sep
+---@param inputstr string
+---@param sep string? -- defaults to %s if omitted
+---@return string[]
+function M.split (inputstr, sep)
+	if sep == nil then
+		sep = "%s"
+	end
+	local t = {}
+	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+		table.insert(t, str)
+	end
+	return t
+end
+
 return M

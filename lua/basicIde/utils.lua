@@ -1,8 +1,20 @@
 ---@class Utils
 local M = {
-	paths = require('basicIde._utils.paths'),
+	paths = require('basicIde._utils.strings'),
 	proc = require('basicIde._utils.proc'),
+	files = require('basicIde._utils.files'),
+	tables = require('basicIde._utils.tables'),
 }
+
+---Returns the directory to be used to store data related to the current nvim session.
+---@return string # the full path to the folder holding session data
+M.get_data_directory = function()
+	local data_path = vim.fn.stdpath("data")
+	local cwd_path = vim.fn.getcwd()
+	---@cast data_path string
+	---@cast cwd_path string
+	return M.paths.ensure_no_trailing_slash(M.paths.ensure_trailing_slash(data_path) .. "sessions/" .. M.paths.ensure_no_leading_slash(cwd_path))
+end
 
 ---Return the highlighted text in visual mode
 ---
@@ -47,7 +59,7 @@ end
 ---@param keymap_def CustomKeymapDef
 ---@return string, string, fun(...), string # mode, shortcut, callback, description
 M.parse_custom_keymap_config = function(mode_shortcut, keymap_def)
-		local splits = Split(mode_shortcut)
+		local splits = M.paths.split(mode_shortcut)
 		local mode
 		local shortcut
 		if #splits == 1 then
@@ -88,7 +100,7 @@ M.debounce = function (options, fn, ...)
 		timeout = 1000, -- ms
 		timer = nil,
 	}
-	local actual_options = Deepmerge(defaults, options or {})
+	local actual_options = M.tables.deepmerge(defaults, options or {})
 
 	local timer = actual_options.timer
 	if timer ~= nil then timer:stop() end
@@ -103,6 +115,13 @@ M.debounce = function (options, fn, ...)
 	end))
 
 	return timer
+end
+
+function M.get_buf_var(buf, var_name, default_value)
+  local s, v = pcall(function()
+    return vim.api.nvim_buf_get_var(buf, var_name)
+  end)
+  if s then return v else return default_value end
 end
 
 return M

@@ -1,3 +1,4 @@
+local utils = require('basicIde.utils')
 local treesitter_utils = require('basicIde.statusBar.lualine_components.treesitter_utils')
 
 ---@type LanguageBreadcrumbHandler
@@ -13,7 +14,7 @@ return {
 			local node_type = last_node:type()
 			local node_identifier = nil
 
-			if Is_in_list(node_type, { 'type_definition', 'struct_specifier' }) then
+			if utils.tables.is_in_list(node_type, { 'type_definition', 'struct_specifier' }) then
 				node_identifier = treesitter_utils.any_direct_child_of_types(last_node, { 'type_identifier' })
 			elseif node_type == 'function_definition' then
 				local function_declarator_node = treesitter_utils.first_deep_child_of_types(last_node, { 'function_declarator' })

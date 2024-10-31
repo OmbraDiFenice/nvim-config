@@ -1,3 +1,4 @@
+local utils = require('basicIde.utils')
 local tsutils = require('basicIde.statusBar.lualine_components.treesitter_utils')
 
 ---@class CodeLayout
@@ -22,7 +23,7 @@ local function find_depth(node, types)
 	local n = node:parent()
 
 	while n ~= nil and not n:equal(node:tree():root()) do
-		if Is_in_list(n:type(), types) then
+		if utils.tables.is_in_list(n:type(), types) then
 			depth = depth + 1
 		end
 		n = n:parent()
@@ -39,7 +40,7 @@ local function first_parent_of_type(node, types)
 	---@type TSNode?
 	local n = node
 	while n ~= nil and not n:equal(root) do
-		if Is_in_list(n:type(), types) then return n end
+		if utils.tables.is_in_list(n:type(), types) then return n end
 		n = n:parent()
 	end
 end
@@ -167,7 +168,7 @@ local function populateCodeLayoutBuffer(nodes, node_types, source_buf, scratch_b
 
 	---@type HighlightingInfo[]
 	local hl_groups = {}
-	local lines = Map(nodes, function(node, row)
+	local lines = utils.tables.map(nodes, function(node, row)
 		local depth = find_depth(node, node_types)
 		local indentation = string.rep(' ', indent_width * depth)
 

@@ -6,6 +6,8 @@ local M = {}
 ---@param custom_options? table # same options passed to |vim.api.nvim_open_win()|. Defaults to a float with a single border and centered in the current window. If provided, those defaults are still used as a base, but you can override whatever you want
 ---@return integer, integer # the bufnr of the buffer contained in the float and the window handle of the float window itself respectively
 M.openFloatWindow = function(bufnr, custom_options)
+	local utils = require('basicIde.utils')
+
 	local win_width  = vim.api.nvim_win_get_width(0)
 	local win_height = vim.api.nvim_win_get_height(0)
 
@@ -27,7 +29,7 @@ M.openFloatWindow = function(bufnr, custom_options)
 	}
 
 	if custom_options == nil then custom_options = {} end
-	options = Deepmerge(options, custom_options)
+	options = utils.tables.deepmerge(options, custom_options)
 
 	if bufnr == nil then bufnr = vim.api.nvim_create_buf(false, false) end
 
@@ -44,6 +46,8 @@ end
 ---@param options any # options for |vim.fn.jobstart|. They will extend a set of basic options required to capture the job output, but they will be overwritten if you provide your own
 ---@return integer # the job id of the spawned nvim job, as returned by |vim.fn.jobstart()|
 M.runAndReturnOutput = function(command, callback, options)
+	local utils = require('basicIde.utils')
+
 	---@type string[]
 	local output = {}
 
@@ -65,7 +69,7 @@ M.runAndReturnOutput = function(command, callback, options)
 	}
 
 	if options == nil then options = {} end
-	options = Deepmerge(options, default_options)
+	options = utils.tables.deepmerge(options, default_options)
 
 	return vim.fn.jobstart(command, options)
 end

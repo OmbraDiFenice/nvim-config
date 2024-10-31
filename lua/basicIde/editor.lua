@@ -1,3 +1,6 @@
+local utils = require('basicIde.utils')
+local OS = utils.files.OS
+
 local function get_close_strategy(buf)
 	local strategies = {
 		purge = function() vim.api.nvim_buf_delete(buf, { unload = false }) end,
@@ -7,7 +10,7 @@ local function get_close_strategy(buf)
 
 	local strategy = strategies['purge'] -- default strategy
 
-	local buf_close_strategy = Get_buf_var(buf, 'close_strategy')
+	local buf_close_strategy = utils.get_buf_var(buf, 'close_strategy')
 	if buf_close_strategy ~= nil and strategies[buf_close_strategy] ~= nil then
 		strategy = strategies[buf_close_strategy]
 	end
@@ -220,7 +223,7 @@ return {
 		})
 
 		-- ------------------- UNDOTREE -------------------
-		vim.o.undodir = Get_data_directory() .. OS.sep .. "undodir" .. OS.sep .. OS.sep
+		vim.o.undodir = utils.get_data_directory() .. OS.sep .. "undodir" .. OS.sep .. OS.sep
 		vim.o.undofile = true
 		vim.o.undolevels = 1000
 		vim.o.undoreload = 10000
