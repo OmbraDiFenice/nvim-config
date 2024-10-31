@@ -1,9 +1,11 @@
+local utils = require('basicIde.utils')
+
 ---Create a temporary dap configuration wrapping the provided one but gathering code coverage about execution and run it
 ---@param dap_configuration DapConfigurationExtendedPython # the Python DAP configuration to run with coverage
 ---@return nil # `dap_configuration` is wrapped and ran immediately
 local function run_with_coverage(dap_configuration)
 	local dap = require('dap')
-	local coverage_configuration = Deepcopy(dap_configuration)
+	local coverage_configuration = utils.tables.deepcopy(dap_configuration)
 	coverage_configuration.name = dap_configuration.name .. ' with coverage'
 	coverage_configuration.args = { 'run', '-m', dap_configuration.module, }
 	for _, arg in ipairs(dap_configuration.args) do

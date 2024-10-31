@@ -1,3 +1,5 @@
+local utils = require('basicIde.utils')
+
 ---@class TreeState
 ---@field cursor_position TreeStateCursorPosition
 ---@field expanded_folders string[]
@@ -5,8 +7,8 @@
 ---@class TreeStateManager
 ---@field state_filename string
 ---@field state TreeState
-M = {
-	state_filename = Get_data_directory() .. '/nvim-tree.state',
+local M = {
+	state_filename = utils.get_data_directory() .. '/nvim-tree.state',
 	state = {
 		cursor_position = { 1, 0 },
 		expanded_folders = {},
@@ -21,7 +23,7 @@ local state_setting_modules = {
 ---@param file_name string
 ---@return TreeState
 local load_state_from_file = function(file_name)
-	local state = Deepcopy(M.state)
+	local state = utils.tables.deepcopy(M.state)
 
 	local state_file = io.open(file_name, 'r')
 	if state_file == nil then
@@ -96,7 +98,7 @@ M.setup = function()
 
 	vim.api.nvim_create_autocmd('VimLeave', {
 		callback = function()
-			if Is_table_empty(vim.api.nvim_list_uis()) then return end
+			if utils.tables.is_table_empty(vim.api.nvim_list_uis()) then return end
 			M.update()
 			M.store()
 			return true

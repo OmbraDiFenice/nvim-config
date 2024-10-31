@@ -1,3 +1,5 @@
+local utils = require('basicIde.utils')
+
 ---@type IdeModule
 return {
 	use_deps = function(use)
@@ -21,6 +23,6 @@ return {
 		local default_filetype = {
 			TelescopePrompt = false,
 		}
-		vim.g.codeium_filetypes = Deepmerge(default_filetype, config.filetypes)
+		vim.g.codeium_filetypes = utils.tables.deepmerge(default_filetype, config.filetypes)
 	end
 }

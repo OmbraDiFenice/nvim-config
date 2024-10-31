@@ -1,3 +1,4 @@
+local utils = require('basicIde.utils')
 local rsync_manager = require('basicIde.remote_sync.rsync_manager')
 local quantconnect_manager = require('basicIde.remote_sync.quantconnect')
 local fs_monitor = vim.loop.new_fs_event()
@@ -32,7 +33,7 @@ end
 ---@param project_root_path string
 local function setup_sync_on_git_changes(project_root_path)
 	if git_monitor == nil then vim.notify('unable to create watch event for git sync on changes. Files won\'t be synchronized automatically on checkouts'); return end
-	local git_head_path = table.concat({ project_root_path, '.git', 'HEAD' }, OS.sep)
+	local git_head_path = table.concat({ project_root_path, '.git', 'HEAD' }, utils.files.OS.sep)
 
 	local function start_monitoring()
 		git_monitor:start(git_head_path,
@@ -89,8 +90,8 @@ return {
 			if fs_monitor ~= nil and cwd ~= nil then
 				fs_monitor:start(cwd, { watch_entry = true, stat = false, recursive = true }, vim.schedule_wrap(function (err, filepath, events)
 					-- if string.sub(filepath, #filepath) == '~' then return end
-					local full_path = table.concat({ cwd, filepath }, OS.sep)
-					if Path_exists(full_path) then
+					local full_path = table.concat({ cwd, filepath }, utils.files.OS.sep)
+					if utils.files.path_exists(full_path) then
 						manager:synchronize_file(full_path)
 					end
 				end))
@@ -117,7 +118,7 @@ return {
 
 		vim.keymap.set('n', '<leader>rs', sync_current_file, { desc = 'Synch current file to the remote machine' })
 
-		if project_settings.remote_sync.sync_on_git_head_change and Path_exists(table.concat({ vim.fn.getcwd(), ".git" }, OS.sep)) then
+		if project_settings.remote_sync.sync_on_git_head_change and utils.files.path_exists(table.concat({ vim.fn.getcwd(), ".git" }, utils.files.OS.sep)) then
 			setup_sync_on_git_changes(vim.fn.getcwd(-1, -1))
 		end
 	end

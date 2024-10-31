@@ -1,3 +1,4 @@
+local utils = require('basicIde.utils')
 local lualine_highlight = require('lualine.highlight')
 
 ---Convert an integer into its hex representation of the RGB components
@@ -101,7 +102,7 @@ local function first_deep_child_of_types(node, node_types)
 	for i = 0, node:child_count(), 1 do
 		local child = node:child(i)
 		if child ~= nil then
-			if Is_in_list(child:type(), node_types) then
+			if utils.tables.is_in_list(child:type(), node_types) then
 				return child
 			else
 				local deep_child = first_deep_child_of_types(child, node_types)
@@ -120,7 +121,7 @@ return {
 	any_direct_child_of_types = function(node, node_identifier_types)
 		for i = 0, node:child_count(), 1 do
 			local child = node:child(i)
-			if child ~= nil and Is_in_list(child:type(), node_identifier_types) then
+			if child ~= nil and utils.tables.is_in_list(child:type(), node_identifier_types) then
 				return child
 			end
 		end

@@ -5,8 +5,8 @@ local utils = require('basicIde.utils')
 ---@param file_path string # local path to be mapped. If the path doesn't start with a path separator it's assumed to be a relative path, and it's prepended with the root path
 ---@return string|nil, string|nil # local relative path, remote absolute path. Both nil if it wasn't possible to map the input
 local function map_file_path(mappings, file_path)
-	if file_path:sub(1, 1) ~= OS.sep then
-		file_path = table.concat({utils.paths.ensure_no_trailing_slash(vim.fn.getcwd()), file_path}, OS.sep)
+	if file_path:sub(1, 1) ~= utils.files.OS.sep then
+		file_path = table.concat({utils.paths.ensure_no_trailing_slash(vim.fn.getcwd()), file_path}, utils.files.OS.sep)
 	end
 
 	local selected_prefix = ''
@@ -59,7 +59,7 @@ local function build_ignore_table(ignore_list)
 	local ignore_table = {}
 	local project_root = vim.fn.getcwd(-1, -1)
 	for _, exclude in ipairs(ignore_list) do
-		local exclude_full_path = table.concat({ project_root, utils.paths.ensure_no_leading_slash(exclude) }, OS.sep)
+		local exclude_full_path = table.concat({ project_root, utils.paths.ensure_no_leading_slash(exclude) }, utils.files.OS.sep)
 		ignore_table[exclude_full_path] = true
 	end
 	return ignore_table

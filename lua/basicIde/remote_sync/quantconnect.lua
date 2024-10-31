@@ -34,13 +34,13 @@ function QuantConnectManager:synchronize_file(file_path, ignore_table)
 		return
 	end
 
-	if source_relative_path:sub(1, 2) == '.' .. OS.sep then
+	if source_relative_path:sub(1, 2) == '.' .. utils.files.OS.sep then
 		source_relative_path = source_relative_path:sub(3)
 	end
 
 	local destination_path = destination_root_path
 	if source_relative_path ~= '' then
-		destination_path = utils.paths.ensure_no_leading_slash(table.concat({ destination_root_path, source_relative_path }, OS.sep))
+		destination_path = utils.paths.ensure_no_leading_slash(table.concat({ destination_root_path, source_relative_path }, utils.files.OS.sep))
 	end
 
 	vim.schedule_wrap(function()
@@ -53,7 +53,7 @@ function QuantConnectManager:synchronize_file(file_path, ignore_table)
 			)
 		end
 
-		local local_content = Load_file(file_path)
+		local local_content = utils.files.load_file(file_path)
 		if self._remote_cache[destination_path] == nil then
 			if self.settings.notifications.enabled then notification = vim.notify('remote file not found, creating it', vim.log.levels.INFO, { replace = notification }) end
 			self._client:create_file(self.settings.quantconnect_settings.project_id, destination_path, local_content)
@@ -85,7 +85,7 @@ function QuantConnectManager:synchronize_directory(dir_path)
 		for file in lfs.dir(dir_path) do
 			if file == '.' or file == '..' then goto continue end
 
-			local file_path = table.concat({ dir_path, file }, OS.sep)
+			local file_path = table.concat({ dir_path, file }, utils.files.OS.sep)
 			local file_mode = lfs.attributes(file_path, 'mode')
 
 			if file_mode == 'file' then

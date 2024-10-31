@@ -1,3 +1,5 @@
+local utils = require('basicIde.utils')
+
 ---Apply some preprocessing to the data coming from project settings.
 ---This is mainly meant to make it easier for the user to provide configuration without
 ---having to worry too much about lua/dap input requirements format.
@@ -65,9 +67,9 @@ local function apply_environment_configurations(loader_settings)
 	for _, dap_configurations in pairs(dap.configurations) do
 		for _, dap_configuration in ipairs(dap_configurations) do
 			if dap_configuration.env ~= nil then
-				dap_configuration.env = Deepmerge(Deepcopy(loader_environment), dap_configuration.env)
+				dap_configuration.env = utils.tables.deepmerge(utils.tables.deepcopy(loader_environment), dap_configuration.env)
 			else
-				dap_configuration.env = Deepcopy(loader_environment)
+				dap_configuration.env = utils.tables.deepcopy(loader_environment)
 			end
 		end
 	end
