@@ -85,7 +85,9 @@ M.parse_custom_keymap_config = function(mode_shortcut, keymap_def)
 			end
 			callback = function () M.proc.run(fun, start_log, end_log) end
 		else
-			callback = function (...) keymap_def.fun(...) end
+			--- must return the value from fun to enable cases where we use opts.expr = true
+			--- to evaluate the return as a vim expression
+			callback = function (...) return keymap_def.fun(...) end
 		end
 
 		return mode, shortcut, callback, desc

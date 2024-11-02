@@ -1,4 +1,20 @@
-local utils = require('basicIde.utils')
+local CodeiumManager = require('basicIde.ai.codeium')
+local key_mapping = require('basicIde.key_mapping')
+
+local keymap_descriptions = {
+	accept_current_suggestion = 'Accept AI suggestion',
+	next_suggestion = 'Next AI suggestion',
+	previous_suggestion = 'Previous AI suggestion',
+	clear_current_suggestion = 'Clear AI suggestion',
+}
+
+---@param ai_config AiConfig
+local function select_ai_manager(ai_config)
+	if ai_config.engine == 'codeium' then
+		return CodeiumManager:new(ai_config)
+	end
+	vim.notify('AI engine "' .. ai_config.engine .. '" not supported', vim.log.levels.WARN)
+end
 
 ---@type IdeModule
 return {
@@ -9,20 +25,16 @@ return {
 	configure = function(project_settings)
 		local config = project_settings.ai
 
+		-- this needs to be done here because it's a vim global config and
+		-- otherwise it would be enabled by default
 		vim.g.codeium_enabled = config.enabled
-		vim.g.codeium_manual = config.manual
-		vim.g.codeium_render = config.render_suggestion
 
-		vim.g.codeium_disable_bindings = true
-		for _, shortcut in ipairs(config.keymaps.accept_current_suggestion) do vim.keymap.set('i', shortcut, function() return vim.fn['codeium#Accept']() end, { expr = true, silent = true, desc = 'Accept AI suggestion'}) end
-		for _, shortcut in ipairs(config.keymaps.next_suggestion) do vim.keymap.set('i', shortcut, function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true, silent = true, desc = 'Next AI suggestion'}) end
-		for _, shortcut in ipairs(config.keymaps.previous_suggestion) do vim.keymap.set('i', shortcut, function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true, silent = true, desc = 'Previous AI suggestion'}) end
-		for _, shortcut in ipairs(config.keymaps.clear_current_suggestion) do vim.keymap.set('i', shortcut, function() return vim.fn['codeium#Clear']() end, { expr = true, silent = true, desc = 'Clear AI suggestion'}) end
+		if not config.enabled then return end
 
-		vim.g.codeium_disable_for_all_filetypes = config.disable_for_all_filetypes
-		local default_filetype = {
-			TelescopePrompt = false,
-		}
-		vim.g.codeium_filetypes = utils.tables.deepmerge(default_filetype, config.filetypes)
+		local manager = select_ai_manager(config)
+		if manager == nil then return end
+
+		manager:init()
+		key_mapping.setup_keymaps(keymap_descriptions, manager, config.keymaps)
 	end
 }

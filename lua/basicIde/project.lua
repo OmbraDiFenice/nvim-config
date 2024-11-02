@@ -76,11 +76,12 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 
 ---@class AiConfig
 ---@field enabled boolean
+---@field engine string
 ---@field disable_for_all_filetypes boolean
 ---@field filetypes table<string, boolean> -- explicitly enable or disable AI for specific filetypes. The default for unspecified filetypes depends on disable_for_all_filetypes. There are some default applied implicitly (see the module config code), but they can always be overridden manually
 ---@field manual boolean
 ---@field render_suggestion boolean
----@field keymaps table<string, string[]> -- they keys are fixed and associated to each possible AI action. The value is a list of keys to use to trigger the action. These keymaps are always set for insert mode
+---@field keymaps table<string, string[]> -- they keys are fixed and associated to each possible AI action. The value is a list of keymaps shortcut to trigger the action in a format similar to the keys associated to CustomKeymapDef in other configs. These keymaps should always be set for insert mode
 ---@field show_in_status_bar boolean
 
 ---@class ProjectSettings
@@ -233,16 +234,17 @@ local default_settings = {
 	},
 	ai = {
 		enabled = false,
+		engine = 'codeium',
 		disable_for_all_filetypes = false,
 		filetypes = {},
 		manual = false,
 		render_suggestion = true,
 		show_in_status_bar = true,
 		keymaps = {
-			accept_current_suggestion = {'<C-g>'},
-			clear_current_suggestion = {'<C-x>'},
-			next_suggestion = {'<C-l>'},
-			previous_suggestion = {'<C-h>'},
+			accept_current_suggestion = {'i <C-g>'},
+			clear_current_suggestion = {'i <C-x>'},
+			next_suggestion = {'i <C-l>'},
+			previous_suggestion = {'i <C-h>'},
 		},
 	},
 }
