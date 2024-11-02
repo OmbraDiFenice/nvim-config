@@ -63,7 +63,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@class CodeLayoutConfig
 ---@field languages table<string, CodeLayoutLanguageConfig>
 ---@field indent_width integer how much to indent each entry in the code layout. The indent is relative to the position of that node counting only the specific language node types
----@field keymaps table<string, CustomKeymapDef> function will receive a reference to the instance of code layout being interacted with
+---@field keymaps table<string, string[]>
 
 ---@class EditorConfig
 ---@field autosave boolean
@@ -199,33 +199,9 @@ local default_settings = {
 			},
 		},
 		keymaps = {
-			['q'] = {
-				desc = '[Code layout] close code layout',
-				fun = function(code_layout)
-					code_layout:close_code_layout_window()
-				end
-			},
-			['<CR>'] = {
-				desc = '[Code layout] goto to symbol and close layout',
-				fun = function(code_layout)
-					code_layout:navigate_to_source()
-					code_layout:close_code_layout_window()
-				end
-			},
-			['l'] = {
-				desc = '[Code layout] goto to symbol and close layout',
-				fun = function(code_layout)
-					code_layout:navigate_to_source()
-					code_layout:close_code_layout_window()
-				end
-			},
-			['h'] = {
-				desc = '[Code layout] goto to symbol and close layout',
-				fun = function(code_layout)
-					code_layout:navigate_to_source()
-					code_layout:close_code_layout_window()
-				end
-			},
+			open_layout = {'<leader>l'}, -- from the file to analyze
+			close_layout = {'q'}, -- from within layout buffer
+			goto_and_close_layout = {'<CR>', 'l', 'h'}, -- from within layout buffer
 		},
 	},
 	editor = {
