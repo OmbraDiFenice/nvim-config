@@ -5,7 +5,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field enabled boolean
 
 ---@class FormatOnSaveKeymapsSettings
----@field format_current_buffer string
+---@field format_current_buffer string[]
 
 ---@class FormatOnSaveSettings
 ---@field enabled boolean
@@ -154,7 +154,7 @@ local default_settings = {
                      --    - that triggers autoformat again
                      --    - you're back to the change you wanted to undo
 		keymaps = {
-			format_current_buffer = '<F7>',
+			format_current_buffer = {'<F7>', 'v <F7>'},
 		}
 	},
 	debugging = {
