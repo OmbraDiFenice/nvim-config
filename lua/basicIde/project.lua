@@ -101,19 +101,6 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field ai AiConfig
 ---@field build_remote_url fun(commit_hash: str): string? -- builds the url for the given commit so that it can be opened in the browser with a key shortcut from Diffview history view. Return the url or nil to cancel the operation
 
----@class UserProjectSettings
----@field loader? LoaderConfig
----@field format_on_save? FormatOnSaveSettings
----@field debugging? DebuggingSettings
----@field terminal? TerminalSettings
----@field remote_sync? RemoteSyncSettings
----@field custom_startup_scripts? table<string, fun(utils: Utils): nil> the key is just a name used for reference and error reporting purposes
----@field custom_keymaps? table<string, CustomKeymapDef> the key is the keymap shortcut in the format '<mode> <shortcut>' (e.g. 'n <leader>X'). If <mode> is omitted it defaults to n. Callbacks will receive a reference to the basicIde.utils module
----@field lsp? LspSettings
----@field code_layout? CodeLayoutConfig
----@field editor EditorConfig?
----@field ai AiConfig?
-
 ---Execute the callbacks in `custom_startup_scripts` setting
 ---@param settings ProjectSettings
 ---@param utils Utils
