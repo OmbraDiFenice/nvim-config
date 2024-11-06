@@ -148,7 +148,7 @@ return {
 			})
 		end, { desc = '[S]earch selection by [G]rep' })
 
-		vim.keymap.set('n', '<leader>Ss', require('neoscopes').select, { desc = '[S]cope [s]elect' })
+		vim.keymap.set('n', '<leader>Ss', neoscopes_telescope.select_scope, { desc = '[S]cope [s]elect' })
 		vim.keymap.set('n', '<leader>Sc', neoscopes_telescope.new_scope, { desc = '[S]cope [c]reate' })
 		vim.keymap.set('n', '<leader>Sd', neoscopes_telescope.delete_scope, { desc = '[S]cope [d]elete' })
 		vim.keymap.set('n', '<leader>SC', neoscopes_telescope.clone_scope, { desc = '[S]cope [C]lone' })
