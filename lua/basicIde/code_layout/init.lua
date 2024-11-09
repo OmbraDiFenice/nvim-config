@@ -14,8 +14,8 @@ local buffer_keymap_descriptions = {
 local function make_buffer_keymap_manager(layout)
 	return {
 		keymap_callbacks = {
-			close_layout = { callback = function() layout:close_code_layout_window() end, opts = {} },
-			goto_and_close_layout = { callback = function() layout:navigate_to_source(); layout:close_code_layout_window() end, opts = {} },
+			close_layout = { callback = function() layout:close_code_layout_window() end, opts = { buffer = layout.scratch_buf } },
+			goto_and_close_layout = { callback = function() layout:navigate_to_source(); layout:close_code_layout_window() end, opts = { buffer = layout.scratch_buf } },
 		}
 	}
 end
