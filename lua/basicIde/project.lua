@@ -65,9 +65,13 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field indent_width integer how much to indent each entry in the code layout. The indent is relative to the position of that node counting only the specific language node types
 ---@field keymaps table<string, string[]>
 
+---@class TreeViewConfig
+---@field keymaps table<string, string[]>
+
 ---@class EditorConfig
 ---@field autosave boolean
 ---@field open_tree_view_on_start boolean
+---@field tree_view TreeViewConfig
 
 ---@class LoaderConfig
 ---@field virtual_environment? string
@@ -194,6 +198,17 @@ local default_settings = {
 	editor = {
 		autosave = true,
 		open_tree_view_on_start = true,
+		tree_view = {
+			keymaps = {
+				open = { 'l' },
+				close_tree_view = { '<C-h>' },
+				vsplit_preview = { 'L' },
+				close_dir = { 'h' },
+				collapse = { 'H' },
+				git_add = { 'ga' },
+				synchronize_file_or_dir_remotely = { '<leader>S' },
+			},
+		},
 	},
 	ai = {
 		enabled = false,
