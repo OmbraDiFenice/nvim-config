@@ -64,7 +64,7 @@ return {
 		local pre_save_cmds = {}
 		local post_restore_cmds = {}
 
-		if settings.editor.open_tree_view_on_start then
+		if settings.editor.tree_view.open_on_start then
 			table.insert(pre_save_cmds, close_nvim_tree)
 			table.insert(post_restore_cmds, open_nvim_tree)
 		end

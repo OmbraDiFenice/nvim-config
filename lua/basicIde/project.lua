@@ -66,11 +66,11 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field keymaps table<string, string[]>
 
 ---@class TreeViewConfig
+---@field open_on_start boolean
 ---@field keymaps table<string, string[]>
 
 ---@class EditorConfig
 ---@field autosave boolean
----@field open_tree_view_on_start boolean
 ---@field tree_view TreeViewConfig
 
 ---@class LoaderConfig
@@ -197,8 +197,8 @@ local default_settings = {
 	},
 	editor = {
 		autosave = true,
-		open_tree_view_on_start = true,
 		tree_view = {
+			open_on_start = true,
 			keymaps = {
 				open = { 'l' },
 				close_tree_view = { '<C-h>' },
