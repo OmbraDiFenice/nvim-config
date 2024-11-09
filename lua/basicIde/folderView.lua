@@ -1,3 +1,5 @@
+local key_mapping = require('basicIde.key_mapping')
+
 local function edit_or_open()
 	local lib = require("nvim-tree.lib")
 	-- open as vsplit on current node
@@ -84,25 +86,44 @@ local synchronize_file_or_dir_remotely = function()
 	})
 end
 
+local nvim_tree_keymap_descriptions = {
+	open = 'nvim-tree: Open',
+	close_tree_view = 'nvim-tree: Close tree view',
+	vsplit_preview = 'nvim-tree: vsplit preview',
+	close_dir = 'nvim-tree: Close Directory',
+	collapse = 'nvim-tree: Collapse all',
+	git_add = 'nvim-tree: git add',
+	synchronize_file_or_dir_remotely = 'nvim-tree: synchronize file or dir on remote',
+}
+
+---@return KeymapManager
+local function make_nvim_tree_keymap_manager(bufnr)
+	local api = require('nvim-tree.api')
+	local common_opts = { buffer = bufnr, noremap = true, silent = true, nowait = true }
+
+	return {
+		keymap_callbacks = {
+			open = { callback = edit_or_open, opts = common_opts },
+			close_tree_view = { callback = api.tree.close, opts = common_opts },
+			vsplit_preview = { callback = vsplit_preview, opts = common_opts },
+			close_dir = { callback = api.node.navigate.parent_close, opts = common_opts },
+			collapse = { callback = api.tree.collapse_all, opts = common_opts },
+			git_add = { callback = git_add, opts = common_opts },
+			synchronize_file_or_dir_remotely = { callback = synchronize_file_or_dir_remotely, opts = common_opts },
+		}
+	}
+end
+
 ---Sets the nvim-tree keybindings on the nvim-tree buffer
 ---@param bufnr integer nvim-tree bufnr
-local nvim_tree_key_mappings = function(bufnr)
+---@param editor_config EditorConfig
+local nvim_tree_key_mappings = function(bufnr, editor_config)
 	local api = require('nvim-tree.api')
-
-	local function opts(desc)
-		return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
-	end
 
 	api.config.mappings.default_on_attach(bufnr)
 
-	vim.keymap.set('n', 'l', edit_or_open, opts('Open'))
-	vim.keymap.set('n', 'L', vsplit_preview, opts('vsplit_preview'))
-	vim.keymap.set('n', 'h', api.node.navigate.parent_close, opts('Close Directory'))
-	vim.keymap.set('n', 'H', api.tree.collapse_all, opts('Collapse'))
-	vim.keymap.set('n', 'ga', git_add, opts('git_add'))
-	vim.keymap.set('n', '<C-h>', api.tree.close, opts('git_add'))
-
-	vim.keymap.set('n', '<leader>S', synchronize_file_or_dir_remotely, opts('Synchronize file or dir on remote'))
+	local nvim_tree_keymap_manager = make_nvim_tree_keymap_manager(bufnr)
+	key_mapping.setup_keymaps(nvim_tree_keymap_descriptions, nvim_tree_keymap_manager, editor_config.tree_view.keymaps)
 end
 
 ---@type IdeModule
@@ -128,7 +149,7 @@ return {
 		use { 'akinsho/bufferline.nvim', tag = "v3.*", requires = 'nvim-tree/nvim-web-devicons' }
 	end,
 
-	configure = function()
+	configure = function(project_settings)
 		vim.g.loaded_netrw = 1
 		vim.g.loaded_netrwPlugin = 1
 		vim.opt.termguicolors = true
@@ -170,7 +191,7 @@ return {
 			view = {
 				width = "20%",
 			},
-			on_attach = nvim_tree_key_mappings,
+			on_attach = function(bufnr) nvim_tree_key_mappings(bufnr, project_settings.editor) end,
 			actions = {
 				open_file = {
 					quit_on_open = false
