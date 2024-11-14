@@ -18,6 +18,19 @@ M.load_file = function(path)
 	return fd:read("*a")
 end
 
+---Creates an empty file at the given path if it doesn't exist.
+---Also creates any dir parents if they don't exist
+---@param path string
+M.touch_file = function(path)
+	if M.path_exists(path, false) then return end
+
+	vim.fn.mkdir(vim.fs.dirname(path), 'p')
+
+	local fd = io.open(path, "w")
+	if fd == nil then return end
+	fd:close()
+end
+
 M.OS = {
 	---directory path separator
 	sep = package.config:sub(1, 1),
