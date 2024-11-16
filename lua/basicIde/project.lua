@@ -92,6 +92,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field PROJECT_SETTINGS_FILE string
 ---@field DATA_DIRECTORY string
 ---@field project_title string
+---@field settings_templates table<string, string[]> -- key is the name of the template and the value is a list of the lines to put inside the project settings table. No need to put newlines at the end of each line. The lines will be placed inside the returned table, so they must only include the key/values you want in the template.
 ---@field loader LoaderConfig
 ---@field format_on_save FormatOnSaveSettings
 ---@field debugging DebuggingSettings
@@ -131,6 +132,13 @@ local default_settings = {
 	PROJECT_SETTINGS_FILE = '',
 	DATA_DIRECTORY = '',
 	project_title = '[nvim IDE] ' .. vim.fn.getcwd(-1, -1),
+	settings_templates = {
+		python = {
+			'loader = {',
+			'  virtual_environment = "venv",',
+			'},',
+		}
+	},
 	build_remote_url = function() return nil end,
 	loader = {
 		virtual_environment = nil,
@@ -262,6 +270,51 @@ local function resolve_variables(settings)
 		end)
 end
 
+---Creates a new project configuration file in the home folder. 
+---If the template is specified, it is used to index the defined
+---templates in the settings to fill the otherwise empty settings table
+---with some initial values. Normally one would set custom predefined
+---templates in the user-level config file in the home folder, otherwise
+---just rely on the default ones from the IDE.
+---
+---If the requested template doesn't exist an error is reported and the
+---command does nothing.
+---
+---If a project config file already exists it is just opened for edit.
+---
+---@param template_name string?
+---@param settings ProjectSettings
+local function create_or_open_project_file(template_name, settings)
+	if utils.files.path_exists(settings.PROJECT_SETTINGS_FILE, false) then
+		vim.notify('Opening existing project serttings')
+	else
+		local lines = {
+			'---@diagnostic disable: unused-local, missing-fields',
+			'---@type ProjectSettings',
+			'return {',
+		}
+
+		local template = nil
+		if template_name ~= nil then
+			template = settings.settings_templates[template_name]
+			if template == nil then
+				vim.notify('Unknown project template: ' .. template_name, vim.log.levels.ERROR)
+				return
+			else
+				template = utils.tables.map(template, function(line) return '  ' .. line end)
+				lines = vim.list_extend(lines, template)
+			end
+		end
+
+		lines[#lines + 1] = '}'
+
+		utils.files.touch_file(settings.PROJECT_SETTINGS_FILE)
+		vim.fn.writefile(lines, settings.PROJECT_SETTINGS_FILE)
+	end
+
+	vim.cmd.edit(settings.PROJECT_SETTINGS_FILE)
+end
+
 return {
 	---@return ProjectSettings
 	load_settings = function()
@@ -296,5 +349,12 @@ return {
 	init = function(settings)
 		run_custom_startup_scripts(settings, utils)
 		init_custom_keymaps(settings, utils)
+
+		vim.api.nvim_create_user_command('BasicIdeInitProject', function(params)
+			create_or_open_project_file(params.fargs[1], settings)
+		end, {
+		nargs = '?',
+		desc = 'Create and edit a new project settings file, optionally using a template. If the file already exists it will just be opened',
+	})
 	end
 }
