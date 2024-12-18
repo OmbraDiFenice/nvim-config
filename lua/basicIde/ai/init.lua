@@ -1,4 +1,5 @@
 local CodeiumManager = require('basicIde.ai.codeium')
+local CopilotManager = require('basicIde.ai.copilot')
 local key_mapping = require('basicIde.key_mapping')
 
 local keymap_descriptions = {
@@ -12,6 +13,8 @@ local keymap_descriptions = {
 local function select_ai_manager(ai_config)
 	if ai_config.engine == 'codeium' then
 		return CodeiumManager:new(ai_config)
+	elseif ai_config.engine == 'copilot' then
+		return CopilotManager:new(ai_config)
 	end
 	vim.notify('AI engine "' .. ai_config.engine .. '" not supported', vim.log.levels.WARN)
 end
@@ -20,6 +23,7 @@ end
 return {
 	use_deps = function(use)
 		use 'Exafunction/codeium.vim'
+		use "zbirenbaum/copilot.lua"
 	end,
 
 	configure = function(project_settings)
@@ -27,7 +31,7 @@ return {
 
 		-- this needs to be done here because it's a vim global config and
 		-- otherwise it would be enabled by default
-		vim.g.codeium_enabled = config.enabled
+		vim.g.codeium_enabled = false
 
 		if not config.enabled then return end
 
