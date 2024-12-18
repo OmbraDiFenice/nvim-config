@@ -80,7 +80,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 
 ---@class AiConfig
 ---@field enabled boolean
----@field engine string
+---@field engine "codeium"|"copilot"
 ---@field disable_for_all_filetypes boolean
 ---@field filetypes table<string, boolean> -- explicitly enable or disable AI for specific filetypes. The default for unspecified filetypes depends on disable_for_all_filetypes. There are some default applied implicitly (see the module config code), but they can always be overridden manually
 ---@field manual boolean
@@ -103,7 +103,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field code_layout CodeLayoutConfig
 ---@field editor EditorConfig
 ---@field ai AiConfig
----@field build_remote_url fun(commit_hash: str): string? -- builds the url for the given commit so that it can be opened in the browser with a key shortcut from Diffview history view. Return the url or nil to cancel the operation
+---@field build_remote_url fun(commit_hash: string): string? -- builds the url for the given commit so that it can be opened in the browser with a key shortcut from Diffview history view. Return the url or nil to cancel the operation
 
 ---Execute the callbacks in `custom_startup_scripts` setting
 ---@param settings ProjectSettings

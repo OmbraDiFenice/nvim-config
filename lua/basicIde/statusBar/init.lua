@@ -1,11 +1,31 @@
 local CodeBreadcrumbs = require('basicIde.statusBar.lualine_components.code_breadcrumbs')
 local TestRun = require('basicIde.statusBar.lualine_components.test_run')
 
+---@param ai_config AiConfig
+local function get_ai_component(ai_config)
+	if not ai_config.enabled or not ai_config.show_in_status_bar then return end
+
+	if ai_config.engine == 'codeium' then
+		return function()
+			local success, res = pcall(vim.fn['codeium#GetStatusString'])
+			if not success then return '' end
+			return res
+		end
+	elseif ai_config.engine == 'copilot' then
+		return { 'copilot' ,'encoding', 'fileformat', 'filetype' }
+	end
+end
+
 ---@type IdeModule
 return {
 	use_deps = function(use)
 		use {
 			'nvim-lualine/lualine.nvim',
+			requires = { 'kyazdani42/nvim-web-devicons' }
+		}
+
+		use {
+			'AndreM222/copilot-lualine',
 			requires = { 'kyazdani42/nvim-web-devicons' }
 		}
 	end,
@@ -18,12 +38,9 @@ return {
 			function() return testRun.msg end,
 		}
 
-		if project_settings.ai.enabled and project_settings.ai.show_in_status_bar then
-			table.insert(right_side, function()
-				local success, res = pcall(vim.fn['codeium#GetStatusString'])
-				if not success then return '' end
-				return res
-			end)
+		local ai_component = get_ai_component(project_settings.ai)
+		if ai_component ~= nil then
+			table.insert(right_side, ai_component)
 		end
 
 		table.insert(right_side, 'encoding')
