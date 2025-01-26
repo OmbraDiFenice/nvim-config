@@ -1,10 +1,21 @@
 local utils = require('basicIde.utils')
 
 ---@class AnchorNode
----@field node TSNode
----@field key string -- capture name of the node to store, which is different from the captures getting e.g. the function name or parameter list since they point to different nodes.
+---@field root_node TSNode
+---@field root_capture string -- capture name of the node to store, which is different from the captures getting e.g. the function name or parameter list since they point to different nodes.
 ---@field captures table<string, TSNode>
 ---@field formatted_text string
+
+---@class SmartCodeLayout : CodeLayout
+---@field config CodeLayoutLanguageConfig
+---@field indent_width integer
+---@field source_win integer
+---@field source_buf integer
+---@field filetype string
+---@field source_cursor_node TSNode?
+---@field scratch_win integer
+---@field scratch_buf integer
+---@field nodes AnchorNode[]
 
 local M = {}
 
@@ -38,18 +49,20 @@ local function first_parent_of_type(node, types)
 	end
 end
 
+---@param self SmartCodeLayout
 M.navigate_to_source = function(self)
 	local position = vim.api.nvim_win_get_cursor(0)
 	local node_row = position[1]
 	local anchor_node = self.nodes[node_row]
 
-	local row, col, _, _ = anchor_node.node:range()
+	local row, col, _, _ = anchor_node.root_node:range()
 
 	vim.api.nvim_set_current_win(self.source_win)
 	vim.api.nvim_set_current_buf(self.source_buf)
 	vim.api.nvim_win_set_cursor(self.source_win, { row + 1, col })
 end
 
+---@param self SmartCodeLayout
 M.close_code_layout_window = function(self)
 	vim.api.nvim_win_close(self.scratch_win, true)
 	vim.api.nvim_buf_delete(self.scratch_buf, { unload = true, force = true })
@@ -79,8 +92,8 @@ local function find_anchor_nodes(root, query, bufnr, format, root_capture)
 
 	for _, matches, _ in query:iter_matches(root, bufnr, root:start(), root:end_(), { all = true }) do
 		local captures = {}
-		local key = nil
-		local node = nil
+		local found_root_capture = nil
+		local found_root_node = nil
 
 		for capture_idx, capture_nodes in pairs(matches) do
 			for _, capture_node in ipairs(capture_nodes) do
@@ -88,17 +101,17 @@ local function find_anchor_nodes(root, query, bufnr, format, root_capture)
 				captures[capture_name] = capture_node
 
 				if capture_name == root_capture then
-					key = capture_name
-					node = capture_node
+					found_root_capture = capture_name
+					found_root_node = capture_node
 				end
 			end
 		end
 
-		if key ~= nil and node ~= nil then
+		if found_root_capture ~= nil and found_root_node ~= nil then
 			---@type AnchorNode
 			local anchor_node = {
-				node = node,
-				key = key,
+				root_node = found_root_node,
+				root_capture = found_root_capture,
 				captures = captures,
 				formatted_text = '',
 			}
@@ -117,7 +130,7 @@ end
 ---@return string[] the content of the scratch buffer showing the code layout
 local function populate_code_layout_buffer(anchor_nodes, node_types, indent_width)
 	return utils.tables.map(anchor_nodes, function(anchor_node)
-		local depth = find_depth(anchor_node.node, node_types)
+		local depth = find_depth(anchor_node.root_node, node_types)
 		local indentation = string.rep(' ', indent_width * depth)
 		return indentation .. anchor_node.formatted_text
 	end)
@@ -134,12 +147,13 @@ local function move_to_current_node_in_code_layout(source_cursor_node, anchor_no
 	if parent_node == nil then return end
 
 	for line, anchor_node in ipairs(anchor_nodes) do
-		if anchor_node.node:equal(parent_node) then
+		if anchor_node.root_node:equal(parent_node) then
 			vim.api.nvim_win_set_cursor(scratch_win, { line, 0 })
 		end
 	end
 end
 
+---@param self SmartCodeLayout
 M.update = function (self)
 	local parser = vim.treesitter.get_parser(self.source_buf)
 	local trees = parser:parse()
@@ -151,7 +165,13 @@ M.update = function (self)
 		vim.list_extend(self.nodes, new_nodes) -- mutates dest list
 	end
 
-	table.sort(self.nodes, function(a, b) return a.node:start() < b.node:start() end)
+	table.sort(
+		self.nodes,
+		---@param a AnchorNode
+		---@param b AnchorNode
+		---@return boolean
+		function(a, b) return a.root_node:start() < b.root_node:start() end
+	)
 
 	local scratch_buf_data = populate_code_layout_buffer(
 		self.nodes,
@@ -166,13 +186,14 @@ M.update = function (self)
 	move_to_current_node_in_code_layout(self.source_cursor_node, self.nodes, self.config.node_types, self.scratch_win)
 end
 
+---@param self SmartCodeLayout
 M.get_buf = function(self)
 	return self.scratch_buf
 end
 
 ---Constructor
 ---@param language_config CodeLayoutLanguageConfig
----@return CodeLayout
+---@return SmartCodeLayout
 function M:new(language_config, indent_width)
 	local o = {
 		nodes = {},
