@@ -197,6 +197,28 @@ local default_settings = {
 				node_types = {'class_definition', 'function_definition'},
 				stop_at_tokens = { { type = 'token', value = ':' }, },
 				ignore_tokens = { { type = 'node_type', value = 'comment' }, },
+				formats = {
+					fn = "def ${fn_name}${fn_params} ${op} ${fn_return_type}:",
+					class = "class ${class_name}${class_superclasses}:",
+				},
+				treesitter_query = [[
+				  ([
+						 (
+						  function_definition
+						  name: (_) @fn_name
+						  parameters: (_) @fn_params
+						  "->"? @op
+						  return_type: (_)? @fn_return_type
+					   ) @fn
+
+						(
+						 class_definition
+						 name: (_) @class_name
+						 superclasses: (_)? @class_superclasses
+						) @class
+
+					])
+				]],
 			},
 			lua = {
 				node_types = {'assignment_statement', 'function_declaration'},
