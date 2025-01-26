@@ -8,7 +8,32 @@ local master_keymap_descriptions = {
 local buffer_keymap_descriptions = {
 	close_layout = '[Code layout] close code layout',
 	goto_and_close_layout = '[Code layout] goto to symbol and close layout',
+	scroll_to = '[Code layout] scroll to the selected symbol but stays in code layout',
 }
+
+local function blink_line(win, repeat_delay)
+	repeat_delay = repeat_delay or 100
+	win = win or vim.api.nvim_get_current_win()
+	local initial_cursorline = vim.api.nvim_get_option_value('cursorline', { win = win })
+
+	local function set(on) vim.schedule(function () vim.api.nvim_set_option_value('cursorline', on, { win = win}) end) end
+
+	local timer = vim.uv.new_timer()
+	local count = 6 -- blink 3 times => 3 * 2 to account for the on/off cycle
+	local current = initial_cursorline
+	timer:start(0, repeat_delay, function()
+		if count <= 0 then
+			timer:stop()
+			timer:close()
+			set(initial_cursorline)
+			return
+		end
+
+		current = not current
+		set(current)
+		count = count - 1
+	end)
+end
 
 ---@return KeymapManager
 local function make_buffer_keymap_manager(layout)
@@ -16,6 +41,11 @@ local function make_buffer_keymap_manager(layout)
 		keymap_callbacks = {
 			close_layout = { callback = function() layout:close_code_layout_window() end, opts = { buffer = layout.scratch_buf } },
 			goto_and_close_layout = { callback = function() layout:navigate_to_source(); layout:close_code_layout_window() end, opts = { buffer = layout.scratch_buf } },
+			scroll_to = { callback = function()
+				layout:navigate_to_source()
+				blink_line(layout.source_win)
+				vim.api.nvim_set_current_win(layout.scratch_win)
+			end, opts = { buffer = layout.scratch_buf } },
 		}
 	}
 end

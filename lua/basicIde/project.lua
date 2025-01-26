@@ -286,7 +286,8 @@ local default_settings = {
 		keymaps = {
 			open_layout = {'<leader>l'}, -- from the file to analyze
 			close_layout = {'q'}, -- from within layout buffer
-			goto_and_close_layout = {'<CR>', 'l', 'h'}, -- from within layout buffer
+			goto_and_close_layout = {'<CR>'}, -- from within layout buffer
+			scroll_to = {'<C-h>', '<C-l>'}, -- from within layout buffer
 		},
 	},
 	editor = {
