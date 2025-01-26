@@ -51,6 +51,7 @@ local function make_buffer_keymap_manager(layout)
 end
 
 ---@param config CodeLayoutConfig
+---@return CodeLayout?
 local function create_layout(config)
 	local filetype = vim.bo.filetype
 	local language_config = config.languages[filetype]
@@ -64,13 +65,27 @@ local function create_layout(config)
 
 	local buffer_keymap_manager = make_buffer_keymap_manager(layout)
 	key_mapping.setup_keymaps(buffer_keymap_descriptions, buffer_keymap_manager, config.keymaps)
+
+	return layout
 end
 
 ---@return KeymapManager
 local function make_master_keymap_manager(config)
+	local layout = nil
 	return {
 		keymap_callbacks = {
-			open_layout = { callback = function() create_layout(config) end, opts = {} },
+			open_layout = { callback = function()
+				if layout == nil or not vim.api.nvim_win_is_valid(layout.scratch_win) then
+					layout = create_layout(config)
+				else
+					if vim.api.nvim_get_current_buf() ~= layout.source_buf then
+						layout:close_code_layout_window()
+						layout = create_layout(config)
+					else
+						vim.api.nvim_set_current_win(layout.scratch_win)
+					end
+				end
+			end, opts = {} },
 		}
 	}
 end
