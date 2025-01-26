@@ -271,11 +271,12 @@ local default_settings = {
 									(identifier)
 									(dot_index_expression)
 								 ] @name)
-								 (expression_list value: (_))
+								 (expression_list value: (_) @val)
 							 ) @root
 							 (#not-has-ancestor? @root function_definition)
 							 (#not-has-ancestor? @root function_declaration)
 							 (#not-has-ancestor? @root assignment_statement)
+							 (#not-kind-eq? @val function_definition)
 							)
 						]]
 					},
