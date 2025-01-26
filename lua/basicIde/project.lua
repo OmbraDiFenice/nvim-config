@@ -55,12 +55,16 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field type 'token'|'node_type'
 ---@field value string
 
+---@class CodeLayoutQuery
+---@field query string treesitter query to extract nodes to display in the code layout
+---@field format string the format string to be used to build the code layout buffer entry for each capture coming from the query. If a capture is empty (e.g. because it's optional) it is not displayed and any space before that capture is removed from the final output
+---@field root_capture string? the name of the capture in the query that points to the root node to be used as "anchor" in the source buffer. This is the node where the cursor is brought to, the one accordng to which the indentation is computed and more. If not specified it defaults to "root"
+
 ---@class CodeLayoutLanguageConfig
 ---@field node_types string[] treesitter node types to consider when building the layout
 ---@field stop_at_tokens TokenPattern[] stop extracting node signature when any of these tokens are matched within it
 ---@field ignore_tokens TokenPattern[] skip extracting text for node signature from any of the matching nodes
----@field treesitter_query string? treesitter query to extract node signature. If not provided, the query is built out of the other fields
----@field formats table<string, string>? format of the node signature to be used in the code layout buffer. The key is the capture name of an anchor node and the value is the format string to be used to build the code layout buffer entry for that capture. If a capture is empty (e.g. because it's optional) it is not displayed and any space before that capture is removed from the final output
+---@field queries CodeLayoutQuery[]
 
 ---@class CodeLayoutConfig
 ---@field languages table<string, CodeLayoutLanguageConfig>
@@ -197,63 +201,85 @@ local default_settings = {
 				node_types = {'class_definition', 'function_definition'},
 				stop_at_tokens = { { type = 'token', value = ':' }, },
 				ignore_tokens = { { type = 'node_type', value = 'comment' }, },
-				formats = {
-					fn = "def ${fn_name}${fn_params} ${op} ${fn_return_type}:",
-					class = "class ${class_name}${class_superclasses}:",
-				},
-				treesitter_query = [[
-				  ([
+				queries = {
+					{
+						format = "def ${fn_name}${fn_params} ${op} ${fn_return_type}:",
+						query = [[
 						 (
-						  function_definition
-						  name: (_) @fn_name
-						  parameters: (_) @fn_params
-						  "->"? @op
-						  return_type: (_)? @fn_return_type
-					   ) @fn
-
-						(
-						 class_definition
-						 name: (_) @class_name
-						 superclasses: (_)? @class_superclasses
-						) @class
-
-					])
-				]],
+							function_definition
+							name: (_) @fn_name
+							parameters: (_) @fn_params
+							"->"? @op
+							return_type: (_)? @fn_return_type
+						 ) @root
+						]]
+					},
+					{
+						format = "class ${class_name}${class_superclasses}:",
+						query = [[
+							(
+							 class_definition
+							 name: (_) @class_name
+							 superclasses: (_)? @class_superclasses
+							) @root
+						]],
+					},
+				},
 			},
 			lua = {
 				node_types = {'assignment_statement', 'function_declaration'},
 				stop_at_tokens = {},
 				ignore_tokens = {},
-				formats = {
-					fn = "${fn_name}${fn_params}",
-				},
-				treesitter_query = [[
-					(
-					 [
+				queries = {
+					{
+						format = "${fn_name}${fn_params}",
+						query = [[
 						(
-						 (function_declaration
-							 name: [
-								(identifier)
-								(method_index_expression)
-								(dot_index_expression)
-							 ] @fn_name
-							 parameters: (_) @fn_params
+						 [
+							(
+							 (function_declaration
+								 name: [
+									(identifier)
+									(method_index_expression)
+									(dot_index_expression)
+								 ] @fn_name
+								 parameters: (_) @fn_params
+							 )
+							) @root
+							
+							(
+							 (
+								assignment_statement
+								 (variable_list name: [
+									(identifier)
+									(dot_index_expression)
+								 ] @fn_name)
+								 (expression_list value: (function_definition parameters: (_) @fn_params))
+							 ) @root
+							)
+							]
 						 )
-						) @fn
-						
-						(
-						 (
-							assignment_statement
-							 (variable_list name: [
-								(identifier)
-								(dot_index_expression)
-							 ] @fn_name)
-							 (expression_list value: (function_definition parameters: (_) @fn_params))
-						 ) @fn
-						)
-						]
-					)
-				]]
+						]]
+					},
+					{
+						format = "${name}",
+						query = [[
+							(
+							 (
+								assignment_statement
+								 (variable_list name: [
+									(identifier)
+									(dot_index_expression)
+								 ] @name)
+								 (expression_list value: (_))
+							 ) @root
+							 (#not-has-ancestor? @root function_definition)
+							 (#not-has-ancestor? @root function_declaration)
+							 (#not-has-ancestor? @root assignment_statement)
+							)
+						]]
+					},
+				},
 			},
 		},
 		keymaps = {

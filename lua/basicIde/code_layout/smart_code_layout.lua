@@ -2,8 +2,9 @@ local utils = require('basicIde.utils')
 
 ---@class AnchorNode
 ---@field node TSNode
----@field key string
+---@field key string -- capture name of the node to store, which is different from the captures getting e.g. the function name or parameter list since they point to different nodes.
 ---@field captures table<string, TSNode>
+---@field formatted_text string
 
 local M = {}
 
@@ -54,12 +55,26 @@ M.close_code_layout_window = function(self)
 	vim.api.nvim_buf_delete(self.scratch_buf, { unload = true, force = true })
 end
 
+---@param anchor_node AnchorNode
+---@param format string
+---@param source_buf integer
+---@return string
+local function format_anchor_node(anchor_node, format, source_buf)
+	local formatted_text = format
+	for name, capture_node in pairs(anchor_node.captures) do
+		formatted_text = string.gsub(formatted_text, '${' .. name .. '}', vim.treesitter.get_node_text(capture_node, source_buf))
+	end
+	formatted_text = string.gsub(formatted_text, ' *${[^}]*}', '')
+	return vim.fn.trim(formatted_text)
+end
+
 ---@param root TSNode
 ---@param query vim.treesitter.Query
 ---@param bufnr integer
----@param formats table<string, string>
+---@param format string
+---@param root_capture string
 ---@return AnchorNode[]
-local function find_anchor_nodes(root, query, bufnr, formats)
+local function find_anchor_nodes(root, query, bufnr, format, root_capture)
 	local anchor_nodes = {}
 
 	for _, matches, _ in query:iter_matches(root, bufnr, root:start(), root:end_(), { all = true }) do
@@ -72,7 +87,7 @@ local function find_anchor_nodes(root, query, bufnr, formats)
 				local capture_name = query.captures[capture_idx]
 				captures[capture_name] = capture_node
 
-				if formats[capture_name] ~= nil then
+				if capture_name == root_capture then
 					key = capture_name
 					node = capture_node
 				end
@@ -85,7 +100,9 @@ local function find_anchor_nodes(root, query, bufnr, formats)
 				node = node,
 				key = key,
 				captures = captures,
+				formatted_text = '',
 			}
+			anchor_node.formatted_text = format_anchor_node(anchor_node, format, bufnr)
 
 			table.insert(anchor_nodes, anchor_node)
 		end
@@ -94,30 +111,15 @@ local function find_anchor_nodes(root, query, bufnr, formats)
 	return anchor_nodes
 end
 
----@param anchor_node AnchorNode
----@param formats table<string, string>
----@param source_buf integer
----@return string
-local function format(anchor_node, formats, source_buf)
-	local formatted_text = formats[anchor_node.key] or ""
-	for name, capture_node in pairs(anchor_node.captures) do
-		formatted_text = string.gsub(formatted_text, '${' .. name .. '}', vim.treesitter.get_node_text(capture_node, source_buf))
-	end
-	formatted_text = string.gsub(formatted_text, ' *${[^}]*}', '')
-	return vim.fn.trim(formatted_text)
-end
-
 ---@param anchor_nodes AnchorNode[]
 ---@param node_types string[]
 ---@param indent_width integer
----@param formats table<string, string>
----@param source_buf integer
 ---@return string[] the content of the scratch buffer showing the code layout
-local function populate_code_layout_buffer(anchor_nodes, node_types, indent_width, formats, source_buf)
+local function populate_code_layout_buffer(anchor_nodes, node_types, indent_width)
 	return utils.tables.map(anchor_nodes, function(anchor_node)
 		local depth = find_depth(anchor_node.node, node_types)
 		local indentation = string.rep(' ', indent_width * depth)
-		return indentation .. format(anchor_node, formats, source_buf)
+		return indentation .. anchor_node.formatted_text
 	end)
 end
 
@@ -142,15 +144,19 @@ M.update = function (self)
 	local parser = vim.treesitter.get_parser(self.source_buf)
 	local trees = parser:parse()
 	local tree = trees[1]
-	local query = vim.treesitter.query.parse(self.filetype, self.query_str)
 
-	self.nodes = find_anchor_nodes(tree:root(), query, self.source_buf, self.config.formats)
+	for _, query_config in ipairs(self.config.queries) do
+		local query = vim.treesitter.query.parse(self.filetype, query_config.query)
+		local new_nodes = find_anchor_nodes(tree:root(), query, self.source_buf, query_config.format, query_config.root_capture or "root")
+		vim.list_extend(self.nodes, new_nodes) -- mutates dest list
+	end
+
+	table.sort(self.nodes, function(a, b) return a.node:start() < b.node:start() end)
+
 	local scratch_buf_data = populate_code_layout_buffer(
 		self.nodes,
 		self.config.node_types,
-		self.indent_width,
-		self.config.formats,
-		self.source_buf
+		self.indent_width
 	)
 
 	vim.api.nvim_set_option_value('modifiable', true, { buf = self.scratch_buf })
@@ -182,8 +188,6 @@ function M:new(language_config, indent_width)
 	self.source_buf = vim.api.nvim_get_current_buf()
 	self.filetype = vim.api.nvim_get_option_value('filetype', { buf = self.source_buf })
 	self.source_cursor_node = vim.treesitter.get_node()
-
-	self.query_str = language_config.treesitter_query
 
 	self.scratch_buf = vim.api.nvim_create_buf(true, true)
 	self.scratch_win = vim.api.nvim_open_win(self.scratch_buf, true, {
