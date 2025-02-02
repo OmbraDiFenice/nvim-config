@@ -80,7 +80,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field tree_view TreeViewConfig
 
 ---@class LoaderConfig
----@field virtual_environment? string
+---@field virtual_environment? string path to the virtual environment to launch nvim with. If the path is relative it will be resolved relative to the project root
 ---@field environment table<string, string> environment variables <name, value> to set before launching nvim via the loader. Use ${env:PATH} to include values from the existing PATH environment variable
 ---@field init_script string script to be executed before starting nvim, after having sourced the venv and loaded the environment from this config. The interpreter is the same used in nvim_loader.sh
 
@@ -142,6 +142,11 @@ local default_settings = {
 		python = {
 			'loader = {',
 			'  virtual_environment = "venv",',
+			'},',
+		},
+		platformio = {
+			'loader = {',
+			'  virtual_environment = "${env:HOME}/.platformio/penv",',
 			'},',
 		}
 	},

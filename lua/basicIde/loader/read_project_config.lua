@@ -11,6 +11,13 @@ local function prefix(base_path, filename)
 	return base_path .. filename
 end
 
+---@param path string
+---@return boolean
+local function is_absolute_path(path)
+	if path:match('^[a-zA-Z]:') or path:sub(1, 1) == '/' then return true end
+	return false
+end
+
 ---Load the project file from the current directory
 ---@return ProjectSettings
 local function load_proj_file()
@@ -51,7 +58,12 @@ local function main()
 	local proj_config = load_proj_file()
 
 	if command == "virtual_environment" and proj_config.loader.virtual_environment ~= nil then
-		print(prefix(project_root_dir, proj_config.loader.virtual_environment))
+		---@type string
+		local venv_path = proj_config.loader.virtual_environment
+		if not is_absolute_path(venv_path) then
+			venv_path = prefix(project_root_dir, venv_path)
+		end
+		print(venv_path)
 	elseif command == "environment" then
 		print(parseable_environment(proj_config.loader.environment))
 	elseif command == "init_script" then
