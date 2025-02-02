@@ -438,10 +438,16 @@ return {
 		init_custom_keymaps(settings, utils)
 
 		vim.api.nvim_create_user_command('BasicIdeInitProject', function(params)
-			create_or_open_project_file(params.fargs[1], settings)
-		end, {
-		nargs = '?',
-		desc = 'Create and edit a new project settings file, optionally using a template. If the file already exists it will just be opened',
-	})
+				create_or_open_project_file(params.fargs[1], settings)
+			end, {
+			nargs = '?',
+			desc = 'Create and edit a new project settings file, optionally using a template. If the file already exists it will just be opened',
+		})
+		vim.api.nvim_create_user_command('BasicIdeListProjectTemplates', function()
+				print('Available project templates:\n' .. table.concat(vim.tbl_keys(settings.settings_templates), '\n'))
+			end, {
+			nargs = 0,
+			desc = 'List available project templates'
+		})
 	end
 }
