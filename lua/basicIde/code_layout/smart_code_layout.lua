@@ -163,25 +163,37 @@ local function move_to_current_node_in_code_layout(source_cursor_node, anchor_no
 	end
 end
 
+local function parse_buffer(tree, queries, filetype, source_buf)
+	local nodes = {}
+
+	for _, query_config in ipairs(queries) do
+		local query = vim.treesitter.query.parse(filetype, query_config.query)
+		local new_nodes = find_anchor_nodes(tree:root(), query, source_buf, query_config.format, query_config.root_capture or "root")
+		vim.list_extend(nodes, new_nodes) -- mutates dest list
+	end
+
+	table.sort(
+		nodes,
+		---@param a AnchorNode
+		---@param b AnchorNode
+		---@return boolean
+		function(a, b) return a.root_node:start() < b.root_node:start() end
+	)
+
+	return nodes
+end
+
+-- for testing purposes
+M._parse_buffer = parse_buffer
+M._populate_code_layout_buffer = populate_code_layout_buffer
+
 ---@param self SmartCodeLayout
 M.update = function (self)
 	local parser = vim.treesitter.get_parser(self.source_buf)
 	local trees = parser:parse()
 	local tree = trees[1]
 
-	for _, query_config in ipairs(self.config.queries) do
-		local query = vim.treesitter.query.parse(self.filetype, query_config.query)
-		local new_nodes = find_anchor_nodes(tree:root(), query, self.source_buf, query_config.format, query_config.root_capture or "root")
-		vim.list_extend(self.nodes, new_nodes) -- mutates dest list
-	end
-
-	table.sort(
-		self.nodes,
-		---@param a AnchorNode
-		---@param b AnchorNode
-		---@return boolean
-		function(a, b) return a.root_node:start() < b.root_node:start() end
-	)
+	self.nodes = parse_buffer(tree, self.config.queries, self.filetype, self.source_buf)
 
 	local scratch_buf_data = populate_code_layout_buffer(
 		self.nodes,

@@ -140,6 +140,7 @@ end
 
 ---@type ProjectSettings
 local default_settings = {
+	---@diagnostic disable: missing-fields
 	PROJECT_SETTINGS_FILE = '',
 	DATA_DIRECTORY = '',
 	project_title = '[nvim IDE] ' .. vim.fn.getcwd(-1, -1),
@@ -207,6 +208,252 @@ local default_settings = {
 	code_layout = {
 		indent_width = 2,
 		languages = {
+			c = {
+				node_types = {'function_definition', 'struct_specifier', 'type_definition'},
+				queries = {
+					{
+						format = "${root}",
+						-- lang: query
+						query = [[
+						 (
+						  (declaration) @root
+              (#has-parent? @root translation_unit)
+						 )
+						]],
+					},
+					{
+						format = "${return_type} ${declarator};",
+						-- lang: query
+						query = [[
+						 (
+						  function_definition
+							type: (_) @return_type
+							declarator: (_) @declarator
+						 ) @root
+						]],
+					},
+					{
+						format = "${type} ${name};",
+						-- lang: query
+						query = [[
+						(
+						 (
+						  [
+						 	 (struct_specifier "struct" @type name: (type_identifier) @name)
+						 	 (enum_specifier "enum" @type name: (type_identifier) @name)
+						  ]
+						 ) @root
+             (#not-has-parent? @root type_definition)
+						)
+						]]
+					},
+					{
+						format = "typedef ${type} ${name};",
+						-- lang: query
+						query = [[
+						 [
+						  (
+						   type_definition
+						   type: (
+						    [
+						     (struct_specifier "struct" @type)
+						     (enum_specifier "enum" @type)
+						    ]
+						   )
+						   declarator: (_) @name
+						  ) @root
+						 ]
+						]]
+					},
+				},
+			},
+			cpp = {
+				node_types = {'function_definition', 'struct_specifier', 'declaration', 'class_specifier', 'namespace_definition'},
+				queries = {
+					{
+						format = "${type} ${var};",
+						-- lang: query
+						query = [[
+						 (
+						  (
+							 declaration
+							 type: (_)? @type
+							 declarator: [
+							  (init_declarator declarator: (_) @var)
+								(identifier) @var
+								(function_declarator) @var
+							 ]
+							) @root
+							(#not-has-ancestor? @root function_definition)
+							(#not-has-parent? @root template_declaration)
+						 )
+						]],
+					},
+					{
+						format = "template${template_params} ${type} ${var};",
+						-- lang: query
+						query = [[
+						 (
+						  template_declaration
+							parameters: (_) @template_params
+						  (
+							 declaration
+							 type: (_) @type
+							 declarator: [
+							  (init_declarator declarator: (_) @var)
+								(identifier) @var
+								(function_declarator) @var
+							 ]
+							) @root
+							(#not-has-ancestor? @root function_definition)
+						 )
+						]],
+					},
+					{
+						format = "${return_type} ${declarator};",
+						-- lang: query
+						query = [[
+						 (
+						  (
+						   function_definition
+						   type: (_)? @return_type ; the type is not there for class constructors
+						   declarator: (_) @declarator
+						  ) @root
+							(#not-has-parent? @root template_declaration)
+						 )
+						]],
+					},
+					{
+						format = "template${template_params} ${return_type} ${declarator};",
+						-- lang: query
+						query = [[
+						 (
+						 	template_declaration
+							parameters: (_) @template_params
+						  (
+							 function_definition
+							 type: (_)? @return_type ; the type is not there for class constructors
+							 declarator: (_) @declarator
+							) @root
+						 )
+						]],
+					},
+					{ -- matches class member declarations
+						format = "${return_type} ${declarator};",
+						-- lang: query
+						query = [[
+						 (
+						  field_declaration
+							type: (_) @return_type
+							declarator: (_) @declarator
+						 ) @root
+						]],
+					},
+					{
+						format = "${type} ${name};",
+						-- lang: query
+						query = [[
+						(
+						 (
+						  [
+						 	 (struct_specifier "struct" @type name: (type_identifier) @name)
+						 	 (enum_specifier "enum" @type name: (type_identifier) @name)
+						  ]
+						 ) @root
+             (#not-has-parent? @root type_definition template_declaration)
+						)
+						]]
+					},
+					{
+						format = "template${template_params} struct ${name};",
+						-- lang: query
+						query = [[
+						 (
+						  template_declaration
+						  parameters: (_) @template_params
+						  (
+						   struct_specifier
+						   name: (_) @name
+						  ) @root
+						 )
+						]]
+					},
+					{
+						format = "typedef ${type} ${name};",
+						-- lang: query
+						query = [[
+						 (
+						  type_definition
+						  type: (
+						   [
+						    (struct_specifier "struct" @type)
+						    (enum_specifier "enum" @type)
+						    (primitive_type) @type
+						   ]
+						  )
+						  declarator: (_) @name
+						 ) @root
+						]]
+					},
+					{
+						format = "class ${name}${base_classes};",
+						--lang: query
+						query = [[
+						 (
+						  (
+						   class_specifier
+						   name: (_) @name
+						   (base_class_clause)? @base_classes
+						  ) @root
+						  (#not-has-parent? @root template_declaration)
+						 )
+						]]
+					},
+					{
+						format = "template${template_params} class ${name}${base_classes};",
+						--lang: query
+						query = [[
+						 (
+						  template_declaration
+						  parameters: (_) @template_params
+						  (
+						   class_specifier
+						   name: (_) @name
+						   (base_class_clause)? @base_classes
+						  ) @root
+						 )
+						]]
+					},
+					{
+						format = "#define ${name}",
+						-- lang: query
+						query = [[
+						 (preproc_def name: (_) @name) @root
+						]],
+					},
+					{
+						format = "#define ${name}${params}",
+						-- lang: query
+						query = [[
+						 (
+						  preproc_function_def
+							name: (_) @name
+							parameters: (_) @params
+						 ) @root
+						]],
+					},
+					{
+						format = "namespace ${name};",
+						-- lang: query
+						query = [[
+						 (
+							namespace_definition
+							name: (_) @name
+						 ) @root
+						]],
+					},
+				},
+			},
 			python = {
 				node_types = {'class_definition', 'function_definition'},
 				stop_at_tokens = { { type = 'token', value = ':' }, },
@@ -417,6 +664,9 @@ local function create_or_open_project_file(template_name, settings)
 end
 
 return {
+	-- mostly for testing purposes
+	default_settings = default_settings,
+
 	---@return ProjectSettings
 	load_settings = function()
 		local settings = utils.tables.deepcopy(default_settings)
