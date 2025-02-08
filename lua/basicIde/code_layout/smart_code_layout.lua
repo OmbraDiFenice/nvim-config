@@ -19,6 +19,16 @@ local utils = require('basicIde.utils')
 
 local M = {}
 
+---@param queries CodeLayoutQuery[]
+local function validate_queries(queries)
+	for i, query_def in ipairs(queries) do
+		local root_capture = query_def.root_capture or 'root'
+		if query_def.query:find('@'..root_capture) == nil then
+			vim.notify('Query ' .. i .. ' does not use any capture root. Check your code_layout config', vim.log.levels.ERROR)
+		end
+	end
+end
+
 ---@param node TSNode
 ---@param types string[]
 ---@return integer the depth of the input node in its tree only counting the node types provided in input
@@ -202,6 +212,7 @@ function M:new(language_config, indent_width)
 	self.__index = self
 
 	self.config = language_config
+	validate_queries(self.config.queries)
 
 	self.indent_width = indent_width
 
