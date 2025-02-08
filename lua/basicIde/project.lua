@@ -75,9 +75,14 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field open_on_start boolean
 ---@field keymaps table<string, string[]>
 
+---@class RecenterViewportConfig
+---@field enabled boolean
+---@field ignore_filetypes string[] filetypes for which the recenter should be always disabled
+
 ---@class EditorConfig
 ---@field autosave boolean
 ---@field tree_view TreeViewConfig
+---@field recenter_viewport RecenterViewportConfig
 
 ---@class LoaderConfig
 ---@field virtual_environment? string path to the virtual environment to launch nvim with. If the path is relative it will be resolved relative to the project root
@@ -297,6 +302,10 @@ local default_settings = {
 	},
 	editor = {
 		autosave = true,
+		recenter_viewport = {
+			enabled = true,
+			ignore_filetypes = {},
+		},
 		tree_view = {
 			open_on_start = true,
 			keymaps = {
