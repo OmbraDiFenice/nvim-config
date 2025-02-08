@@ -54,4 +54,8 @@ function M.split (inputstr, sep)
 	return t
 end
 
+function M.trim(s)
+	return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
+
 return M
