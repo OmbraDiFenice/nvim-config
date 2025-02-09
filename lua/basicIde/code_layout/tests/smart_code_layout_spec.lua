@@ -3,20 +3,31 @@ local smart_code_layout = require('basicIde.code_layout.smart_code_layout')
 local default_settings = require('basicIde.project').default_settings
 
 describe("Smart code layout", function ()
-	it("extract right nodes for C++", function()
-		local language = "cpp"
+	local function check_layout_nodes(test_file, language, expected_nodes_text)
 		local test_buf = vim.api.nvim_create_buf(false, true)
-		vim.api.nvim_buf_call(test_buf, function() vim.cmd.edit("lua/basicIde/code_layout/tests/fixtures/test.cpp") end)
+		vim.api.nvim_buf_call(test_buf, function() vim.cmd.edit(test_file) end)
 
-		local nodes = smart_code_layout._parse_buffer(
+		local actual_nodes = smart_code_layout._parse_buffer(
 			vim.treesitter.get_parser(test_buf):parse()[1],
 			default_settings.code_layout.languages[language].queries,
 			language,
 			test_buf
 		)
 
-		local actual_nodes_text = smart_code_layout._populate_code_layout_buffer(nodes, default_settings.code_layout.languages.cpp.node_types, default_settings.code_layout.indent_width)
+		local actual_nodes_text = smart_code_layout._populate_code_layout_buffer(
+			actual_nodes,
+			default_settings.code_layout.languages[language].node_types,
+			default_settings.code_layout.indent_width
+		)
 
+		assert.are.equal(#expected_nodes_text, #actual_nodes)
+		for i, actual_node in ipairs(actual_nodes) do
+			assert.are.equal(utils.paths.trim(expected_nodes_text[i]), actual_node.formatted_text)
+			assert.are.equal(expected_nodes_text[i], actual_nodes_text[i])
+		end
+	end
+
+	it("extract right nodes for C++", function()
 		local expected_nodes_text = {
 			"template<typename T> struct TemplateStruct;",
 			"  int a;",
@@ -63,11 +74,28 @@ describe("Smart code layout", function ()
 			"  int nested_namespace::Class::another_method();",
 		}
 
-		assert.are.equal(#expected_nodes_text, #nodes)
-		for i, node in ipairs(nodes) do
-			assert.are.equal(utils.paths.trim(expected_nodes_text[i]), node.formatted_text)
-			assert.are.equal(expected_nodes_text[i], actual_nodes_text[i])
-		end
+		check_layout_nodes("lua/basicIde/code_layout/tests/fixtures/test.cpp", "cpp", expected_nodes_text)
 	end)
 
+	it("extract right nodes for C", function()
+		local expected_nodes_text = {
+			"struct Struct;",
+			"  int a;",
+			"  float (*func_p)(int x, int y);",
+			"float func_p(int x, int y);",
+			"#define DEFINED_VAR",
+			"#define DEFINED_FUNC(x)",
+			"double global_var;",
+			"int static_var;",
+			"enum Enum;",
+			"typedef int Typedef;",
+			"typedef enum EnumTypedef;",
+			"typedef struct StructTypedef;",
+			"  int a;",
+			"int another_function();",
+			"int a_func_declaration(float x);",
+		}
+
+		check_layout_nodes("lua/basicIde/code_layout/tests/fixtures/test.c", "c", expected_nodes_text)
+	end)
 end)
