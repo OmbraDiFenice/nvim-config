@@ -77,6 +77,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field queries CodeLayoutQuery[]
 
 ---@class CodeLayoutConfig
+---@field strategy string
 ---@field languages table<string, CodeLayoutLanguageConfig>
 ---@field indent_width integer how much to indent each entry in the code layout. The indent is relative to the position of that node counting only the specific language node types
 ---@field keymaps table<string, string[]>
@@ -219,6 +220,7 @@ local default_settings = {
 	custom_startup_scripts = {},
 	custom_keymaps = {},
 	code_layout = {
+		strategy = "smart",
 		indent_width = 2,
 		languages = {
 			c = {
