@@ -98,4 +98,24 @@ describe("Smart code layout", function ()
 
 		check_layout_nodes("lua/basicIde/code_layout/tests/fixtures/test.c", "c", expected_nodes_text)
 	end)
+
+	it("extract right nodes for lua", function()
+		local expected_nodes_text = {
+			"F()",
+			"  internal()",
+			"    local_func()",
+			"G(par)",
+			"some_local(param1, param2)",
+			"object",
+			"  member",
+			"  inline_function(x)",
+			"    inner_inner_func()",
+			"object.new(param1, param2)",
+			"object:method()",
+			"object.method2(self, param)",
+			"Global_var",
+		}
+
+		check_layout_nodes("lua/basicIde/code_layout/tests/fixtures/test.lua", "lua", expected_nodes_text)
+	end)
 end)
