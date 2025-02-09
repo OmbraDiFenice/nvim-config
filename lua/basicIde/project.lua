@@ -514,24 +514,42 @@ local default_settings = {
 				ignore_tokens = { { type = 'node_type', value = 'comment' }, },
 				queries = {
 					{
+						format = "${name}${op} ${type}",
+						-- lang: query
+						query = [[
+             (
+              (expression_statement
+               (assignment
+                left: (identifier) @name
+								":"? @op
+                type: (_)? @type
+               )
+              ) @root
+              (#has-parent? @root module)
+             )
+						]]
+					},
+					{
 						format = "def ${fn_name}${fn_params} ${op} ${fn_return_type}:",
+						-- lang: query
 						query = [[
 						 (
 							function_definition
-							name: (_) @fn_name
-							parameters: (_) @fn_params
-							"->"? @op
-							return_type: (_)? @fn_return_type
+							 name: (_) @fn_name
+							 parameters: (_) @fn_params
+							 "->"? @op
+							 return_type: (_)? @fn_return_type
 						 ) @root
 						]]
 					},
 					{
 						format = "class ${class_name}${class_superclasses}:",
+						-- lang: query
 						query = [[
 							(
 							 class_definition
-							 name: (_) @class_name
-							 superclasses: (_)? @class_superclasses
+							  name: (_) @class_name
+							  superclasses: (_)? @class_superclasses
 							) @root
 						]],
 					},
