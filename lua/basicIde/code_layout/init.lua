@@ -1,4 +1,5 @@
 local code_layout = require('basicIde.code_layout.code_layout')
+local smart_code_layout = require('basicIde.code_layout.smart_code_layout')
 local key_mapping = require('basicIde.key_mapping')
 
 local master_keymap_descriptions = {
@@ -60,7 +61,16 @@ local function create_layout(config)
 		return
 	end
 
-	local layout = code_layout:new(language_config, config.indent_width)
+	local layout
+	if config.strategy == 'smart' then
+		layout = smart_code_layout:new(language_config, config.indent_width)
+	elseif config.strategy == 'legacy' then
+		layout = code_layout:new(language_config, config.indent_width)
+	else
+		vim.notify('Unknown code layout strategy "' .. config.strategy .. '", falling back to legacy', vim.log.levels.WARN)
+		layout = code_layout:new(language_config, config.indent_width)
+	end
+
 	layout:update()
 
 	local buffer_keymap_manager = make_buffer_keymap_manager(layout)
