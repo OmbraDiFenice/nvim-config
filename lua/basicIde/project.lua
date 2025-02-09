@@ -25,8 +25,18 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@class DapSessionExtended: Session
 ---@field is_coverage? boolean
 
+---@class ExternalScript
+---@field name string
+---@field template string
+---@field keymap string
+---@field command string[]
+---@field args string[]
+---@field cwd string
+---@field open_console_on_start? boolean
+
 ---@class DebuggingSettings
 ---@field dap_configurations? table<string, DapConfigurationExtended[]>
+---@field external_scripts ExternalScript[]
 
 ---@class TerminalSettings
 ---@field init_environment_cmd string
@@ -102,6 +112,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@class ProjectSettings
 ---@field PROJECT_SETTINGS_FILE string
 ---@field DATA_DIRECTORY string
+---@field IDE_DIRECTORY string -- path to the directory where the IDE code is located (inside nvim config). To be used as a convenience in some components to point to utility scripts in there
 ---@field project_title string
 ---@field settings_templates table<string, string[]> -- key is the name of the template and the value is a list of the lines to put inside the project settings table. No need to put newlines at the end of each line. The lines will be placed inside the returned table, so they must only include the key/values you want in the template.
 ---@field loader LoaderConfig
@@ -143,6 +154,7 @@ local default_settings = {
 	---@diagnostic disable: missing-fields
 	PROJECT_SETTINGS_FILE = '',
 	DATA_DIRECTORY = '',
+	IDE_DIRECTORY = '',
 	project_title = '[nvim IDE] ' .. vim.fn.getcwd(-1, -1),
 	settings_templates = {
 		python = {
@@ -175,6 +187,7 @@ local default_settings = {
 	},
 	debugging = {
 		dap_configurations = {},
+		external_scripts = {},
 	},
 	lsp = {
 		notifications = {
@@ -691,6 +704,7 @@ return {
 		-- only available to be referenced by plugins if needed (see e.g. debugging)
 		settings.PROJECT_SETTINGS_FILE = PROJECT_SETTINGS_FILE
 		settings.DATA_DIRECTORY = utils.get_data_directory()
+		settings.IDE_DIRECTORY = table.concat({ vim.fn.stdpath('config'), 'lua', 'basicIde' }, utils.files.OS.sep)
 
 		return settings
 	end,

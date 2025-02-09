@@ -5,7 +5,7 @@ local language_modules = {
 
 ---@type IdeModule
 return {
-	use_deps = function(use)
+	use_deps = function(use, project_settings, use_rocks)
 		use {
 			'mfussenegger/nvim-dap'
 		}
@@ -18,7 +18,7 @@ return {
 		}
 
 		for _, language_module in ipairs(language_modules) do
-			language_module.use_deps(use)
+			language_module.use_deps(use, project_settings, use_rocks)
 		end
 	end,
 
@@ -31,6 +31,7 @@ return {
 		setup_listeners()
 
 		project_settings_manager.apply_custom_dap_configurations(project_settings.debugging.dap_configurations)
+		project_settings_manager.create_external_script_keymaps(project_settings)
 
 		for _, language_module in ipairs(language_modules) do
 			language_module.configure(project_settings)

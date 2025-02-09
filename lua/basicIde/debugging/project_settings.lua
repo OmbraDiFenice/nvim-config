@@ -75,8 +75,67 @@ local function apply_environment_configurations(loader_settings)
 	end
 end
 
+---@param template_name string
+---@param project_settings ProjectSettings
+local function get_external_script_template(template_name, project_settings)
+	local template = {
+		args = {},
+		cwd = '.',
+	}
+
+	if template_name == 'busted-directory' then
+		template.command = { project_settings.IDE_DIRECTORY .. '/debugging/languages/lua/PlenaryBustedDirectory' }
+		template.args = { '.' }
+	else
+		vim.notify('Unable to find external script template named ' .. template_name, vim.log.levels.ERROR)
+	end
+
+	return template
+end
+
+---@param project_settings ProjectSettings
+local function create_external_script_keymaps(project_settings)
+	local toggleterm = require('toggleterm.terminal')
+	local external_scripts = project_settings.debugging.external_scripts
+
+	for _, external_script in ipairs(external_scripts) do
+		local template = external_script
+		if external_script.template ~= nil then
+			template = get_external_script_template(external_script.template, project_settings)
+		end
+
+		local display_name = '[' .. external_script.template .. '] ' .. external_script.name
+		local script_desc = vim.tbl_extend('force', template, external_script)
+
+		vim.keymap.set('n', external_script.keymap, function()
+			local command = utils.tables.concat(script_desc.command, script_desc.args)
+			local terminal = toggleterm.Terminal:new({
+				cmd = table.concat(command, ' '),
+				dir = template.cwd,
+				close_on_exit = false,
+				display_name = display_name,
+				direction = 'float',
+				on_exit = function(term)
+					if not external_script.open_console_on_start and not term:is_open() then
+						term:open()
+						term:set_mode('i')
+					end
+				end
+			})
+
+			if external_script.open_console_on_start then
+				terminal:open()
+			else
+				terminal:spawn()
+			end
+
+		end, { desc = display_name })
+	end
+end
+
 return {
 	apply_custom_dap_configurations = apply_custom_dap_configurations,
+	create_external_script_keymaps = create_external_script_keymaps,
 
 	---@param project_settings ProjectSettings
 	setup_project_settings = function(project_settings)

@@ -34,6 +34,7 @@ local function add_run_debug_with_coverage_keymaps()
 	end
 end
 
+---@type IdeModule
 return {
 	use_deps = function(use)
 		use {
