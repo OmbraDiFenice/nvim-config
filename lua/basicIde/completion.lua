@@ -11,6 +11,8 @@ return {
 		local luasnip = require('luasnip')
 		local cmp = require('cmp')
 
+		vim.keymap.set('i', '<C-space>', function() cmp.complete() end, { desc = 'show completion menu at cursor' })
+
 		cmp.setup {
 			snippet = {
 				expand = function(args)
