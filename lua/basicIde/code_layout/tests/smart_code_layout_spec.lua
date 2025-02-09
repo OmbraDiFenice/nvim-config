@@ -118,4 +118,23 @@ describe("Smart code layout", function ()
 
 		check_layout_nodes("lua/basicIde/code_layout/tests/fixtures/test.lua", "lua", expected_nodes_text)
 	end)
+
+	it("extract right nodes for python", function()
+		local expected_nodes_text = {
+			"global_var: str",
+			"untyped_var",
+			"def global_func(x):",
+			"  def inner_func(y, z):",
+			"class SomeClass:",
+			"  def __init__(self, param):",
+			"  def method(self) -> int:",
+			"  def method2(self, param: bool) -> None:",
+			"    def inner_method2():",
+			"class AnotherClass:",
+			"class Subclass(SomeClass):",
+			"class MultiParentClass(SomeClass, AnotherClass):",
+		}
+
+		check_layout_nodes("lua/basicIde/code_layout/tests/fixtures/test.py", "python", expected_nodes_text)
+	end)
 end)
