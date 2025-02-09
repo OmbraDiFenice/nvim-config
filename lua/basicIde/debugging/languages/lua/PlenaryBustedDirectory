@@ -1,0 +1,6 @@
+#!/bin/bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+MINIMAL_INIT="${SCRIPT_DIR}/minimal_init.vim"
+
+nvim --headless --noplugin -u "${MINIMAL_INIT}" -c "PlenaryBustedDirectory $1 { minimal_init = '${MINIMAL_INIT}' }"
