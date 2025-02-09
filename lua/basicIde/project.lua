@@ -222,15 +222,37 @@ local default_settings = {
 		indent_width = 2,
 		languages = {
 			c = {
-				node_types = {'function_definition', 'struct_specifier', 'type_definition'},
+				node_types = {'function_definition', 'struct_specifier'},
 				queries = {
 					{
-						format = "${root}",
+						format = "${type} ${var};",
 						-- lang: query
 						query = [[
 						 (
-						  (declaration) @root
-              (#has-parent? @root translation_unit)
+						  (
+							 declaration
+							 type: (_)? @type
+							 declarator: [
+							  (init_declarator declarator: (_) @var)
+								(identifier) @var
+								(function_declarator) @var
+							 ]
+							) @root
+              (#not-has-ancestor? @root function_definition)
+						 )
+						]],
+					},
+					{
+						format = "${type} ${var};",
+						-- lang: query
+						query = [[
+						 (
+						  (
+							 field_declaration
+							 type: (_) @type
+							 declarator: (_) @var
+							) @root
+              (#not-has-ancestor? @root function_definition)
 						 )
 						]],
 					},
@@ -271,12 +293,31 @@ local default_settings = {
 						    [
 						     (struct_specifier "struct" @type)
 						     (enum_specifier "enum" @type)
+						     (primitive_type) @type
 						    ]
 						   )
 						   declarator: (_) @name
 						  ) @root
 						 ]
 						]]
+					},
+					{
+						format = "#define ${name}",
+						-- lang: query
+						query = [[
+						 (preproc_def name: (_) @name) @root
+						]],
+					},
+					{
+						format = "#define ${name}${params}",
+						-- lang: query
+						query = [[
+						 (
+						  preproc_function_def
+							name: (_) @name
+							parameters: (_) @params
+						 ) @root
+						]],
 					},
 				},
 			},
