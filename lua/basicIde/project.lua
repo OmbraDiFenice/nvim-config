@@ -538,42 +538,75 @@ local default_settings = {
 				},
 			},
 			lua = {
-				node_types = {'assignment_statement', 'function_declaration'},
+				node_types = {'table_constructor', 'function_declaration', 'function_definition'},
 				stop_at_tokens = {},
 				ignore_tokens = {},
 				queries = {
 					{
 						format = "${fn_name}${fn_params}",
+						-- lang: query
 						query = [[
-						(
-						 [
-							(
-							 (function_declaration
+						 (
+						  (function_declaration
+						 	 name: [
+						 		(identifier)
+						 		(method_index_expression)
+						 		(dot_index_expression)
+						 	 ] @fn_name
+						 	 parameters: (_) @fn_params
+						  ) @root
+						 )
+						]]
+					},
+					{
+						format = "${fn_name}${fn_params}",
+						-- lang: query
+						query = [[
+						 (
+						  (assignment_statement
+						   (variable_list 
 								 name: [
-									(identifier)
-									(method_index_expression)
-									(dot_index_expression)
-								 ] @fn_name
-								 parameters: (_) @fn_params
-							 )
-							) @root
-							
-							(
-							 (
-								assignment_statement
-								 (variable_list name: [
-									(identifier)
-									(dot_index_expression)
-								 ] @fn_name)
-								 (expression_list value: (function_definition parameters: (_) @fn_params))
+						      (identifier)
+						      (dot_index_expression)
+						     ] @fn_name
+						    )
+						    (expression_list value: (function_definition parameters: (_) @fn_params))
+						  ) @root
+						  )
+						]]
+					},
+					{
+						format = "${name}${params}",
+						-- lang: query
+						query = [[
+						 (
+						  (table_constructor
+						   (field 
+								 name: (identifier) @name
+						     value: (function_definition parameters: (_) @params)
 							 ) @root
-							)
-							]
+						  )
 						 )
 						]]
 					},
 					{
 						format = "${name}",
+						-- lang: query
+						query = [[
+						 (
+						  (table_constructor
+						   (field 
+								 name: (identifier) @name
+						     value: (_) @val
+							 ) @root
+						  )
+							(#not-kind-eq? @val function_definition)
+						 )
+						]]
+					},
+					{
+						format = "${name}",
+						-- lang: query
 						query = [[
 							(
 							 (
@@ -586,7 +619,6 @@ local default_settings = {
 							 ) @root
 							 (#not-has-ancestor? @root function_definition)
 							 (#not-has-ancestor? @root function_declaration)
-							 (#not-has-ancestor? @root assignment_statement)
 							 (#not-kind-eq? @val function_definition)
 							)
 						]]
