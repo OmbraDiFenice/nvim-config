@@ -75,6 +75,7 @@ M.runAndReturnOutput = function(command, callback, options)
 end
 
 ---Like runAndReturnOutput but waits until the called command terminates. Returns the output lines and the return code as return values
+---@param command string[] | string
 ---@return string[], integer
 ---@see runAndReturnOutput
 M.runAndReturnOutputSync = function(command, options)
