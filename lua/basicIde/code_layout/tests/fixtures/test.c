@@ -16,6 +16,14 @@ float func_p(int x, int y) {
 
 double global_var = 50.2;
 
+int
+multiline_var;
+
+int
+multiline_func(
+	int x
+);
+
 static const int static_var = 10;
 
 enum Enum {

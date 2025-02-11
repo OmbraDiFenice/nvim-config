@@ -88,6 +88,9 @@ local function format_anchor_node(anchor_node, format, source_buf)
 		formatted_text = string.gsub(formatted_text, '${' .. name .. '}', vim.treesitter.get_node_text(capture_node, source_buf))
 	end
 	formatted_text = string.gsub(formatted_text, ' *${[^}]*}', '')
+	formatted_text = string.gsub(formatted_text, '%s*\n%s*', '')
+	formatted_text = string.gsub(formatted_text, '%s*\r%s*', '')
+	formatted_text = string.gsub(formatted_text, ',([^ ])', ', %1') -- avoid having argument list without spaces in between
 	return vim.fn.trim(formatted_text)
 end
 
