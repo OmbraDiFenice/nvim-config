@@ -22,6 +22,9 @@ void template_func_declaration(T x);
 
 int global_var;
 
+double
+multiline_var;
+
 template<int X>
 int template_global_var;
 
@@ -85,6 +88,12 @@ namespace some_namespace {
 			int a;
 		} StructTypedef;
 	}
+
+	void
+	multiline_func(
+		int x,
+		int y
+	);
 
 	template<typename T>
 	void TemplateClass<T>::a_private_method() {

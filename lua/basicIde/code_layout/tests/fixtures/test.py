@@ -1,6 +1,12 @@
 global_var: str = "global var"
 untyped_var = True
 
+def
+multiline_func(
+    x: int
+) -> bool:
+    pass
+
 def global_func(x):
     x = 3
     print("global func")
