@@ -163,5 +163,18 @@ return {
 		vim.keymap.set('n', '<leader>su', telescope_builtin.lsp_references, { desc = '[S]earch [U]sage' })
 		-- vim.keymap.set('n', '<leader>ds', telescope_builtin.lsp_document_symbols, { desc = '[D]ocument [S]ymbols' })
 		-- vim.keymap.set('n', '<leader>ws', telescope_builtin.lsp_dynamic_workspace_symbols, { desc = '[W]orkspace [S]ymbols' })
+
+		-- Highlight search without jumping
+		vim.keymap.set('n', '<leader>*', function()
+			local word = vim.fn.expand('<cword>')
+			vim.cmd('let @/="' .. word .. '"')
+			vim.api.nvim_set_vvar('hlsearch', 1)
+		end, { desc = 'Search-highlight word under cursor without moving the cursor' })
+
+		vim.keymap.set('v', '<leader>*', function()
+			local word = utils.get_visual_selection()
+			vim.cmd('let @/="' .. word .. '"')
+			vim.api.nvim_set_vvar('hlsearch', 1)
+		end, { desc = 'Search-highlight selected text without moving the cursor' })
 	end,
 }
