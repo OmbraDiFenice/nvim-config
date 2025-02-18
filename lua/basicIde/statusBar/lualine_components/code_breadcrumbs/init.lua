@@ -1,5 +1,3 @@
-local lualine = require('lualine')
-
 ---@class CodeBreadcrumbs
 ---@field msg string
 local M = {
@@ -45,6 +43,8 @@ end
 ---Recompute the value of the `msg` field and trigger `lualine.refresh()`
 ---@return nil
 function M:update()
+	local lualine = require('lualine')
+
 	local lang = vim.bo.filetype
 	local parsers = vim.treesitter.language.get_filetypes(lang)
 	if #parsers == 0 then return end

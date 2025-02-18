@@ -1,5 +1,4 @@
 local utils = require('basicIde.utils')
-local lualine_highlight = require('lualine.highlight')
 
 ---Convert an integer into its hex representation of the RGB components
 ---@param int_color integer
@@ -52,6 +51,7 @@ end
 ---@param node TSNode
 ---@return string
 local function find_highlighting_group(node)
+	local lualine_highlight = require('lualine.highlight')
 	local row, col, _ = node:start()
 	local captures = vim.treesitter.get_captures_at_pos(0, row, col)
 	if captures == nil or #captures == 0 then return '' end
