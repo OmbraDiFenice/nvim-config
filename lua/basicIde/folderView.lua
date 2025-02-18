@@ -1,50 +1,13 @@
 local key_mapping = require('basicIde.key_mapping')
 local utils = require('basicIde.utils')
 
-local function edit_or_open()
-	local lib = require("nvim-tree.lib")
-	-- open as vsplit on current node
-	local action = "edit"
-	local node = lib.get_node_at_cursor()
-
-	if not node then return end
-
-	-- Just copy what's done normally with vsplit
-	if node.link_to and not node.nodes then
-		require('nvim-tree.actions.node.open-file').fn(action, node.link_to)
-	elseif node.nodes ~= nil then
-		lib.expand_or_collapse(node)
-	else
-		require('nvim-tree.actions.node.open-file').fn(action, node.absolute_path)
-	end
-end
-
-local function vsplit_preview()
-	local lib = require("nvim-tree.lib")
-	local view = require("nvim-tree.view")
-	-- open as vsplit on current node
-	local action = "vsplit"
-	local node = lib.get_node_at_cursor()
-
-	if not node then return end
-
-	-- Just copy what's done normally with vsplit
-	if node.link_to and not node.nodes then
-		require('nvim-tree.actions.node.open-file').fn(action, node.link_to)
-	elseif node.nodes ~= nil then
-		lib.expand_or_collapse(node)
-	else
-		require('nvim-tree.actions.node.open-file').fn(action, node.absolute_path)
-	end
-
-	-- Finally refocus on tree if it was lost
-	view.focus()
-end
-
 local git_add = function()
 	local api = require("nvim-tree.api")
-	local lib = require("nvim-tree.lib")
-	local node = lib.get_node_at_cursor()
+	local core = require("nvim-tree.core")
+	local explorer = core.get_explorer()
+	assert(explorer ~= nil, "No explorer found")
+
+	local node = explorer:get_node_at_cursor()
 
 	if not node then return end
 
@@ -63,10 +26,11 @@ local git_add = function()
 end
 
 local synchronize_file_or_dir_remotely = function()
-	local lib = require("nvim-tree.lib")
 	local core = require("nvim-tree.core")
+	local explorer = core.get_explorer()
+	assert(explorer ~= nil, "No explorer found")
 
-	local node = lib.get_node_at_cursor()
+	local node = explorer:get_node_at_cursor()
 	if node == nil then return end
 
 	local cmd = "SyncFile"
@@ -104,9 +68,9 @@ local function make_nvim_tree_keymap_manager(bufnr)
 
 	return {
 		keymap_callbacks = {
-			open = { callback = edit_or_open, opts = common_opts },
+			open = { callback = api.node.open.edit, opts = common_opts },
 			close_tree_view = { callback = api.tree.close, opts = common_opts },
-			vsplit_preview = { callback = vsplit_preview, opts = common_opts },
+			vsplit_preview = { callback = api.node.open.vertical, opts = common_opts },
 			close_dir = { callback = api.node.navigate.parent_close, opts = common_opts },
 			collapse = { callback = api.tree.collapse_all, opts = common_opts },
 			git_add = { callback = git_add, opts = common_opts },
