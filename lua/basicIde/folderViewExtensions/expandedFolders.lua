@@ -1,7 +1,6 @@
 local api = require('nvim-tree.api')
 local core = require('nvim-tree.core')
 local utils = require('nvim-tree.utils')
-local lib = require('nvim-tree.lib')
 local Event = api.events.Event
 
 ---@alias TreeStateExpandedFolders string[]
@@ -83,7 +82,7 @@ M.apply = function(expanded_folders)
 	for _, path in pairs(expanded_folders) do
 		local node = should_expand(path)
 		if node ~= nil then
-			lib.expand_or_collapse(node)
+			node.expand_or_collapse(node)
 			expanded_nodes = get_expanded_nodes()
 		end
 	end
