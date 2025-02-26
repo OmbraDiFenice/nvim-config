@@ -176,5 +176,16 @@ return {
 			vim.cmd('let @/="' .. word .. '"')
 			vim.api.nvim_set_vvar('hlsearch', 1)
 		end, { desc = 'Search-highlight selected text without moving the cursor' })
+
+		-- notify when search wraps around. With the notification popup plugin this is more visible than just a message in the command line
+		local search_wrapped_notif = nil
+		vim.api.nvim_create_autocmd('SearchWrapped', {
+			callback = function()
+				search_wrapped_notif = vim.notify('Search wrapped', vim.log.levels.INFO, {
+					replace = search_wrapped_notif,
+					on_close = function() search_wrapped_notif = nil end
+				})
+			end,
+		})
 	end,
 }
