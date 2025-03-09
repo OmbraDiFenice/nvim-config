@@ -79,7 +79,7 @@ return {
 		local neoscopes_config_filename = project_settings.DATA_DIRECTORY.. utils.files.OS.sep .. "neoscopes.config.json"
 		if not utils.files.path_exists(neoscopes_config_filename, false) then
 			utils.files.touch_file(neoscopes_config_filename)
-			vim.fn.writefile({ "{}" }, neoscopes_config_filename)
+			vim.fn.writefile({ '{"last_scope":"default","scopes":[{"name":"default","dirs":["' .. vim.fn.getcwd(-1, -1) .. '"],"files":[]}]}' }, neoscopes_config_filename)
 		end
 		local neoscopes_telescope = require('neoscopes-telescope')
 		neoscopes_telescope.setup({ -- must be done before configuring neoscopes so we can load the last used scope
