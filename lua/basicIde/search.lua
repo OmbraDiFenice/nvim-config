@@ -76,7 +76,7 @@ return {
 		pcall(require('telescope').load_extension, 'fzf')
 
 		-- Enable neoscopes-telescope
-		local neoscopes_config_filename = project_settings.DATA_DIRECTORY.. utils.files.OS.sep .. "neoscopes.confg.json"
+		local neoscopes_config_filename = project_settings.DATA_DIRECTORY.. utils.files.OS.sep .. "neoscopes.config.json"
 		if not utils.files.path_exists(neoscopes_config_filename, false) then
 			utils.files.touch_file(neoscopes_config_filename)
 			vim.fn.writefile({ "{}" }, neoscopes_config_filename)
