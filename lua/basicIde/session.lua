@@ -1,3 +1,5 @@
+local utils = require('basicIde.utils')
+
 local close_nvim_tree = function()
 	local nvim_tree_api = require('nvim-tree.api')
 
@@ -22,14 +24,30 @@ local open_nvim_tree = function()
 end
 
 --- Function written following the tutorial at https://github.com/nvim-telescope/telescope.nvim/blob/master/developers.md
-local function edit_session_file()
-	local auto_session = require('auto-session')
+---@param data_directory string
+local function edit_session_file(data_directory)
+	local auto_session_lib = require('auto-session.lib')
 	local pickers = require('telescope.pickers')
 	local finders = require('telescope.finders')
 	local conf = require('telescope.config').values
 	local themes = require('telescope.themes')
 
-	local session_files = auto_session.get_session_files()
+	local files_to_return = {
+		'neoscopes.config.json',
+		'nvim-tree.state',
+	}
+	local session_files = vim.fn.readdir(data_directory, function(item)
+		local file_path = utils.paths.ensure_trailing_slash(data_directory) .. item
+		return vim.fn.isdirectory(file_path) == 0 and (utils.tables.is_in_list(item, files_to_return) or auto_session_lib.is_session_file(item))
+	end)
+
+	session_files = vim.tbl_map(function(file)
+		return {
+			display_name = file,
+			path = utils.paths.ensure_trailing_slash(data_directory) .. file,
+		}
+	end, session_files)
+
 	local function get_display_name(session_entry)
 		if session_entry.display_name ~= nil then return session_entry.display_name end
 		return session_entry.path
@@ -83,6 +101,6 @@ return {
 
 		vim.o.sessionoptions = "blank,buffers,curdir,help,tabpages,winsize,winpos,terminal,localoptions"
 
-		vim.keymap.set('n', '<leader>es', function() edit_session_file() end, { desc = "edit session file" })
+		vim.keymap.set('n', '<leader>es', function() edit_session_file(settings.DATA_DIRECTORY) end, { desc = "edit session file" })
 	end,
 }
