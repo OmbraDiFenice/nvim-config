@@ -1,3 +1,5 @@
+local utils = require('basicIde.utils')
+
 local servers_configuration = {
 	pylsp = {
 		pylsp = {
@@ -126,11 +128,16 @@ return {
 
 		local mason_lspconfig = require 'mason-lspconfig'
 		local function default_mason_setup_handler(server_name)
+			---@type string[]|nil
+			local server_cmd = utils.tables.concat(server_commands[server_name] or {}, project_settings.lsp.extra_server_cli[server_name] or {})
+			if #server_cmd == 0 then
+				server_cmd = nil -- fallback to default
+			end
 			require('lspconfig')[server_name].setup {
 				capabilities = capabilities,
 				on_attach = function(client, bufnr) lsp_keybindings(client, bufnr, project_settings) end,
 				settings = servers_configuration[server_name],
-				cmd = server_commands[server_name],
+				cmd = server_cmd,
 			}
 		end
 		mason_lspconfig.setup()
@@ -177,7 +184,7 @@ return {
 			end,
 		})
 
-		vim.lsp.set_log_level("OFF")
+		vim.lsp.set_log_level("ERROR")
 
 		-- diagnostic settings
 		vim.diagnostic.config({
