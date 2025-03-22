@@ -1,10 +1,15 @@
-function _G.set_terminal_keymaps()
+function _G.setup_terminal()
 	local opts = { buffer = 0 }
+
+	-- keymaps
 	vim.keymap.set('t', '<esc>', [[<C-\><C-n>]], opts)
 	vim.keymap.set('t', '<C-h>', [[<Cmd>wincmd h<CR>]], opts)
 	--   vim.keymap.set('t', '<C-j>', [[<Cmd>wincmd j<CR>]], opts)
 	--   vim.keymap.set('t', '<C-k>', [[<Cmd>wincmd k<CR>]], opts)
 	vim.keymap.set('t', '<C-l>', [[<Cmd>wincmd l<CR>]], opts)
+
+	-- layout
+	vim.api.nvim_set_option_value('signcolumn', 'no', { win = vim.api.nvim_get_current_win() })
 end
 
 ---@type IdeModule
@@ -28,6 +33,6 @@ return {
 			end
 		})
 
-		vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
+		vim.cmd('autocmd! TermOpen term://* lua setup_terminal()')
 	end,
 }
