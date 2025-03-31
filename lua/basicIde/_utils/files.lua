@@ -11,11 +11,26 @@ M.path_exists = function(path, verbose)
 	return fail ~= nil
 end
 
+---Checks if the given path is a file
+---If the path doesn't exists it returns false
+---@param path string
+---@return boolean
+M.is_file = function(path)
+	local stat, _, _ = vim.uv.fs_stat(path)
+	return stat ~= nil and stat.type == "file"
+end
+
+---Return the content of the specified file.
+---If the file doesn't exist or is not a regular file returns nil.
+---@param path string
+---@return string?
 M.load_file = function(path)
-	if not M.path_exists(path) then return nil end
+	if not M.path_exists(path) or not M.is_file(path) then return nil end
 	local fd = io.open(path, "r")
 	if fd == nil then return nil end
-	return fd:read("*a")
+	local content = fd:read("*a")
+	io.close(fd)
+	return content
 end
 
 ---Creates an empty file at the given path if it doesn't exist.
