@@ -27,6 +27,7 @@ table.insert(components, 'basicIde/codeFormatting')
 table.insert(components, 'basicIde/remote_sync')
 table.insert(components, 'basicIde/code_layout')
 table.insert(components, 'basicIde/ai')
+table.insert(components, 'basicIde/ai_chat')
 table.insert(components, 'basicIde/statusBar') -- depends on the existence of the event groups it listens for, so better to load it last
                                                -- depends on the theme being already loaded
 																							 -- depends on search module for trouble integration

@@ -32,19 +32,36 @@ local function edit_session_file(data_directory)
 	local conf = require('telescope.config').values
 	local themes = require('telescope.themes')
 
+	data_directory = utils.paths.ensure_trailing_slash(data_directory)
+
 	local files_to_return = {
 		'neoscopes.config.json',
 		'nvim-tree.state',
+		'gp.nvim.log',
 	}
 	local session_files = vim.fn.readdir(data_directory, function(item)
-		local file_path = utils.paths.ensure_trailing_slash(data_directory) .. item
+		local file_path = data_directory .. item
 		return not utils.files.is_dir(file_path) and (utils.tables.is_in_list(item, files_to_return) or auto_session_lib.is_session_file(item))
 	end)
+
+	local ai_chat_subfolders = {
+		"gp/persisted",
+		"gp/chats",
+	}
+	for _, subfolder in ipairs(ai_chat_subfolders) do
+		local subfolder_full_path = data_directory .. subfolder
+		if utils.files.is_dir(subfolder_full_path) then
+			session_files = utils.tables.concat(
+				session_files,
+				vim.tbl_map(function(filename) return subfolder .. "/" .. filename end, vim.fn.readdir(subfolder_full_path))
+			)
+		end
+	end
 
 	session_files = vim.tbl_map(function(file)
 		return {
 			display_name = file,
-			path = utils.paths.ensure_trailing_slash(data_directory) .. file,
+			path = data_directory .. file,
 		}
 	end, session_files)
 

@@ -125,6 +125,13 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field environment table<string, string> environment variables <name, value> to set before launching nvim via the loader. Use ${env:PATH} to include values from the existing PATH environment variable
 ---@field init_script string script to be executed before starting nvim, after having sourced the venv and loaded the environment from this config. The interpreter is the same used in nvim_loader.sh
 
+---@class AiChatConfig
+---@field enabled boolean
+---@field provider string -- 'openai'
+---@field api_key string
+---@field endpoint string?
+---@field keymaps table<string, string[]> -- they keys are fixed and associated to each possible action. The value is a list of keymaps shortcut to trigger the action in a format similar to the keys associated to CustomKeymapDef in other configs.
+
 ---@class AiConfig
 ---@field enabled boolean
 ---@field engine "codeium"|"copilot"
@@ -153,6 +160,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field code_layout CodeLayoutConfig
 ---@field editor EditorConfig
 ---@field ai AiConfig
+---@field ai_chat AiChatConfig
 ---@field build_remote_url fun(commit_hash: string): string? -- builds the url for the given commit so that it can be opened in the browser with a key shortcut from Diffview history view. Return the url or nil to cancel the operation
 
 ---Execute the callbacks in `custom_startup_scripts` setting
@@ -736,6 +744,19 @@ local default_settings = {
 			clear_current_suggestion = {'i <C-x>'},
 			next_suggestion = {'i <C-l>'},
 			previous_suggestion = {'i <C-h>'},
+		},
+	},
+	ai_chat = {
+		enabled = false,
+		provider = 'openai',
+		api_key = '${env:OPENAI_API_KEY}',
+		keymaps = {
+			new_chat = { 'gP' },
+			toggle = { 'gp' },
+			search = { 'sgp' },
+			delete = { 'gpd' },
+			rewrite = { 'gpr' },
+			stop = { 'gpx' },
 		},
 	},
 }
