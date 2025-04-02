@@ -18,6 +18,7 @@ end
 ---@class RsyncManager
 ---@field private settings RemoteSyncSettings
 ---@field _timers table<string, userdata> timers to control debouncing per-file
+---@field _exclude_list_filename string path to the exclude file
 local RsyncManager = {}
 
 ---Constructor
@@ -28,12 +29,44 @@ function RsyncManager:new(remote_sync_settings)
 	local o = {
 		settings = remote_sync_settings,
 		_timers = {},
+		_exclude_list_filename = table.concat({utils.get_data_directory(), "rsync_exclude_list"}, utils.files.OS.sep),
 	}
 
 	setmetatable(o, self)
 	self.__index = self
 
+	o:_build_ignore_list()
+
+	vim.api.nvim_create_autocmd('User', {
+		pattern = 'ProjectSettingsChanged',
+		desc = 'recreate rsync ignore list file on project settings change',
+		callback = function()
+			o:_build_ignore_list()
+		end,
+	})
+
 	return o
+end
+
+function RsyncManager:_build_ignore_list()
+	if utils.files.is_file(self._exclude_list_filename) then
+		os.remove(self._exclude_list_filename)
+	end
+
+	local temp_file_handle = io.open(self._exclude_list_filename, 'w')
+	if temp_file_handle == nil then
+		vim.notify('Unable to open temp file, skipping ignored files on sync', vim.log.levels.WARN)
+		return
+	end
+
+	local ignore_list = remote_sync_utils.build_ignore_list(self.settings.exclude_paths, self.settings.exclude_git_ignored_files)
+
+	for _, exclude in ipairs(ignore_list) do
+		temp_file_handle:write(exclude .. '\n')
+	end
+
+	temp_file_handle:flush()
+	temp_file_handle:close()
 end
 
 ---Starts the master ssh connection to reduce latency on subsequent synchronizations.
@@ -58,45 +91,14 @@ end
 
 ---Send a single file to the remote server
 ---@param file_path string
----@param ignore_list string[]?
 ---@return nil
-function RsyncManager:synchronize_file(file_path, ignore_list)
+function RsyncManager:synchronize_file(file_path)
 	if self.settings.mappings == nil then return end
 
 	local source_root_path, source_relative_path, destination_root_path = remote_sync_utils.map_file_path(self.settings.mappings, file_path)
 	if source_root_path == nil or source_relative_path == nil or destination_root_path == nil then
 		vim.notify('unable to map ' .. file_path .. ' to a remote directory.', vim.log.levels.ERROR)
 		return
-	end
-
-	local function build_ignore_list()
-		local temp_filename = vim.fn.tempname()
-		if temp_filename == nil then vim.notify('Unable to create temp file, skipping ignored files on sync', vim.log.levels.WARN) return end
-
-		local temp_file_handle = io.open(temp_filename, 'w')
-		if temp_file_handle == nil then
-			vim.notify('Unable to open temp file, skipping ignored files on sync', vim.log.levels.WARN)
-			return
-		end
-
-		if ignore_list == nil then
-			-- having ignore list in input allow to compute it only once when synchronizing directories
-			ignore_list = remote_sync_utils.build_ignore_list(self.settings.exclude_paths, self.settings.exclude_git_ignored_files)
-		end
-		for _, exclude in ipairs(ignore_list) do
-			temp_file_handle:write(exclude .. '\n')
-		end
-
-		temp_file_handle:flush()
-		temp_file_handle:close()
-
-		return temp_filename
-	end
-
-	local exclude_list_filename = build_ignore_list()
-	local exclude_from_option = ''
-	if exclude_list_filename ~= nil then
-		exclude_from_option = '--exclude-from=' .. exclude_list_filename
 	end
 
 	local master_socket_option = ''
@@ -116,7 +118,7 @@ function RsyncManager:synchronize_file(file_path, ignore_list)
 		'--delete',
 		'--links',
 		'--safe-links',
-		exclude_from_option,
+		'--exclude-from=' .. self._exclude_list_filename,
 		source_relative_path,
 		self.settings.rsync_settings.remote_user .. '@' .. self.settings.rsync_settings.remote_host .. ':' .. destination_root_path
 	}
@@ -131,9 +133,6 @@ function RsyncManager:synchronize_file(file_path, ignore_list)
 				vim.notify(output, vim.log.levels.ERROR, { replace = notification })
 			end
 			if self.settings.notifications.enabled then vim.notify(notif_text .. " done", vim.log.levels.INFO, { replace = notification }) end
-			if exclude_list_filename ~= nil then
-				os.remove(exclude_list_filename)
-			end
 		end), { clear_env = false, cwd = source_root_path })
 	end)
 end
@@ -146,8 +145,7 @@ function RsyncManager:synchronize_directory(dir_path)
 		dir_path = utils.paths.ensure_trailing_slash(dir_path)
 	end
 
-	local ignore_list = remote_sync_utils.build_ignore_list(self.settings.exclude_paths, self.settings.exclude_git_ignored_files)
-	self:synchronize_file(dir_path, ignore_list)
+	self:synchronize_file(dir_path)
 end
 
 return RsyncManager
