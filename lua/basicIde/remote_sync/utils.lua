@@ -3,7 +3,7 @@ local utils = require('basicIde.utils')
 ---Convert a local absolute path to the pair [local relative path, remote absolute path]
 ---@param mappings string[][] # the path mappings from |RemoteSyncSettings|
 ---@param file_path string # local path to be mapped. If the path doesn't start with a path separator it's assumed to be a relative path, and it's prepended with the root path
----@return string|nil, string|nil # local relative path, remote absolute path. Both nil if it wasn't possible to map the input
+---@return string|nil, string|nil, string|nil # source root path, local path relative to local source root, remote absolute path. All nil if it wasn't possible to map the input
 local function map_file_path(mappings, file_path)
 	if file_path:sub(1, 1) ~= utils.files.OS.sep then
 		file_path = table.concat({utils.paths.ensure_no_trailing_slash(vim.fn.getcwd()), file_path}, utils.files.OS.sep)
@@ -28,7 +28,7 @@ local function map_file_path(mappings, file_path)
 		source_relative_path = utils.paths.ensure_no_leading_slash("./" .. source_relative_path)
 	end
 
-	return source_relative_path, destination_root_path
+	return selected_prefix, source_relative_path, destination_root_path
 end
 
 ---@param exclude_paths string[]

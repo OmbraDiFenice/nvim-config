@@ -17,7 +17,7 @@ end
 
 ---@class RsyncManager
 ---@field private settings RemoteSyncSettings
----@field _timer userdata?
+---@field _timers table<string, userdata> timers to control debouncing per-file
 local RsyncManager = {}
 
 ---Constructor
@@ -27,7 +27,7 @@ function RsyncManager:new(remote_sync_settings)
 	clean_settings(remote_sync_settings)
 	local o = {
 		settings = remote_sync_settings,
-		_timer = nil,
+		_timers = {},
 	}
 
 	setmetatable(o, self)
@@ -62,10 +62,9 @@ end
 ---@return nil
 function RsyncManager:synchronize_file(file_path, ignore_list)
 	if self.settings.mappings == nil then return end
-	if self._timer ~= nil then self._timer:stop() end
 
-	local source_relative_path, destination_root_path = remote_sync_utils.map_file_path(self.settings.mappings, file_path)
-	if source_relative_path == nil or destination_root_path == nil then
+	local source_root_path, source_relative_path, destination_root_path = remote_sync_utils.map_file_path(self.settings.mappings, file_path)
+	if source_root_path == nil or source_relative_path == nil or destination_root_path == nil then
 		vim.notify('unable to map ' .. file_path .. ' to a remote directory.', vim.log.levels.ERROR)
 		return
 	end
@@ -122,18 +121,20 @@ function RsyncManager:synchronize_file(file_path, ignore_list)
 		self.settings.rsync_settings.remote_user .. '@' .. self.settings.rsync_settings.remote_host .. ':' .. destination_root_path
 	}
 
-	self._timer = utils.debounce({ timer = self._timer }, function()
+	local timer_key = source_root_path .. '#' .. source_relative_path .. '#' .. destination_root_path
+	self._timers[timer_key] = utils.debounce({ timer = self._timers[timer_key] }, function()
 		local notification
-		if self.settings.notifications.enabled then notification = vim.notify('sync started: '..source_relative_path, vim.log.levels.INFO, { on_close = function() notification = nil end }) end
+		local notif_text = "sync: " .. table.concat({utils.paths.ensure_no_trailing_slash(source_root_path), source_relative_path}, utils.files.OS.sep) .. " -> " .. destination_root_path
+		if self.settings.notifications.enabled then notification = vim.notify(notif_text .. " started", vim.log.levels.INFO, { on_close = function() notification = nil end }) end
 		utils.proc.runAndReturnOutput(command, vim.schedule_wrap(function(output, exit_code)
 			if exit_code ~= 0 then
 				vim.notify(output, vim.log.levels.ERROR, { replace = notification })
 			end
-			if self.settings.notifications.enabled then vim.notify('sync completed', vim.log.levels.INFO, { replace = notification }) end
+			if self.settings.notifications.enabled then vim.notify(notif_text .. " done", vim.log.levels.INFO, { replace = notification }) end
 			if exclude_list_filename ~= nil then
 				os.remove(exclude_list_filename)
 			end
-		end), { clear_env = false })
+		end), { clear_env = false, cwd = source_root_path })
 	end)
 end
 
