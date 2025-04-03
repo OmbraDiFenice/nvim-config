@@ -4,6 +4,7 @@ local M = {
 	proc = require('basicIde._utils.proc'),
 	files = require('basicIde._utils.files'),
 	tables = require('basicIde._utils.tables'),
+	loader = require('basicIde._utils.loader'),
 }
 
 ---Returns the directory to be used to store data related to the current nvim session.
