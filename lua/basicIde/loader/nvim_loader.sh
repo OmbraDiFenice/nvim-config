@@ -4,19 +4,15 @@ SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 PROJECT_ROOT="$PWD"
 NVIM_ARGS=""
 
-function set-title() {
-	# will be set when available
-	return 0
-}
+# must be exported so they're available from within nvim too
+export LOADER_SHELL_PID=$$
+export SET_TITLE_SCRIPT="${SCRIPTPATH}/shellUtils/set_title_stub.sh"
 
 # support setting the title with oh-my-zsh
 if [ -n "$ZSH" ]
 then
 	DISABLE_AUTO_TITLE="true"
-	function set-title(){
-		TITLE="\e]2;$*\a"
-		echo -n -e ${TITLE}
-	}
+	export SET_TITLE_SCRIPT="${SCRIPTPATH}/shellUtils/set_title.zsh"
 fi
 
 # Uses nvim as lua interpreter for the given script file.
@@ -68,5 +64,5 @@ then
 	NVIM_ARGS="$NVIM_ARGS --listen '$PIPE'"
 fi
 
-set-title "$PROJECT_TITLE"
+"$SET_TITLE_SCRIPT" "$PROJECT_TITLE"
 nvim $NVIM_ARGS $@
