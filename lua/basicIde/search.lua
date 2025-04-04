@@ -158,6 +158,7 @@ return {
 		vim.keymap.set('n', '<leader>sw', telescope_builtin.grep_string, { desc = '[S]earch current [W]ord' })
 		vim.keymap.set('n', '<leader>sd', telescope_builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
 		vim.keymap.set('n', '<leader>sk', telescope_builtin.keymaps, { desc = '[S]earch [K]keymaps' })
+		vim.keymap.set('n', '<leader>sm', function() telescope_builtin.marks({ initial_mode = 'normal' }) end, { desc = '[S]search [M]arkers' })
 
 		-- LSP searches
 		vim.keymap.set('n', '<leader>su', telescope_builtin.lsp_references, { desc = '[S]earch [U]sage' })
