@@ -38,7 +38,7 @@ local function edit_session_file(data_directory)
 	}
 	local session_files = vim.fn.readdir(data_directory, function(item)
 		local file_path = utils.paths.ensure_trailing_slash(data_directory) .. item
-		return vim.fn.isdirectory(file_path) == 0 and (utils.tables.is_in_list(item, files_to_return) or auto_session_lib.is_session_file(item))
+		return not utils.files.is_dir(file_path) and (utils.tables.is_in_list(item, files_to_return) or auto_session_lib.is_session_file(item))
 	end)
 
 	session_files = vim.tbl_map(function(file)

@@ -75,7 +75,7 @@ end
 function QuantConnectManager:synchronize_directory(dir_path)
 	local lfs = require('lfs')
 
-	if not vim.fn.isdirectory(dir_path) == 1 then return end
+	if not utils.files.is_dir(dir_path) then return end
 
 	local ignore_list = remote_sync_utils.build_ignore_list(self.settings.exclude_paths, self.settings.exclude_git_ignored_files)
 	local ignore_table = remote_sync_utils.build_ignore_table(ignore_list)
