@@ -1,3 +1,7 @@
+local Monitor = require('basicIde.git.monitor')
+
+local git_monitor = nil
+
 ---Originally the purpose was to open the commit win in a custom float window, but turns out that
 ---doing git editing inside the current nvim instance is more challenging that expected.
 ---For now just add some convenience wrappers around the fugitive command
@@ -129,5 +133,10 @@ return {
 		vim.keymap.set('n', '<leader>gca', function() open_commit_win('--amend') end, { desc = 'git commit --amend' })
 		vim.keymap.set('n', '<leader>gcan', function() vim.api.nvim_command('Git commit --amend --no-edit') end, { desc = 'git commit --amend --no-edit' })
 		vim.keymap.set('n', '<leader>gb', function() vim.api.nvim_command('Git blame') end, { desc = 'git blame' })
+
+		-- monitor
+		git_monitor = Monitor:new(project_settings)
+		git_monitor:init()
+		git_monitor:start()
 	end,
 }

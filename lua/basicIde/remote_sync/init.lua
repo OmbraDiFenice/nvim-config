@@ -2,7 +2,6 @@ local utils = require('basicIde.utils')
 local rsync_manager = require('basicIde.remote_sync.rsync_manager')
 local quantconnect_manager = require('basicIde.remote_sync.quantconnect')
 local fs_monitor = vim.loop.new_fs_event()
-local git_monitor = vim.loop.new_fs_event()
 
 local function sync_current_file()
 	local path = vim.api.nvim_buf_get_name(0)
@@ -27,54 +26,6 @@ local function get_manager(project_settings)
 	end
 
 	return manager
-end
-
----Setup file watcher to trigger repository sync on git worktree changes (checkout, stash etc)
----@param project_root_path string
----@param project_settings ProjectSettings
-local function setup_sync_on_git_changes(project_root_path, project_settings)
-	if git_monitor == nil then vim.notify('unable to create watch event for git sync on changes. Files won\'t be synchronized automatically on checkouts'); return end
-
-	local git_dir_lines, err = utils.proc.runAndReturnOutputSync('git rev-parse --path-format=absolute --git-dir')
-	if err ~= 0 then vim.notify('unable to find git dir. Files won\'t be synchronized automatically'); return end
-	local git_dir = table.concat(git_dir_lines, "") -- rev-parse returns multiple lines but some of them are empty and the order is inconsistent
-
-	local git_common_dir_lines = utils.proc.runAndReturnOutputSync('git rev-parse --path-format=absolute --git-common-dir')
-	local git_common_dir = table.concat(git_common_dir_lines, "") -- rev-parse returns multiple lines but some of them are empty and the order is inconsistent
-
-	local in_git_worktree = git_common_dir ~= git_dir
-	local git_head_path = table.concat({ git_dir, 'HEAD' }, utils.files.OS.sep)
-
-	local function start_monitoring()
-		git_monitor:start(git_head_path,
-			{ watch_entry = true },
-			function(err, _, events)
-				if err ~= nil then vim.notify(err, vim.log.levels.ERROR); return end
-				git_monitor:stop()
-				start_monitoring()
-				if events.change == nil then return end
-				vim.schedule_wrap(function()
-					vim.api.nvim_exec_autocmds('User', {
-						group = 'BasicIde.RemoteSync',
-						pattern = 'SyncDir',
-						data = {
-							path = project_root_path,
-						},
-					})
-					if in_git_worktree then
-						vim.api.nvim_exec_autocmds('User', {
-							group = 'BasicIde.RemoteSync',
-							pattern = 'SyncDir',
-							data = {
-								path = git_common_dir,
-							},
-						})
-					end
-				end)()
-		end)
-	end
-
-	start_monitoring()
 end
 
 ---@type IdeModule
@@ -136,9 +87,21 @@ return {
 
 		vim.keymap.set('n', '<leader>rs', sync_current_file, { desc = 'Synch current file to the remote machine' })
 
-		local project_root_path = vim.fn.getcwd(-1, -1)
-		if project_settings.remote_sync.sync_on_git_head_change and utils.files.path_exists(table.concat({ project_root_path, ".git" }, utils.files.OS.sep)) then
-			setup_sync_on_git_changes(project_root_path, project_settings)
+		if project_settings.remote_sync.sync_on_git_head_change then
+			vim.api.nvim_create_autocmd('User', {
+				group = 'BasicIde.GitMonitor',
+				pattern = 'Change',
+				callback = function(args)
+					if args.data.paths == nil or #args.data.paths == 0 then return end
+					for _, path in ipairs(args.data.paths) do
+						if utils.files.is_file(path) then
+							manager:synchronize_file(args.data.path)
+						elseif utils.files.is_dir(path) then
+							manager:synchronize_directory(path)
+						end
+					end
+				end
+			})
 		end
 	end
 }
