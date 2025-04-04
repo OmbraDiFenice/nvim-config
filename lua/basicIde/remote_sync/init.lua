@@ -105,11 +105,10 @@ return {
 				end,
 			})
 		else
-			local cwd = vim.fn.getcwd(-1, -1)
-			if fs_monitor ~= nil and cwd ~= nil then
-				fs_monitor:start(cwd, { watch_entry = true, stat = false, recursive = true }, vim.schedule_wrap(function (err, filepath, events)
+			if fs_monitor ~= nil then
+				fs_monitor:start(project_settings.PROJECT_ROOT_DIRECTORY, { watch_entry = true, stat = false, recursive = true }, vim.schedule_wrap(function (err, filepath, events)
 					-- if string.sub(filepath, #filepath) == '~' then return end
-					local full_path = table.concat({ cwd, filepath }, utils.files.OS.sep)
+					local full_path = table.concat({ project_settings.PROJECT_ROOT_DIRECTORY, filepath }, utils.files.OS.sep)
 					if utils.files.path_exists(full_path) then
 						manager:synchronize_file(full_path)
 					end
