@@ -112,6 +112,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 
 ---@class ProjectSettings
 ---@field PROJECT_SETTINGS_FILE string
+---@field PROJECT_ROOT_DIRECTORY string
 ---@field DATA_DIRECTORY string
 ---@field IDE_DIRECTORY string -- path to the directory where the IDE code is located (inside nvim config). To be used as a convenience in some components to point to utility scripts in there
 ---@field project_title string
@@ -156,6 +157,7 @@ local default_settings = {
 	PROJECT_SETTINGS_FILE = '',
 	DATA_DIRECTORY = '',
 	IDE_DIRECTORY = '',
+	PROJECT_ROOT_DIRECTORY = '',
 	project_title = '[nvim IDE] ' .. vim.fn.getcwd(-1, -1),
 	settings_templates = {
 		python = {
@@ -691,14 +693,14 @@ local default_settings = {
 
 ---Helper function for resolve_variables.
 ---Replaces any supported variable placeholder with the corrsponding computed value
-local function resolve_variable(orig_value)
+local function resolve_variable(orig_value, settings)
 	local value = orig_value
 	value, _ = string.gsub(value, "%${env:([%w_]+)}", function (capture)
 		local env_value = os.getenv(capture)
 		if env_value == nil then return "" end
 		return env_value:gsub('\r', '')
 	end)
-	value, _ = string.gsub(value, "%${ide:PROJECT_ROOT}", vim.fn.getcwd(-1, -1))
+	value, _ = string.gsub(value, "%${ide:PROJECT_ROOT}", settings.PROJECT_ROOT_DIRECTORY)
 	return value
 end
 
@@ -718,7 +720,7 @@ end
 local function resolve_variables(settings)
 	return utils.tables.deepmap(settings, function(config)
 			if type(config) == 'string' then
-				return resolve_variable(config)
+				return resolve_variable(config, settings)
 			end
 			return config
 		end)
@@ -790,14 +792,16 @@ return {
 			settings = utils.tables.deepmerge(settings, custom_settings)
 		end
 
-		settings = resolve_variables(settings)
-
 		-- Read only fields.
 		-- They're intentionally not customizable from project file,
 		-- only available to be referenced by plugins if needed (see e.g. debugging)
+		-- Must be set before resolving variables since some of them might be used during that process
 		settings.PROJECT_SETTINGS_FILE = PROJECT_SETTINGS_FILE
 		settings.DATA_DIRECTORY = utils.get_data_directory()
+		settings.PROJECT_ROOT_DIRECTORY = vim.fn.getcwd(-1, -1)
 		settings.IDE_DIRECTORY = table.concat({ vim.fn.stdpath('config'), 'lua', 'basicIde' }, utils.files.OS.sep)
+
+		settings = resolve_variables(settings)
 
 		return settings
 	end,
