@@ -20,6 +20,14 @@ M.is_file = function(path)
 	return stat ~= nil and stat.type == "file"
 end
 
+---Check if the given path is a directory
+---If the path doesn't exist it returns false
+---@param path string
+---@return boolean
+M.is_dir = function(path)
+	return vim.fn.isdirectory(path) == 1
+end
+
 ---Return the content of the specified file.
 ---If the file doesn't exist or is not a regular file returns nil.
 ---@param path string

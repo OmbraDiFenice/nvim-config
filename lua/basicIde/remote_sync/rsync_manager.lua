@@ -141,7 +141,7 @@ end
 ---@param dir_path string
 ---@return nil
 function RsyncManager:synchronize_directory(dir_path)
-	if vim.fn.isdirectory(dir_path) == 1 then
+	if utils.files.is_dir(dir_path) then
 		dir_path = utils.paths.ensure_trailing_slash(dir_path)
 	end
 
