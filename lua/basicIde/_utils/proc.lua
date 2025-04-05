@@ -93,16 +93,19 @@ end
 ---Convenience method to run a command. It simply prints any output (combining stdout and stderr) and exits.
 ---If you want to perform actions when the command completes use `runAndReturnOutput` instead.
 ---@param command string[]|string
+---@param log_output boolean? # whether to log the command output. Default to false
 ---@param log_before nil|string[]|string # a string to log before the start of the command, or nil to skip the log
 ---@param log_after nil|string[]|string # a string to log after the end of the command, or nil to skip the log
 ---@return nil
 ---@see runAndReturnOutput
-M.run = function(command, log_before, log_after)
+M.run = function(command, log_output, log_before, log_after)
 	if log_before ~= nil then
 		vim.notify(log_before)
 	end
 	M.runAndReturnOutput(command, function (output_lines)
-		vim.notify(output_lines)
+		if log_output then
+			vim.notify(output_lines)
+		end
 
 		if log_after ~= nil then
 			vim.notify(log_after)

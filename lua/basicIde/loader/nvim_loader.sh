@@ -39,7 +39,6 @@ VENVPATH=$(get_config virtual_environment | tr --delete '\n\r')
 ENVIRONMENT_VARIABLES=$(get_config environment | tr --delete '\r')
 INIT_SCRIPT=$(get_config init_script | tr --delete '\r')
 DATA_DIRECTORY=$(get_config data_directory | tr --delete '\n\r')
-PROJECT_TITLE=$(get_config project_title | tr --delete '\n\r')
 
 if [[ ${DATA_DIRECTORY:-} != "" ]]
 then
@@ -64,5 +63,4 @@ then
 	NVIM_ARGS="$NVIM_ARGS --listen '$PIPE'"
 fi
 
-"$SET_TITLE_SCRIPT" "$PROJECT_TITLE"
 nvim $NVIM_ARGS $@
