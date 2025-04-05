@@ -811,6 +811,10 @@ return {
 	---@param settings ProjectSettings
 	---@return nil
 	init = function(settings)
+		if settings.project_title ~= nil then
+			utils.loader.set_title(settings.project_title)
+		end
+
 		run_custom_startup_scripts(settings, utils)
 		init_custom_keymaps(settings, utils)
 
