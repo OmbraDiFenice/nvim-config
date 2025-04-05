@@ -815,9 +815,6 @@ return {
 			utils.loader.set_title(settings.project_title)
 		end
 
-		run_custom_startup_scripts(settings, utils)
-		init_custom_keymaps(settings, utils)
-
 		vim.api.nvim_create_user_command('BasicIdeInitProject', function(params)
 				create_or_open_project_file(params.fargs[1], settings)
 			end, {
@@ -830,5 +827,8 @@ return {
 			nargs = 0,
 			desc = 'List available project templates'
 		})
+
+		run_custom_startup_scripts(settings, utils)
+		init_custom_keymaps(settings, utils)
 	end
 }
