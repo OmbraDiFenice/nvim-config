@@ -815,6 +815,16 @@ return {
 			utils.loader.set_title(settings.project_title)
 		end
 
+		vim.api.nvim_create_user_command('BasicIdeSetTitle', function()
+			vim.ui.input({ prompt = 'Title: ', default = utils.loader.get_title() }, function(title)
+				if title == nil or #title == 0 then return end
+				utils.loader.set_title(title)
+			end)
+		end, {
+			nargs = 0,
+			desc = 'Set window title',
+		})
+
 		vim.api.nvim_create_user_command('BasicIdeInitProject', function(params)
 				create_or_open_project_file(params.fargs[1], settings)
 			end, {
