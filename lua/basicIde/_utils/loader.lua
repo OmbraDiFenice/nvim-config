@@ -8,7 +8,7 @@ local last_title = ''
 M.set_title = function(title)
 	local script = os.getenv("SET_TITLE_SCRIPT")
 	if script == nil or #os.getenv("SET_TITLE_SCRIPT") == 0 then return end
-	_proc.run('$SET_TITLE_SCRIPT ' .. title)
+	_proc.run('$SET_TITLE_SCRIPT ' .. vim.fn.shellescape(title, 1))
 	last_title = title
 end
 

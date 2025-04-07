@@ -123,7 +123,7 @@ return {
 		if project_settings.remote_sync.sync_on_git_head_change then
 			vim.api.nvim_create_autocmd('User', {
 				group = 'BasicIde.GitMonitor',
-				pattern = 'Change',
+				pattern = 'HeadChange',
 				callback = function(args)
 					if args.data.paths == nil or #args.data.paths == 0 then return end
 					for _, path in ipairs(args.data.paths) do
