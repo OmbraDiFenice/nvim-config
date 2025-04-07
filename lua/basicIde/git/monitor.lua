@@ -60,9 +60,10 @@ function M:start()
 
 					vim.api.nvim_exec_autocmds('User', {
 						group = augroup,
-						pattern = 'Change',
+						pattern = 'HeadChange',
 						data = {
-							paths = monitored_paths
+							paths = monitored_paths,
+							new_head = utils.paths.trim(table.concat(utils.proc.runAndReturnOutputSync('git rev-parse --abbrev-ref HEAD'), "")),
 						},
 					})
 				end)()

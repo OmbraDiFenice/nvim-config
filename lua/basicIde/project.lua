@@ -108,6 +108,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field recenter_viewport RecenterViewportConfig
 ---@field activity_monitor ActivityMonitorConfig
 ---@field status_bar StatusBarConfig
+---@field append_git_branch_to_title boolean
 
 ---@class LoaderConfig
 ---@field virtual_environment? string path to the virtual environment to launch nvim with. If the path is relative it will be resolved relative to the project root
@@ -678,6 +679,7 @@ local default_settings = {
 				provider = "trouble",
 			},
 		},
+		append_git_branch_to_title = false,
 		recenter_viewport = {
 			enabled = true,
 			ignore_filetypes = {},
@@ -840,7 +842,12 @@ return {
 	---@return nil
 	init = function(settings)
 		if settings.project_title ~= nil then
-			utils.loader.set_title(settings.project_title)
+			local title = settings.project_title
+			if settings.editor.append_git_branch_to_title then
+				local branch = utils.paths.trim(table.concat(utils.proc.runAndReturnOutputSync('git rev-parse --abbrev-ref HEAD'), ""))
+				title = utils.paths.trim(title) .. ' [' .. branch .. ']'
+			end
+			utils.loader.set_title(title)
 		end
 
 		vim.api.nvim_create_user_command('BasicIdeSetTitle', function()
@@ -852,6 +859,19 @@ return {
 			nargs = 0,
 			desc = 'Set window title',
 		})
+
+		if settings.editor.append_git_branch_to_title then
+			vim.api.nvim_create_autocmd('User', {
+				group = 'BasicIde.GitMonitor',
+				pattern = 'HeadChange',
+				desc = 'Append git branch to title',
+				callback = function(event)
+					if #event.data.new_head ~= 0 then
+						utils.loader.set_title(settings.project_title .. ' [' .. event.data.new_head .. ']')
+					end
+				end,
+			})
+		end
 
 		vim.api.nvim_create_user_command('BasicIdeInitProject', function(params)
 				create_or_open_project_file(params.fargs[1], settings)
