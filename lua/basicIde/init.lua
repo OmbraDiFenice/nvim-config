@@ -9,11 +9,11 @@ local project_settings = project.load_settings()
 
 ---@type string[]
 local components = {}
+table.insert(components, 'basicIde/vimSettings') -- must be first
 table.insert(components, 'basicIde/theme')
 table.insert(components, 'basicIde/statusBar')
 table.insert(components, 'basicIde/completion') -- lsp uses nvim-cmp to advertise extra capabilities, so configure it first
 table.insert(components, 'basicIde/lsp')
-table.insert(components, 'basicIde/vimSettings')
 table.insert(components, 'basicIde/folding')
 table.insert(components, 'basicIde/search')
 table.insert(components, 'basicIde/folderView')
