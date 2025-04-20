@@ -85,6 +85,37 @@ return {
 			end
 		})
 
+		local notification
+		vim.api.nvim_create_autocmd('User', {
+			desc = 'Show notification when remote sync is started',
+			group = augroup,
+			pattern = 'SyncStart',
+			-- @param args { data: { text: string?, log_level: int? } }
+			callback = function(args)
+				local force_notification = args.data.log_level ~= nil and args.data.log_level > vim.log.levels.INFO
+				if project_settings.remote_sync.notifications.enabled or force_notification then
+					local notif_text = "sync start"
+					if args.data.text ~= nil then notif_text = notif_text .. ": " .. args.data.text end
+					notification = vim.notify(notif_text, args.data.log_level, { on_close = function() notification = nil end })
+				end
+			end
+		})
+
+		vim.api.nvim_create_autocmd('User', {
+			desc = 'Show notification when remote sync is completed',
+			group = augroup,
+			pattern = 'SyncEnd',
+			-- @param args { data: { text: string?, log_level: int? } }
+			callback = function(args)
+				local force_notification = args.data.log_level ~= nil and args.data.log_level > vim.log.levels.INFO
+				if project_settings.remote_sync.notifications.enabled or force_notification then
+					local notif_text = "sync done"
+					if args.data.text ~= nil then notif_text = notif_text .. ": " .. args.data.text end
+					vim.notify(notif_text, args.data.log_level, { replace = notification })
+				end
+			end
+		})
+
 		vim.keymap.set('n', '<leader>rs', sync_current_file, { desc = 'Synch current file to the remote machine' })
 
 		if project_settings.remote_sync.sync_on_git_head_change then

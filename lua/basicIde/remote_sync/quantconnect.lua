@@ -46,11 +46,11 @@ function QuantConnectManager:synchronize_file(file_path, ignore_table)
 	vim.schedule_wrap(function()
 		local notification
 		if self.settings.notifications.enabled then
-			notification = vim.notify(
-				'sync started: ' .. file_path .. ' -> ' .. destination_path,
-				vim.log.levels.INFO,
-				{ on_close = function() notification = nil end }
-			)
+			vim.api.nvim_exec_autocmds('User', {
+				group = 'BasicIde.RemoteSync',
+				pattern = 'SyncStart',
+				data = { text = file_path .. ' -> ' .. destination_path }
+			})
 		end
 
 		local local_content = utils.files.load_file(file_path)
@@ -58,14 +58,26 @@ function QuantConnectManager:synchronize_file(file_path, ignore_table)
 			if self.settings.notifications.enabled then notification = vim.notify('remote file not found, creating it', vim.log.levels.INFO, { replace = notification }) end
 			self._client:create_file(self.settings.quantconnect_settings.project_id, destination_path, local_content)
 			self._client:get_file(self.settings.quantconnect_settings.project_id, destination_path, function(file_content) self._remote_cache[destination_path] = file_content end)
-			if self.settings.notifications.enabled then vim.notify('done: ' .. file_path .. ' -> ' .. destination_path, vim.log.levels.INFO, { replace = notification}) end
+			vim.api.nvim_exec_autocmds('User', {
+				group = 'BasicIde.RemoteSync',
+				pattern = 'SyncEnd',
+				data = { text = file_path .. ' -> ' .. destination_path }
+			})
 		elseif self._remote_cache[destination_path].content ~= local_content then
 			if self.settings.notifications.enabled then notification = vim.notify('remote file changed, updating it', vim.log.levels.INFO, { replace = notification }) end
 			self._client:update_file_content(self.settings.quantconnect_settings.project_id, destination_path, local_content)
-			if self.settings.notifications.enabled then vim.notify('done: ' .. file_path .. ' -> ' .. destination_path, vim.log.levels.INFO, { replace = notification}) end
+			vim.api.nvim_exec_autocmds('User', {
+				group = 'BasicIde.RemoteSync',
+				pattern = 'SyncEnd',
+				data = { text = file_path .. ' -> ' .. destination_path }
+			})
 			self._client:get_file(self.settings.quantconnect_settings.project_id, destination_path, function(file_content) self._remote_cache[destination_path] = file_content end)
 		else
-			if self.settings.notifications.enabled then vim.notify('remote file up to date', vim.log.levels.INFO, { replace = notification }) end
+			vim.api.nvim_exec_autocmds('User', {
+				group = 'BasicIde.RemoteSync',
+				pattern = 'SyncEnd',
+				data = { text = 'remote file up to date' }
+			})
 			return
 		end
 	end
