@@ -91,10 +91,15 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field enabled boolean
 ---@field ignore_filetypes string[] filetypes for which the recenter should be always disabled
 
+---@class ActivityMonitorConfig
+---@field enabled boolean
+---@field keymaps table<string, string[]>
+
 ---@class EditorConfig
 ---@field autosave boolean
 ---@field tree_view TreeViewConfig
 ---@field recenter_viewport RecenterViewportConfig
+---@field activity_monitor ActivityMonitorConfig
 
 ---@class LoaderConfig
 ---@field virtual_environment? string path to the virtual environment to launch nvim with. If the path is relative it will be resolved relative to the project root
@@ -673,6 +678,12 @@ local default_settings = {
 				collapse = { 'H' },
 				git_add = { 'ga' },
 				synchronize_file_or_dir_remotely = { '<leader>S' },
+			},
+		},
+		activity_monitor = {
+			enabled = true,
+			keymaps = {
+				show_log = { '<leader>a' },
 			},
 		},
 	},

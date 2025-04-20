@@ -11,7 +11,6 @@ local project_settings = project.load_settings()
 local components = {}
 table.insert(components, 'basicIde/vimSettings') -- must be first
 table.insert(components, 'basicIde/theme')
-table.insert(components, 'basicIde/statusBar')
 table.insert(components, 'basicIde/completion') -- lsp uses nvim-cmp to advertise extra capabilities, so configure it first
 table.insert(components, 'basicIde/lsp')
 table.insert(components, 'basicIde/folding')
@@ -28,6 +27,7 @@ table.insert(components, 'basicIde/remote_sync')
 table.insert(components, 'basicIde/notifications')
 table.insert(components, 'basicIde/code_layout')
 table.insert(components, 'basicIde/ai')
+table.insert(components, 'basicIde/statusBar') -- depends on the existence of the event groups it listens for
 
 ---@type { use_deps: fun(use: fun(plugin_sepc: any), use_rocks: fun(plugin_spec: any)), configure: fun() }
 return {
