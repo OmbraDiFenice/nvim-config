@@ -143,6 +143,10 @@ return {
 				"nvim-lua/plenary.nvim",
 			},
 		}
+
+		use {
+			"dstein64/vim-startuptime",
+		}
 	end,
 
 	configure = function(project_settings)
