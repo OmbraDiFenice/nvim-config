@@ -49,6 +49,7 @@ return {
 
 		require('lualine').setup {
 			options = {
+				globalstatus = true,
 				-- to enable fancy fonts in the terminal follow these steps:
 				--   1. choose and download a monospace regular font from https://github.com/ryanoasis/nerd-fonts#patched-fonts
 				--   2. copy the downloaded font in the user fonts directory
