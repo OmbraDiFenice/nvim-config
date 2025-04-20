@@ -43,6 +43,11 @@ return {
 			table.insert(right_side, ai_component)
 		end
 
+		if project_settings.editor.activity_monitor.enabled then
+			local activity = require('basicIde.statusBar.lualine_components.activity')
+			table.insert(right_side, { activity, config = project_settings.editor.activity_monitor })
+		end
+
 		table.insert(right_side, 'encoding')
 		table.insert(right_side, 'fileformat')
 		table.insert(right_side, 'filetype')
