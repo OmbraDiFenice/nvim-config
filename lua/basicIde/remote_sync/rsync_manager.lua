@@ -125,14 +125,25 @@ function RsyncManager:synchronize_file(file_path)
 
 	local timer_key = source_root_path .. '#' .. source_relative_path .. '#' .. destination_root_path
 	self._timers[timer_key] = utils.debounce({ timer = self._timers[timer_key] }, function()
-		local notification
-		local notif_text = "sync: " .. table.concat({utils.paths.ensure_no_trailing_slash(source_root_path), source_relative_path}, utils.files.OS.sep) .. " -> " .. destination_root_path
-		if self.settings.notifications.enabled then notification = vim.notify(notif_text .. " started", vim.log.levels.INFO, { on_close = function() notification = nil end }) end
+		---@type string?
+		local notif_text = table.concat({utils.paths.ensure_no_trailing_slash(source_root_path), source_relative_path}, utils.files.OS.sep) .. " -> " .. destination_root_path
+		vim.api.nvim_exec_autocmds('User', {
+			group = 'BasicIde.RemoteSync',
+			pattern = 'SyncStart',
+			data = { text = notif_text }
+		})
 		utils.proc.runAndReturnOutput(command, vim.schedule_wrap(function(output, exit_code)
+			local log_level = vim.log.levels.INFO
+			notif_text = nil
 			if exit_code ~= 0 then
-				vim.notify(output, vim.log.levels.ERROR, { replace = notification })
+				notif_text = table.concat(output, utils.files.OS.sep)
+				log_level = vim.log.levels.ERROR
 			end
-			if self.settings.notifications.enabled then vim.notify(notif_text .. " done", vim.log.levels.INFO, { replace = notification }) end
+			vim.api.nvim_exec_autocmds('User', {
+				group = 'BasicIde.RemoteSync',
+				pattern = 'SyncEnd',
+				data = { log_level = log_level, text = notif_text }
+			})
 		end), { clear_env = false, cwd = source_root_path })
 	end)
 end
