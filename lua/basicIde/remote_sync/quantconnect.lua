@@ -5,6 +5,7 @@ local QuantconnectClient  = require('basicIde.extensions.quantconnect_client')
 ---@class QuantConnectManager
 ---@field new function(self: QuantConnectManager, remote_sync_settings: RemoteSyncSettings): QuantConnectManager
 ---@field settings RemoteSyncSettings
+---@field _is_in_git_repo boolean
 ---@field _client QuantConnectClient
 ---@field _timer userdata?
 ---@field _remote_cache table<string, FileData>
@@ -22,7 +23,7 @@ function QuantConnectManager:synchronize_file(file_path, ignore_table)
 	if self._timer ~= nil then self._timer:stop() end
 
 	if ignore_table == nil then
-		local ignore_list = remote_sync_utils.build_ignore_list(self.settings.exclude_paths, self.settings.exclude_git_ignored_files)
+		local ignore_list = remote_sync_utils.build_ignore_list(self.settings.exclude_paths, self.settings.exclude_git_ignored_files and self._is_in_git_repo)
 		ignore_table = remote_sync_utils.build_ignore_table(ignore_list)
 	end
 
@@ -89,7 +90,7 @@ function QuantConnectManager:synchronize_directory(dir_path)
 
 	if not utils.files.is_dir(dir_path) then return end
 
-	local ignore_list = remote_sync_utils.build_ignore_list(self.settings.exclude_paths, self.settings.exclude_git_ignored_files)
+	local ignore_list = remote_sync_utils.build_ignore_list(self.settings.exclude_paths, self.settings.exclude_git_ignored_files and self._is_in_git_repo)
 	local ignore_table = remote_sync_utils.build_ignore_table(ignore_list)
 
 	-- This function is there only to avoid recomputing the ignore list on each recursive call
@@ -126,9 +127,10 @@ function QuantConnectManager:init()
 end
 
 ---@return QuantConnectManager
-function QuantConnectManager:new(remote_sync_settings)
+function QuantConnectManager:new(remote_sync_settings, is_in_git_repo)
 	local o = {
 		settings = remote_sync_settings,
+		_is_in_git_repo = is_in_git_repo,
 		_client = QuantconnectClient:new(remote_sync_settings),
 		_timer = nil,
 		_remote_cache = {},

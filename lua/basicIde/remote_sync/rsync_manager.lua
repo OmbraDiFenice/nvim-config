@@ -17,6 +17,7 @@ end
 
 ---@class RsyncManager
 ---@field private settings RemoteSyncSettings
+---@field _is_in_git_repo boolean
 ---@field _timers table<string, userdata> timers to control debouncing per-file
 ---@field _exclude_list_filename string path to the exclude file
 local RsyncManager = {}
@@ -24,10 +25,11 @@ local RsyncManager = {}
 ---Constructor
 ---@param remote_sync_settings RemoteSyncSettings
 ---@return RsyncManager
-function RsyncManager:new(remote_sync_settings)
+function RsyncManager:new(remote_sync_settings, is_in_git_repo)
 	clean_settings(remote_sync_settings)
 	local o = {
 		settings = remote_sync_settings,
+		_is_in_git_repo = is_in_git_repo,
 		_timers = {},
 		_exclude_list_filename = table.concat({utils.get_data_directory(), "rsync_exclude_list"}, utils.files.OS.sep),
 	}
@@ -59,7 +61,7 @@ function RsyncManager:_build_ignore_list()
 		return
 	end
 
-	local ignore_list = remote_sync_utils.build_ignore_list(self.settings.exclude_paths, self.settings.exclude_git_ignored_files)
+	local ignore_list = remote_sync_utils.build_ignore_list(self.settings.exclude_paths, self.settings.exclude_git_ignored_files and self._is_in_git_repo)
 
 	for _, exclude in ipairs(ignore_list) do
 		temp_file_handle:write(exclude .. '\n')
