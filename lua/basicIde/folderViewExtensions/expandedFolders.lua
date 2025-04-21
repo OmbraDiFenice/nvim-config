@@ -1,17 +1,30 @@
 local api = require('nvim-tree.api')
 local core = require('nvim-tree.core')
 local utils = require('nvim-tree.utils')
+local view = require('nvim-tree.view')
 local Event = api.events.Event
 
 ---@alias TreeStateExpandedFolders string[]
 
 ---@class ExpandedFoldersModule
-local M = {}
+local M = {
+	_expanded_folders = {},
+	_tree_was_opened_at_least_once = false,
+}
 
 ---Get the current expanded folders internal state
 ---@return TreeStateExpandedFolders
 M.get = function()
-	---@type TreeStateExpandedFolders
+	return M._expanded_folders
+end
+
+---Update the current expanded folders internal state
+M.update_expanded_folders = function()
+	if not M._tree_was_opened_at_least_once then return end
+
+	local explorer = core.get_explorer()
+	if explorer == nil then return end -- could be nil if running in headless mode
+
 	local expanded_folders = {}
 
 	---Recursively find all the open folders in the tree view.
@@ -29,26 +42,31 @@ M.get = function()
 		end
 	end
 
-	local explorer = core.get_explorer()
-	if explorer ~= nil then -- could be nil if running in headless mode
-		findOpenFolders(explorer.nodes)
-	end
+	findOpenFolders(explorer.nodes)
 
-	return expanded_folders
+	M._expanded_folders = expanded_folders
 end
 
 ---Initialize the module
 ---@param expanded_folders TreeStateExpandedFolders
 ---@return nil
 M.setup = function(expanded_folders)
+	M._expanded_folders = expanded_folders
+	local bufnr = view.get_bufnr();
+
 	-- Apparently Event.Ready is only triggered when the plugin starts the first time
-	-- and then the internal "expanded" status is kept.
-	--
-	-- If that wasn't the case we would need to recompute expanded_folders and keep a
-	-- temporary "last value" similarly to what it's done for cursorPosition
+	-- and then the internal "expanded" status is kept during the session
 	api.events.subscribe(Event.Ready, function()
-		M.apply(expanded_folders)
+		M.apply(M._expanded_folders)
+		M._tree_was_opened_at_least_once = true
 	end)
+
+	vim.api.nvim_create_autocmd('BufWinLeave', {
+		buffer = bufnr,
+		callback = function()
+			M.update_expanded_folders()
+		end,
+	})
 end
 
 ---Applies the current state to the tree view, expanding all the folders that should be expanded

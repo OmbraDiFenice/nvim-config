@@ -86,7 +86,7 @@ M.update = function()
 	end
 end
 
----Inigialize the component.
+---Initialize the component.
 ---Load the state from file, initializing each modules, and make sure to store the updated state to file before quitting
 ---@return nil
 M.setup = function()
