@@ -678,6 +678,8 @@ local default_settings = {
 				collapse = { 'H' },
 				git_add = { 'ga' },
 				synchronize_file_or_dir_remotely = { '<leader>S' },
+				search_in_marked_locations = { '<leader>sf' },
+				grep_in_marked_locations = { '<leader>sg' },
 			},
 		},
 		activity_monitor = {
