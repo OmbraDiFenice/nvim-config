@@ -61,6 +61,7 @@ local nvim_tree_keymap_descriptions = {
 	synchronize_file_or_dir_remotely = 'nvim-tree: synchronize file or dir on remote',
 	search_in_marked_locations = 'nvim-tree: search in marked locations',
 	grep_in_marked_locations = 'nvim-tree: grep in marked locations',
+	new_scope_from_marks = 'nvim-tree: new scope from marks',
 }
 
 ---@return KeymapManager
@@ -90,6 +91,12 @@ local function make_nvim_tree_keymap_manager(bufnr)
 					require('telescope.builtin').live_grep({
 						search_dirs = utils.tables.map(api.marks:list(), function(node) return node.absolute_path end),
 					})
+				end,
+				opts = common_opts
+			},
+			new_scope_from_marks = {
+				callback = function()
+					require('neoscopes-telescope').new_scope({ dirs = utils.tables.map(api.marks:list(), function(node) return node.absolute_path end) })
 				end,
 				opts = common_opts
 			},

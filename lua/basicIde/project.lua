@@ -680,6 +680,7 @@ local default_settings = {
 				synchronize_file_or_dir_remotely = { '<leader>S' },
 				search_in_marked_locations = { '<leader>sf' },
 				grep_in_marked_locations = { '<leader>sg' },
+				new_scope_from_marks = { '<leader>sc' },
 			},
 		},
 		activity_monitor = {
