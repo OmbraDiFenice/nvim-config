@@ -59,6 +59,8 @@ local nvim_tree_keymap_descriptions = {
 	collapse = 'nvim-tree: Collapse all',
 	git_add = 'nvim-tree: git add',
 	synchronize_file_or_dir_remotely = 'nvim-tree: synchronize file or dir on remote',
+	search_in_marked_locations = 'nvim-tree: search in marked locations',
+	grep_in_marked_locations = 'nvim-tree: grep in marked locations',
 }
 
 ---@return KeymapManager
@@ -75,6 +77,22 @@ local function make_nvim_tree_keymap_manager(bufnr)
 			collapse = { callback = api.tree.collapse_all, opts = common_opts },
 			git_add = { callback = git_add, opts = common_opts },
 			synchronize_file_or_dir_remotely = { callback = synchronize_file_or_dir_remotely, opts = common_opts },
+			search_in_marked_locations = {
+				callback = function()
+					require('telescope.builtin').find_files({
+						search_dirs = utils.tables.map(api.marks:list(), function(node) return node.absolute_path end),
+					})
+				end,
+				opts = common_opts
+			},
+			grep_in_marked_locations = {
+				callback = function()
+					require('telescope.builtin').live_grep({
+						search_dirs = utils.tables.map(api.marks:list(), function(node) return node.absolute_path end),
+					})
+				end,
+				opts = common_opts
+			},
 		}
 	}
 end
