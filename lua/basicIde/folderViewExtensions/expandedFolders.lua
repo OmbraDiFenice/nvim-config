@@ -5,12 +5,6 @@ local Event = api.events.Event
 
 ---@alias TreeStateExpandedFolders string[]
 
----@class TreeNode
----@field type string
----@field open boolean
----@field absolute_path string
----@field nodes TreeNode[]
-
 ---@class ExpandedFoldersModule
 local M = {}
 
@@ -22,21 +16,22 @@ M.get = function()
 
 	---Recursively find all the open folders in the tree view.
 	---Puts the result in `expanded_folders`, coming from the closure.
-	---@param root_nodes TreeNode[] # list of root nodes to start the search from
+	---@param root_nodes Node[] # list of root nodes to start the search from
 	local function findOpenFolders(root_nodes)
 		for _, node_data in pairs(root_nodes) do
-			if node_data.type == "directory" and node_data.open then
-				table.insert(expanded_folders, node_data.absolute_path)
-				findOpenFolders(node_data.nodes)
+			if node_data.type == "directory" then
+				---@cast node_data DirectoryNode
+				if node_data.open then
+					table.insert(expanded_folders, node_data.absolute_path)
+					findOpenFolders(node_data.nodes)
+				end
 			end
 		end
 	end
 
 	local explorer = core.get_explorer()
 	if explorer ~= nil then -- could be nil if running in headless mode
-		local nodes = explorer.nodes
-		---@cast nodes TreeNode[]
-		findOpenFolders(nodes)
+		findOpenFolders(explorer.nodes)
 	end
 
 	return expanded_folders
@@ -61,7 +56,7 @@ end
 ---@return nil
 M.apply = function(expanded_folders)
 	---Returns the top level nodes not yet expanded
-	---@return TreeNode[]
+	---@return table<integer, Node> nodes indexed by line
 	local function get_expanded_nodes()
 		return utils.get_nodes_by_line(core.get_explorer().nodes, core.get_nodes_starting_line())
 	end
@@ -69,10 +64,11 @@ M.apply = function(expanded_folders)
 	local expanded_nodes = get_expanded_nodes()
 
 	---@param path string
-	---@return TreeNode? # the tree node corresponding to the `path` if that path matches with the next top level nodes not yet expanded, nil otherwise
+	---@return DirectoryNode? # the tree node corresponding to the `path` if that path matches with the next top level nodes not yet expanded, nil otherwise
 	local function should_expand(path)
 		for _, node in pairs(expanded_nodes) do
-			if path == node.absolute_path then
+			if node.type == "directory" and path == node.absolute_path then
+				---@cast node DirectoryNode
 				return node
 			end
 		end
@@ -82,7 +78,7 @@ M.apply = function(expanded_folders)
 	for _, path in pairs(expanded_folders) do
 		local node = should_expand(path)
 		if node ~= nil then
-			node.expand_or_collapse(node)
+			node:expand_or_collapse()
 			expanded_nodes = get_expanded_nodes()
 		end
 	end
