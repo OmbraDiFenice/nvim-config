@@ -15,14 +15,19 @@ local M = {
 ---Get the current cursor position internal state
 ---@return TreeStateCursorPosition
 M.get = function()
-	local default = { 1, 0 }
+	return M._last_position
+end
+
+---Update the current cursor position internal state
+M.update_cursor_position = function()
+	local position = { 1, 0 }
 
 	local window_id = view.get_winnr()
-	if window_id == nil then
-		return default
+	if window_id ~= nil then
+		position = vim.api.nvim_win_get_cursor(window_id)
 	end
 
-	return vim.api.nvim_win_get_cursor(window_id)
+	M._last_position = position
 end
 
 ---Initialize module
@@ -37,7 +42,7 @@ M.setup = function(cursor_position)
 		vim.api.nvim_create_autocmd('BufWinLeave', {
 			buffer = bufnr,
 			callback = function()
-				M._last_position = M.get()
+				M.update_cursor_position()
 			end,
 		})
 
