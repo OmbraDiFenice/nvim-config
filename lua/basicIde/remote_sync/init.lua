@@ -16,12 +16,14 @@ end
 
 ---@param project_settings ProjectSettings
 local function get_manager(project_settings)
+	local _, git_exit_code = utils.proc.runAndReturnOutputSync('git rev-parse --git-dir')
+	local is_in_git_repo = git_exit_code == 0
 	local manager = nil
 	if project_settings.remote_sync.strategy == 'rsync' then
-		manager = rsync_manager:new(project_settings.remote_sync)
+		manager = rsync_manager:new(project_settings.remote_sync, is_in_git_repo)
 		manager:start_master_ssh()
 	elseif project_settings.remote_sync.strategy == 'quantconnect' then
-		manager = quantconnect_manager:new(project_settings.remote_sync)
+		manager = quantconnect_manager:new(project_settings.remote_sync, is_in_git_repo)
 		manager:init()
 	end
 
