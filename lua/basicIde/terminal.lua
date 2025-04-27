@@ -10,6 +10,7 @@ function _G.setup_terminal()
 
 	-- layout
 	vim.api.nvim_set_option_value('signcolumn', 'no', { win = vim.api.nvim_get_current_win() })
+	vim.api.nvim_set_option_value('foldcolumn', '0', { win = vim.api.nvim_get_current_win() })
 end
 
 ---@type IdeModule
