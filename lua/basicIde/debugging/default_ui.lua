@@ -58,11 +58,11 @@ return function()
 		},
 	}
 
-	vim.fn.sign_define('DapBreakpoint', { text = '', texthl = '', linehl = '', numhl = '' })
-	vim.fn.sign_define('DapBreakpointCondition', { text = '', texthl = '', linehl = '', numhl = '' })
+	vim.fn.sign_define('DapBreakpoint', { text = '', texthl = 'DapUIStop', linehl = '', numhl = '' })
+	vim.fn.sign_define('DapBreakpointCondition', { text = '', texthl = 'DapUIStop', linehl = '', numhl = '' })
 
-	vim.fn.sign_define('DapLogPoint', { text = '', texthl = '', linehl = '', numhl = '' })
-	vim.fn.sign_define('DapBreakpointRejected', { text = '', texthl = '', linehl = '', numhl = '' })
+	vim.fn.sign_define('DapLogPoint', { text = '', texthl = 'DapUIStop', linehl = '', numhl = '' })
+	vim.fn.sign_define('DapBreakpointRejected', { text = '', texthl = 'DapUIStop', linehl = '', numhl = '' })
 
 	setup_keymaps()
 end
