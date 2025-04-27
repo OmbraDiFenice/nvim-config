@@ -1,3 +1,5 @@
+local utils = require('basicIde.utils')
+
 local setup_keymaps = function()
 	local dap = require('dap')
 	local dapui = require('dapui')
@@ -21,6 +23,23 @@ local setup_keymaps = function()
 	vim.keymap.set('n', '<leader>dc', function()
 		dapui.float_element('console', { width = 130, height = 60 })
 	end, { desc = 'Show debugging console output' })
+end
+
+local function make_popup_menu_entry(title, command, opts)
+	opts = opts or {}
+	opts.icon = "󰃤"
+	utils.popup_menu.make_entry(title, command, opts)
+end
+
+local function setup_mouse_menu()
+	make_popup_menu_entry("---")
+	make_popup_menu_entry("Toggle breakpoint", "lua require('dap').toggle_breakpoint()")
+	make_popup_menu_entry("Toggle conditional breakpoint", "lua require('dap').toggle_breakpoint(vim.fn.input({ prompt = 'Breakpoint condition: ' }))")
+
+	local dap_session_en_cb = utils.popup_menu.make_enable_callback("DAP session", function() return require('dap').session() ~= nil end)
+	make_popup_menu_entry("Run to cursor", "lua require('dap').run_to_cursor()", { enabled_by = dap_session_en_cb })
+	make_popup_menu_entry("Send to repl", "lua require('basicIde.debugging.operations').send_to_repl()", { mode = "v", enabled_by = dap_session_en_cb })
+	make_popup_menu_entry("Evaluate", "lua require('dapui').eval(nil)", { enabled_by = dap_session_en_cb })
 end
 
 return function()
@@ -65,4 +84,5 @@ return function()
 	vim.fn.sign_define('DapBreakpointRejected', { text = '', texthl = 'DapUIStop', linehl = '', numhl = '' })
 
 	setup_keymaps()
+	setup_mouse_menu()
 end

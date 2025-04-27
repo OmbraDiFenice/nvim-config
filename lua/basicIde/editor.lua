@@ -150,6 +150,16 @@ return {
 	end,
 
 	configure = function(project_settings)
+		-- mouse popup menu
+		utils.popup_menu.setup()
+		local is_url = utils.popup_menu.make_enable_callback("is_url", function()
+			return vim.startswith(vim.fn.expand("<cWORD>"), "http")
+		end)
+		utils.popup_menu.make_entry("Open in browser", "gx", { icon = "󰖟", enabled_by = is_url, is_keymap = true, mode = "n" })
+		utils.popup_menu.make_entry("Open in browser", "gx", { icon = "󰖟", enabled_by = is_url, is_keymap = true, mode = "v" })
+		utils.popup_menu.make_entry("Treesitter inspect", "Inspect", { icon = "" })
+		utils.popup_menu.make_entry("Open treesitter tree", "InspectTree", { icon = "" })
+
 		require('auto-save').setup({
 			enabled = project_settings.editor.autosave,
 			condition = function(buf)

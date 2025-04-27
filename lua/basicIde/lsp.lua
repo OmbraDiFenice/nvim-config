@@ -110,6 +110,8 @@ return {
 	end,
 
 	configure = function(project_settings)
+		utils.popup_menu.make_entry("Find references", "Telescope lsp_references", { icon = "󰓾" })
+
 		require('neodev').setup() -- must be called before lspconfig
 
 		-- mason

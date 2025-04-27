@@ -5,6 +5,7 @@ local M = {
 	files = require('basicIde._utils.files'),
 	tables = require('basicIde._utils.tables'),
 	loader = require('basicIde._utils.loader'),
+	popup_menu = require('basicIde._utils.popup_menu'),
 }
 
 ---Returns the directory to be used to store data related to the current nvim session.
@@ -34,6 +35,25 @@ M.get_visual_selection = function ()
 	else
 		return ''
 	end
+end
+
+---Return the highlighted text in visual mode
+---For some reason this one works when used as callback from mouse popup menu,
+---while the other one works when used from i.e. the search component.
+---
+---taken from https://stackoverflow.com/a/6271254
+---@return string
+M.get_visual_selection2 = function()
+	local start = vim.fn.getpos("'<")
+	local end_ = vim.fn.getpos("'>")
+
+	local bufnr = start[1]
+	local line_start = start[2]
+	local column_start = start[3]
+	local line_end = end_[2]
+	local column_end = end_[3]
+
+	return table.concat(vim.api.nvim_buf_get_text(bufnr, line_start - 1, column_start - 1, line_end - 1, column_end, {}), "\n")
 end
 
 ---Update status in lualine when a dap configuration starts.
