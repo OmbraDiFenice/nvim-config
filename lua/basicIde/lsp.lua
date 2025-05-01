@@ -107,6 +107,8 @@ return {
 				'williamboman/mason.nvim',
 			}
 		}
+
+		use 'Issafalcon/lsp-overloads.nvim'
 	end,
 
 	configure = function(project_settings)
@@ -137,7 +139,15 @@ return {
 			end
 			require('lspconfig')[server_name].setup {
 				capabilities = capabilities,
-				on_attach = function(client, bufnr) lsp_keybindings(client, bufnr, project_settings) end,
+				on_attach = function(client, bufnr)
+					lsp_keybindings(client, bufnr, project_settings)
+
+					if client.server_capabilities.signatureHelpProvider then
+						require('lsp-overloads').setup(client, { })
+						vim.keymap.set("n", "<A-s>", ":LspOverloadsSignature<CR>", { noremap = true, silent = true, buffer = bufnr })
+						vim.keymap.set("i", "<A-s>", "<cmd>LspOverloadsSignature<CR>", { noremap = true, silent = true, buffer = bufnr })
+					end
+				end,
 				settings = servers_configuration[server_name],
 				cmd = server_cmd,
 			}
