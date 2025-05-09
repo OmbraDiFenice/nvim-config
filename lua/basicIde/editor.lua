@@ -163,11 +163,11 @@ return {
 		require('auto-save').setup({
 			enabled = project_settings.editor.autosave,
 			condition = function(buf)
-				local utils = require("auto-save.utils.data")
+				local autosave_utils = require("auto-save.utils.data")
 				local ide_autosave_var = vim.fn.getbufvar(buf, 'nvim_ide_autosave')
 
 				return vim.fn.getbufvar(buf, "&modifiable") == 1 and
-						utils.not_in(vim.fn.getbufvar(buf, "&filetype"), {}) and
+						autosave_utils.not_in(vim.fn.getbufvar(buf, "&filetype"), {}) and
 						(ide_autosave_var == nil or ide_autosave_var)
 			end
 		})
