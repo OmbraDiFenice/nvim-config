@@ -43,10 +43,14 @@ ENVIRONMENT_VARIABLES=$(get_config environment | tr --delete '\r')
 INIT_SCRIPT=$(get_config init_script | tr --delete '\r')
 DATA_DIRECTORY=$(get_config data_directory | tr --delete '\n\r')
 
-if [[ ${DATA_DIRECTORY:-} != "" ]]
-then
-	PIPE="$DATA_DIRECTORY/nvim_server.pipe"
-fi
+# commented out because there seems to be activity around these flags that broke the usecase with --listen only
+# see:
+#   https://github.com/neovim/neovim/issues/25706
+#   https://github.com/neovim/neovim/issues/29634
+#if [[ ${DATA_DIRECTORY:-} != "" ]]
+#then
+#	 PIPE="$DATA_DIRECTORY/nvim_server.pipe"
+#fi
 # uncomment this when/if nvim will add support for --remote-wait
 # export GIT_EDITOR="nvim --server $PIPE --remote-wait"
 
