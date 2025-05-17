@@ -4,6 +4,9 @@ SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 PROJECT_ROOT="$PWD"
 NVIM_ARGS=""
 
+NVIM_BIN="$1"
+shift
+
 # must be exported so they're available from within nvim too
 export LOADER_SHELL_PID=$$
 export SET_TITLE_SCRIPT="${SCRIPTPATH}/shellUtils/set_title_stub.sh"
@@ -26,7 +29,7 @@ function nlua() {
 	# Also, the output will contain \n\r at the end, even on linux.
 	# Depending on how the output is going to be used they might need to be stripped off.
 	# See https://stackoverflow.com/questions/12524308/bash-strip-trailing-linebreak-from-output for various alternatives
-	cat "$LUA_SCRIPT_FILE" | nvim --clean -n -i NONE -l - $@ 2>&1
+	cat "$LUA_SCRIPT_FILE" | "$NVIM_BIN" --clean -n -i NONE -l - $@ 2>&1
 }
 
 # Convenience function to get data from the project configuration
@@ -63,4 +66,4 @@ then
 	NVIM_ARGS="$NVIM_ARGS --listen '$PIPE'"
 fi
 
-nvim $NVIM_ARGS $@
+"$NVIM_BIN" $NVIM_ARGS $@
