@@ -136,7 +136,7 @@ return {
 		}
 
 		-- "tab" (buffer) bar
-		use { 'akinsho/bufferline.nvim', tag = "v3.*", requires = 'nvim-tree/nvim-web-devicons' }
+		use { 'akinsho/bufferline.nvim', tag = "*", requires = 'nvim-tree/nvim-web-devicons' }
 	end,
 
 	configure = function(project_settings)
