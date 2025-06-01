@@ -93,18 +93,40 @@ local function get_external_script_template(template_name, project_settings)
 	return template
 end
 
+local external_scripts_keymaps = {}
+
+local function delete_external_script_keymaps()
+	for _, external_script_keymap in ipairs(external_scripts_keymaps) do
+		local mode = external_script_keymap[1]
+		local keymap = external_script_keymap[2]
+		pcall(vim.keymap.del, mode, keymap) -- in case the mapping was removed by hand before the settings editing
+	end
+	external_scripts_keymaps = {}
+end
+
 ---@param project_settings ProjectSettings
 local function create_external_script_keymaps(project_settings)
 	local toggleterm = require('toggleterm.terminal')
 	local external_scripts = project_settings.debugging.external_scripts
 
-	for _, external_script in ipairs(external_scripts) do
+	local default_external_script = {
+		template = nil,
+		args = {},
+		cwd = '.',
+		open_console_on_start = false,
+	}
+
+	for i, external_script in ipairs(external_scripts) do
+		external_script = vim.tbl_extend('force', default_external_script, external_script)
+
+		local display_name = external_script.name or ('External Script ' .. i)
+
 		local template = external_script
 		if external_script.template ~= nil then
 			template = get_external_script_template(external_script.template, project_settings)
+			display_name = '[' .. external_script.template .. '] ' .. display_name
 		end
 
-		local display_name = '[' .. external_script.template .. '] ' .. external_script.name
 		local script_desc = vim.tbl_extend('force', template, external_script)
 
 		vim.keymap.set('n', external_script.keymap, function()
@@ -126,10 +148,12 @@ local function create_external_script_keymaps(project_settings)
 			if external_script.open_console_on_start then
 				terminal:open()
 			else
+				vim.notify('Starting ' .. display_name)
 				terminal:spawn()
 			end
 
 		end, { desc = display_name })
+		table.insert(external_scripts_keymaps, {'n', external_script.keymap})
 	end
 end
 
@@ -154,6 +178,8 @@ return {
 			desc = 'reload ' .. project_settings.PROJECT_SETTINGS_FILE .. ' on save',
 			callback = function()
 				apply_custom_dap_configurations(debugging_project_settings.dap_configurations)
+				delete_external_script_keymaps()
+				create_external_script_keymaps(project_settings)
 			end,
 		})
 	end
