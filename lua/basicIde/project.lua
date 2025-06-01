@@ -27,11 +27,11 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 
 ---@class ExternalScript
 ---@field name string
----@field template string
+---@field template string?
 ---@field keymap string
 ---@field command string[]
----@field args string[]
----@field cwd string
+---@field args string[]|nil
+---@field cwd string?
 ---@field open_console_on_start? boolean
 
 ---@class DebuggingSettings

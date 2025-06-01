@@ -65,7 +65,10 @@ return {
 			desc = 'reload ' .. project_settings.PROJECT_SETTINGS_FILE .. ' on save',
 			callback = function()
 				local utils = require('basicIde/utils')
-				-- need to mutate the existing object so that every component gets the update on the shared object
+				-- Need to mutate the existing object so that every component gets the update on the shared object
+				-- Clear the array fields that will be recreated by the event handlers. These are fields that might have been
+				-- removed in the last update and need not be present in the updated settings, but a simple table merge would keep them.
+				project_settings.debugging.external_scripts = {}
 				utils.tables.deepmerge(project_settings, project.load_settings())
 				vim.api.nvim_exec_autocmds('User', { pattern = 'ProjectSettingsChanged' })
 			end,
