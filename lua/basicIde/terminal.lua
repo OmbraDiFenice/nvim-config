@@ -7,6 +7,27 @@ function _G.setup_terminal()
 	--   vim.keymap.set('t', '<C-j>', [[<Cmd>wincmd j<CR>]], opts)
 	--   vim.keymap.set('t', '<C-k>', [[<Cmd>wincmd k<CR>]], opts)
 	vim.keymap.set('t', '<C-l>', [[<Cmd>wincmd l<CR>]], opts)
+	vim.keymap.set('t', '<C-w>', function()
+		local term_index = vim.api.nvim_buf_get_var(0, 'toggle_number')
+		local terminal = require('toggleterm.terminal').get(term_index)
+		if terminal == nil then return end
+
+		local direction = 'float'
+		if terminal.direction == 'float' then
+			direction = 'vertical'
+		end
+
+		local mode = vim.api.nvim_get_mode()['mode']
+		if mode == 't' or mode == 'i' then mode = 'i' end
+
+		terminal:close()
+		terminal:change_direction(direction)
+		terminal:open()
+		if mode == 'i' then
+			vim.api.nvim_set_current_win(terminal.window)
+			vim.api.nvim_feedkeys(mode, 'n', true)
+		end
+	end, opts)
 
 	-- layout
 	vim.api.nvim_set_option_value('signcolumn', 'no', { win = vim.api.nvim_get_current_win() })
