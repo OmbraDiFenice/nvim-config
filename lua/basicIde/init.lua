@@ -19,7 +19,7 @@ table.insert(components, 'basicIde/folderView')
 table.insert(components, 'basicIde/git')
 table.insert(components, 'basicIde/session')
 table.insert(components, 'basicIde/terminal')
-table.insert(components, 'basicIde/editor')
+table.insert(components, 'basicIde/editor') -- requires search
 table.insert(components, 'basicIde/debugging')
 table.insert(components, 'basicIde/coverage')
 table.insert(components, 'basicIde/codeFormatting')
@@ -27,7 +27,9 @@ table.insert(components, 'basicIde/remote_sync')
 table.insert(components, 'basicIde/notifications')
 table.insert(components, 'basicIde/code_layout')
 table.insert(components, 'basicIde/ai')
-table.insert(components, 'basicIde/statusBar') -- depends on the existence of the event groups it listens for
+table.insert(components, 'basicIde/statusBar') -- depends on the existence of the event groups it listens for, so better to load it last
+                                               -- depends on the theme being already loaded
+																							 -- depends on search module for trouble integration
 
 ---@type { use_deps: fun(use: fun(plugin_sepc: any), use_rocks: fun(plugin_spec: any)), configure: fun() }
 return {

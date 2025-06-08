@@ -16,6 +16,30 @@ local function get_ai_component(ai_config)
 	end
 end
 
+---@param project_settings ProjectSettings
+---@return string|function|table|nil element to be added to one of the lualine sections
+local function get_lualine_code_breadcrumnbs_section(project_settings)
+	local provider = project_settings.editor.status_bar.code_breadcrumb.provider
+	if provider == "treesitter" then
+		local breadcrumbs = CodeBreadcrumbs:new()
+		return function() return breadcrumbs.msg end
+	elseif provider == "trouble" then
+		local trouble = require("trouble")
+		local symbols = trouble.statusline({
+			mode = "lsp_document_symbols",
+			groups = {},
+			title = false,
+			filter = { range = true },
+			format = "{kind_icon}{symbol.name:Normal}",
+			-- The following line is needed to fix the background color
+			-- Set it to the lualine section you want to use
+			hl_group = "lualine_c_normal",
+		})
+		return { symbols.get, { cond = symbols.has } }
+	end
+	vim.notify('Unknown code breadcrumb provider: ' .. provider, vim.log.levels.WARN)
+end
+
 ---@type IdeModule
 return {
 	use_deps = function(use)
@@ -31,11 +55,17 @@ return {
 	end,
 
 	configure = function(project_settings)
+		-- ensure that the statusline color is consistent with lualine.
+		-- This requires the color scheme to be already loaded, see https://github.com/folke/trouble.nvim/issues/569#issuecomment-2682633198
+		vim.api.nvim_set_hl(0, "StatusLine", { link = "lualine_c_normal" })
+
 		local testRun = TestRun:new()
-		local breadcrumbs = CodeBreadcrumbs:new()
 
 		local right_side = {
 			function() return testRun.msg end,
+		}
+		local left_side = {
+			{ 'filename', path = 1, },
 		}
 
 		local ai_component = get_ai_component(project_settings.ai)
@@ -52,6 +82,13 @@ return {
 		table.insert(right_side, 'fileformat')
 		table.insert(right_side, 'filetype')
 
+		if project_settings.editor.status_bar.code_breadcrumb.enabled then
+			local code_breadcrumb_element = get_lualine_code_breadcrumnbs_section(project_settings)
+			if code_breadcrumb_element ~= nil then
+				table.insert(left_side, code_breadcrumb_element)
+			end
+		end
+
 		require('lualine').setup {
 			options = {
 				globalstatus = true,
@@ -66,13 +103,7 @@ return {
 				theme = 'onedark',
 			},
 			sections = {
-				lualine_c = {
-					{
-						'filename',
-						path = 1,
-					},
-					function() return breadcrumbs.msg end,
-				},
+				lualine_c = left_side,
 				lualine_x = right_side,
 			}
 		}
