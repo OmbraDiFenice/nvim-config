@@ -95,11 +95,19 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field enabled boolean
 ---@field keymaps table<string, string[]>
 
+---@class CodeBreadcrumbConfig
+---@field enabled boolean
+---@field provider "trouble"|"treesitter"
+
+---@class StatusBarConfig
+---@field code_breadcrumb CodeBreadcrumbConfig
+
 ---@class EditorConfig
 ---@field autosave boolean
 ---@field tree_view TreeViewConfig
 ---@field recenter_viewport RecenterViewportConfig
 ---@field activity_monitor ActivityMonitorConfig
+---@field status_bar StatusBarConfig
 
 ---@class LoaderConfig
 ---@field virtual_environment? string path to the virtual environment to launch nvim with. If the path is relative it will be resolved relative to the project root
@@ -664,6 +672,12 @@ local default_settings = {
 	},
 	editor = {
 		autosave = true,
+		status_bar = {
+			code_breadcrumb = {
+				enabled = true,
+				provider = "trouble",
+			},
+		},
 		recenter_viewport = {
 			enabled = true,
 			ignore_filetypes = {},

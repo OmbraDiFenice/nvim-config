@@ -86,17 +86,17 @@ local function close_all()
 end
 
 local function setup_diagnostics_keybindings()
-	vim.api.nvim_set_keymap('n', '<leader>d?', '', {
-		callback = vim.diagnostic.open_float,
-		desc = 'open diagnostic floating window for current line',
-	})
+	vim.keymap.set(
+		'n', '<leader>d?',
+		vim.diagnostic.open_float,
+		{ desc = 'open diagnostic floating window for current line' }
+	)
 
-	vim.api.nvim_set_keymap('n', '<C-l>', '', {
-		callback = function()
-			require('telescope.builtin').diagnostics()
-		end,
-		desc = 'show diagnostics for all loaded buffers',
-	})
+	vim.keymap.set(
+		'n', '<C-l>',
+		function() require('trouble').open('diagnostics_buffer') end,
+		{ desc = 'show diagnostics for current buffer' }
+	)
 end
 
 local function setup_highlight_identifier_keybindings()

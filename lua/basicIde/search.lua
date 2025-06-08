@@ -38,13 +38,66 @@ return {
 				'smartpde/neoscopes',
 			}
 		}
+
+		use {
+			'folke/trouble.nvim'
+		}
 	end,
 
 	configure = function(project_settings)
-		-- See `:help telescope` and `:help telescope.setup()`
+		-- Trouble settings (requires LSP)
+
+		local trouble_highlights = require('trouble.config.highlights')
+		trouble_highlights.colors.Count = "MiniTabLineModifiedVisible" -- tweak colors. The string is the name of another highlight group to link that element to
+
+		local trouble = require("trouble")
+		trouble.setup({
+			preview = {
+				type = "split",
+				relative = "win",
+				position = "right",
+				size = 0.6,
+				-- bo = { buf options },
+				-- wo = { win options },
+				on_mount = function(win_obj)
+					vim.api.nvim_create_autocmd("WinResized", {
+						group = win_obj:augroup(),
+						callback = function()
+							local event = vim.v.event
+							for _, win in ipairs(event.windows) do
+								if win == win_obj.win then
+									win_obj.opts.size = vim.api.nvim_win_get_width(win_obj.win)
+								end
+							end
+						end,
+						desc = "Remember the preview width if it was changed by dragging the border",
+					})
+				end,
+			},
+			modes = {
+				diagnostics_buffer = {
+					mode = "diagnostics", -- inherit from diagnostics mode
+					filter = { buf = 0 }, -- filter diagnostics to the current buffer
+				},
+				telescope_by_dir = {
+					mode = "telescope",
+					focus = true,
+					groups ={
+						{ "directory", format = "{directory_icon} {filename} {count}" },
+						{ "filename", format = "{file_icon} {filename} {count}" },
+					},
+				},
+			},
+		})
+
+		-- Telescope
+
 		local telescope = require('telescope')
 		local telescope_actions = require('telescope.actions')
 		local telescope_actions_generate = require('telescope.actions.generate')
+
+		local open_with_trouble = function(prompt_bufnr) require("trouble.sources.telescope").open(prompt_bufnr, "telescope_by_dir") end
+		local add_to_trouble = function(prompt_bufnr) require("trouble.sources.telescope").add(prompt_bufnr, "telescope_by_dir") end
 
 		telescope.setup {
 			defaults = {
@@ -63,9 +116,14 @@ return {
 						['<C-d>'] = false,
 						['<C-j>'] = telescope_actions.cycle_history_next,
 						['<C-k>'] = telescope_actions.cycle_history_prev,
+						["<C-t>"] = open_with_trouble,
+						["<C-T>"] = add_to_trouble,
 					},
 					n = {
 						['?'] = telescope_actions_generate.which_key({}),
+						['g?'] = telescope_actions_generate.which_key({}),
+						["<C-t>"] = open_with_trouble,
+						["<C-T>"] = add_to_trouble,
 					}
 				},
 			},
