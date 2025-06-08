@@ -249,6 +249,7 @@ function M:new(language_config, indent_width)
 	vim.api.nvim_set_option_value('cursorline', true, { win = self.scratch_win })
 	vim.api.nvim_set_option_value('shiftwidth', indent_width, { buf = self.scratch_buf })
 	vim.api.nvim_set_option_value('foldmethod', 'indent', { win = self.scratch_win })
+	vim.api.nvim_set_option_value('wrap', false, { win = self.scratch_win })
 
 	return o
 end
