@@ -155,10 +155,15 @@ return {
 		local is_url = utils.popup_menu.make_enable_callback("is_url", function()
 			return vim.startswith(vim.fn.expand("<cWORD>"), "http")
 		end)
+		local in_tree_view = utils.popup_menu.make_enable_callback("in_tree_view", function()
+			local filetype = vim.api.nvim_get_option_value('filetype', { buf = 0 })
+			return type(filetype) == 'string' and filetype == 'NvimTree'
+		end)
 		utils.popup_menu.make_entry("Open in browser", "gx", { icon = "󰖟", enabled_by = is_url, is_keymap = true, mode = "n" })
 		utils.popup_menu.make_entry("Open in browser", "gx", { icon = "󰖟", enabled_by = is_url, is_keymap = true, mode = "v" })
 		utils.popup_menu.make_entry("Treesitter inspect", "Inspect", { icon = "" })
 		utils.popup_menu.make_entry("Open treesitter tree", "InspectTree", { icon = "" })
+		utils.popup_menu.make_entry("New file/folder", "a", { icon = "", enabled_by = in_tree_view, is_keymap = true, mode = "n" })
 
 		require('auto-save').setup({
 			enabled = project_settings.editor.autosave,
