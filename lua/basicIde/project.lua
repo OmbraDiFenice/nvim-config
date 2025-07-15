@@ -11,7 +11,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field enabled boolean
 ---@field keymaps FormatOnSaveKeymapsSettings
 
----@class DapConfigurationExtended: Configuration
+---@class DapConfigurationExtended: dap.Configuration
 ---@field unittest? boolean
 ---@field keymap string
 ---@field keymap_coverage string
@@ -22,7 +22,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field args string[]
 ---@field module string
 
----@class DapSessionExtended: Session
+---@class DapSessionExtended: dap.Session
 ---@field is_coverage? boolean
 
 ---@class ExternalScript
