@@ -178,6 +178,7 @@ return {
 			desc = 'reload ' .. project_settings.PROJECT_SETTINGS_FILE .. ' on save',
 			callback = function()
 				apply_custom_dap_configurations(debugging_project_settings.dap_configurations)
+				apply_environment_configurations(project_settings.loader)
 				delete_external_script_keymaps()
 				create_external_script_keymaps(project_settings)
 			end,
