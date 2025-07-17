@@ -6,6 +6,7 @@ local M = {
 	tables = require('basicIde._utils.tables'),
 	loader = require('basicIde._utils.loader'),
 	popup_menu = require('basicIde._utils.popup_menu'),
+	vim = require('basicIde._utils.vim'),
 }
 
 ---Returns the directory to be used to store data related to the current nvim session.
