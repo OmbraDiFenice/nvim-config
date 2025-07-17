@@ -85,4 +85,21 @@ return function()
 
 	setup_keymaps()
 	setup_mouse_menu()
+
+	vim.api.nvim_create_autocmd('BufWinEnter', {
+		callback = function(e)
+			local bufnr = e.buf
+			local filetype = vim.api.nvim_get_option_value("filetype", { buf = bufnr })
+			if not utils.tables.is_in_list(filetype, { "dap-repl", "dapui_watches", "dapui_stacks", "dapui_scopes" }) then
+				return
+			end
+			local windows = vim.fn.win_findbuf(bufnr)
+			for _, win in ipairs(windows) do
+				for opt, value in pairs(utils.vim.minimal.wo) do
+					vim.api.nvim_set_option_value(opt, value, { win = win })
+				end
+			end
+		end,
+	})
+
 end
