@@ -11,6 +11,33 @@ local function build_search_in_scope_prompt_title(default_prompt_title)
 	return prompt_title
 end
 
+---@param elements string[]
+---@return boolean success
+---@return integer start row
+---@return integer end row
+local function get_range_of_first_enclosing(elements)
+	local success, last_node = pcall(vim.treesitter.get_node)
+	if not success or last_node == nil then
+		vim.notify('unable to find current treesitter node', vim.log.levels.WARN)
+		return false, -1, -1
+	end
+	local tree_root = last_node:tree():root()
+
+	while last_node ~= nil and not last_node:equal(tree_root) do
+		local node_type = last_node:type()
+		if utils.tables.is_in_list(node_type, elements) then break end
+		last_node = last_node:parent()
+	end
+
+	if last_node == nil then
+		vim.notify('unable to find range treesitter node', vim.log.levels.WARN)
+		return false, -1, -1
+	end
+
+	local start_row, _, end_row, _ = vim.treesitter.get_node_range(last_node)
+	return true, start_row, end_row
+end
+
 ---@type IdeModule
 return {
 	use_deps = function(use)
@@ -162,6 +189,18 @@ return {
 				previewer = false,
 			})
 		end, { desc = '[/] Fuzzily search in current buffer]' })
+
+		vim.keymap.set('n', '<leader>sim', function()
+			local success, start_row, end_row = get_range_of_first_enclosing({ 'function_definition' })
+			if not success then return end
+			vim.api.nvim_feedkeys('/\\%>' .. start_row .. 'l\\%<' .. end_row .. 'l', 'n', true)
+		end, { desc = 'search within current function/method' })
+
+		vim.keymap.set('n', '<leader>sic', function()
+			local success, start_row, end_row = get_range_of_first_enclosing({ 'class_definition' })
+			if not success then return end
+			vim.api.nvim_feedkeys('/\\%>' .. start_row .. 'l\\%<' .. end_row .. 'l', 'n', true)
+		end, { desc = 'search within current class' })
 
 		local search_files_options = {
 			hidden = false,
