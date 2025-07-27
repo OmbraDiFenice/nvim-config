@@ -163,27 +163,7 @@ return {
 		mason_lspconfig.setup()
 		mason_lspconfig.setup_handlers {
 			default_mason_setup_handler,
-			["pylsp"] = function()
-				default_mason_setup_handler("pylsp")
-				vim.fn.jobstart(
-				{ 'bash', '-c', 'source venv/bin/activate && pip install python-lsp-black' }, {
-					cwd = vim.fn.stdpath('data') .. '/mason/packages/python-lsp-server',
-				})
-			end,
 		}
-
-		local mason_registry = require 'mason-registry'
-		mason_registry:on(
-			'package:install:success',
-			vim.schedule_wrap(function(pkg, handle)
-				if pkg.spec.name == 'mypy'
-				then
-					vim.fn.jobstart({ 'bash', '-c', 'source venv/bin/activate && pip install numpy' }, {
-						cwd = vim.fn.stdpath('data') .. '/mason/packages/mypy',
-					})
-				end
-			end)
-		)
 
 		-- Jenkinsfile
 
