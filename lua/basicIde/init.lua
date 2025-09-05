@@ -19,7 +19,7 @@ table.insert(components, 'basicIde/folderView')
 table.insert(components, 'basicIde/git')
 table.insert(components, 'basicIde/session')
 table.insert(components, 'basicIde/terminal')
-table.insert(components, 'basicIde/editor') -- requires search
+table.insert(components, 'basicIde/editor') -- requires search, treesitter (folding), lsp
 table.insert(components, 'basicIde/debugging')
 table.insert(components, 'basicIde/coverage')
 table.insert(components, 'basicIde/codeFormatting')

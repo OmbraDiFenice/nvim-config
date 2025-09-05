@@ -147,6 +147,11 @@ return {
 		use {
 			"dstein64/vim-startuptime",
 		}
+
+		use {
+			'MeanderingProgrammer/render-markdown.nvim',
+			requires = { 'nvim-tree/nvim-web-devicons' },
+		}
 	end,
 
 	configure = function(project_settings)
@@ -253,5 +258,15 @@ return {
 		})
 
 		vim.keymap.set("n", "<leader>u", undotree.open, { desc = "Open undo tree view" })
+
+		-- ------------------- MARKDOWN -------------------
+		require('render-markdown').setup({
+			completions = {
+				lsp = {
+					enabled = true
+				}
+			}
+		})
+
 	end
 }

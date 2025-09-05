@@ -122,6 +122,9 @@
     "plenary.nvim": {
         "commit": "a3e3bc8"
     },
+    "render-markdown.nvim": {
+        "commit": "e76eb2e"
+    },
     "scope.nvim": {
         "commit": "6b4208f"
     },
