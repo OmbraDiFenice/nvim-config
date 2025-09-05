@@ -2,7 +2,7 @@
 
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 PROJECT_ROOT="$PWD"
-NVIM_ARGS=""
+NVIM_ARGS=()
 
 NVIM_BIN="$1"
 shift
@@ -38,6 +38,16 @@ function get_config() {
 	nlua "$SCRIPTPATH/read_project_config.lua" "$PROJECT_ROOT" "$CONFIG"
 }
 
+CONFIG_DIRECTORY=$(get_config config_directory | tr --delete '\n\r')
+REPORT_FILE=$("$SCRIPTPATH"/version_check.sh "$CONFIG_DIRECTORY" | head -n 1)
+if [ -f "$REPORT_FILE" ]
+then
+	# must use env variable to pass the argument to the script because
+	# -c doesn't pass arguments and -l would eat up all the following arguments, including files to open
+	export REPORT_FILE
+	NVIM_ARGS+=("-c" "source $SCRIPTPATH/show_report.lua")
+fi
+
 VENVPATH=$(get_config virtual_environment | tr --delete '\n\r')
 ENVIRONMENT_VARIABLES=$(get_config environment | tr --delete '\r')
 INIT_SCRIPT=$(get_config init_script | tr --delete '\r')
@@ -67,7 +77,14 @@ eval "$INIT_SCRIPT"
 
 if ! echo "$@" | grep -- '--listen' && [[ ! -z "$PIPE" ]]
 then
-	NVIM_ARGS="$NVIM_ARGS --listen '$PIPE'"
+	NVIM_ARGS+=("--listen" "$PIPE")
 fi
 
-"$NVIM_BIN" $NVIM_ARGS $@
+# arguments must be quoted so that shell expansion doesn't break quoting of arguments
+# e.g. `nvim -c 'lua print("hello")'` without quotes around $@ would expand to separate
+# arguments instead of 2, so it would be the equivalent of `nvim -c lua print("hello")`
+# even if the argument was quoted correctly. Quoting $@ would expand the argument preserving
+# the original quoting.
+#
+# For similar reasons build NVIM_ARGS with a bash array instead of just concatenating strings.
+"$NVIM_BIN" "${NVIM_ARGS[@]}" "$@"

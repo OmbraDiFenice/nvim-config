@@ -70,6 +70,8 @@ local function main()
 		print(evaluatable_script_string(proj_config.loader.init_script))
 	elseif command == "data_directory" then
 		print(proj_config.DATA_DIRECTORY)
+	elseif command == "config_directory" then
+		print(vim.fn.stdpath("config"))
 	end
 end
 

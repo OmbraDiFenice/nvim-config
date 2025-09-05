@@ -75,5 +75,20 @@ return {
 				vim.api.nvim_exec_autocmds('User', { pattern = 'ProjectSettingsChanged' })
 			end,
 		})
+
+		vim.api.nvim_create_user_command('BasicIdeShowInstallCheck',
+			function()
+				local report_file = os.getenv('REPORT_FILE')
+				if report_file == nil or io.lines(report_file) == nil then
+					vim.notify('No report to display')
+					return
+				end
+				local show_report = require('basicIde.loader.show_report')
+				show_report()
+			end,
+			{
+				nargs = 0,
+				desc = 'Show the install check report, if there was one',
+		})
 	end,
 }
