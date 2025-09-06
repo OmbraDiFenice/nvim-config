@@ -16,7 +16,8 @@ table.insert(components, 'basicIde/lsp')
 table.insert(components, 'basicIde/folding')
 table.insert(components, 'basicIde/search')
 table.insert(components, 'basicIde/folderView')
-table.insert(components, 'basicIde/git')
+table.insert(components, 'basicIde/notifications')
+table.insert(components, 'basicIde/git') -- uses notifications
 table.insert(components, 'basicIde/session')
 table.insert(components, 'basicIde/terminal')
 table.insert(components, 'basicIde/editor') -- requires search, treesitter (folding), lsp
@@ -24,7 +25,6 @@ table.insert(components, 'basicIde/debugging')
 table.insert(components, 'basicIde/coverage')
 table.insert(components, 'basicIde/codeFormatting')
 table.insert(components, 'basicIde/remote_sync')
-table.insert(components, 'basicIde/notifications')
 table.insert(components, 'basicIde/code_layout')
 table.insert(components, 'basicIde/ai')
 table.insert(components, 'basicIde/statusBar') -- depends on the existence of the event groups it listens for, so better to load it last
