@@ -27,7 +27,7 @@ local load_state_from_file = function(file_name)
 
 	local state_file = io.open(file_name, 'r')
 	if state_file == nil then
-		print('no state file found')
+		vim.notify('no state file found')
 		return state
 	end
 
@@ -37,7 +37,7 @@ local load_state_from_file = function(file_name)
 			if module then
 				state[key] = module.deserialize(tostring(value))
 			else
-				print('found unknown config "' .. key .. '" in state file, ignoring')
+				vim.notify('found unknown config "' .. key .. '" in state file, ignoring')
 			end
 		end
 	end
@@ -60,7 +60,7 @@ end
 M.store = function()
 	local state_file = io.open(M.state_filename, 'w')
 	if state_file == nil then
-		print('file open failed')
+		vim.notify('file open failed', vim.log.levels.ERROR)
 		return
 	end
 
