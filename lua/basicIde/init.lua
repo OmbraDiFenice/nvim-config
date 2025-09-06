@@ -15,8 +15,8 @@ table.insert(components, 'basicIde/completion') -- lsp uses nvim-cmp to advertis
 table.insert(components, 'basicIde/lsp')
 table.insert(components, 'basicIde/folding')
 table.insert(components, 'basicIde/search')
-table.insert(components, 'basicIde/folderView')
 table.insert(components, 'basicIde/notifications')
+table.insert(components, 'basicIde/folderView') -- uses notifications
 table.insert(components, 'basicIde/git') -- uses notifications
 table.insert(components, 'basicIde/session')
 table.insert(components, 'basicIde/terminal')
