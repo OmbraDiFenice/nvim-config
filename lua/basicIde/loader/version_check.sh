@@ -91,6 +91,7 @@ function check_requirements() {
 		"rg" "grep search won't work properly"
 		"python3" "python not present"
 		"xclip" "clipboard won't be shared with system"
+		"notify-send" "system-style notification won't work"
 	)
 
 	for i in $(seq ${#critical[@]})

@@ -102,6 +102,14 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@class StatusBarConfig
 ---@field code_breadcrumb CodeBreadcrumbConfig
 
+---@class SystemNotificationConfig
+---@field icons table<vim.log.levels, string> -- mapping between vim log levels and icon name (system icon name or path to image). If not defined takes the system default icon
+---@field transient boolean
+
+---@class GlobalNotificationConfig
+---@field strategy "vanilla"|"nvim-float"|"system"
+---@field system_configs SystemNotificationConfig
+
 ---@class EditorConfig
 ---@field autosave boolean
 ---@field tree_view TreeViewConfig
@@ -109,6 +117,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field activity_monitor ActivityMonitorConfig
 ---@field status_bar StatusBarConfig
 ---@field append_git_branch_to_title boolean
+---@field notifications GlobalNotificationConfig
 
 ---@class LoaderConfig
 ---@field virtual_environment? string path to the virtual environment to launch nvim with. If the path is relative it will be resolved relative to the project root
@@ -703,6 +712,13 @@ local default_settings = {
 			enabled = true,
 			keymaps = {
 				show_log = { '<leader>a' },
+			},
+		},
+		notifications = {
+			strategy = "nvim-float",
+			system_configs = {
+				icons = {},
+				transient = true,
 			},
 		},
 	},
