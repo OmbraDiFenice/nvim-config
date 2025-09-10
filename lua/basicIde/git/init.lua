@@ -34,8 +34,13 @@ end
 
 local function setup_diffview_keymaps()
 	vim.keymap.set('n', '<leader>gd', function() vim.cmd [[ :DiffviewOpen ]] end, { desc = 'Open git diff' })
-	vim.keymap.set({ 'n', 'v' }, '<leader>gh', function() vim.cmd [[ :DiffviewFileHistory ]] end,
-		{ desc = 'Open git file/lines history' })
+	vim.keymap.set({ 'n' }, '<leader>gh', function() vim.cmd [[ :DiffviewFileHistory ]] end,
+		{ desc = 'Open git history' })
+	vim.keymap.set({ 'n' }, '<leader>gH', function() vim.cmd [[ :DiffviewFileHistory % ]] end,
+		{ desc = 'Open git current file history' })
+	vim.keymap.set({ 'v' }, '<leader>gh', function()
+		vim.api.nvim_feedkeys(":DiffviewFileHistory\r", 'v', true)
+	end, { desc = 'Open git lines history' })
 end
 
 ---@type IdeModule
