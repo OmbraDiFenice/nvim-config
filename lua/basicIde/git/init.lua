@@ -15,6 +15,23 @@ local function open_commit_win(options)
 	--vim.api.nvim_buf_set_var(buf, 'nvim_ide_autosave', false)
 end
 
+---Get the currently selected hash from the file history panel view, or nil if any problem
+---occurred (not on the right panel, cursor not on a hash...)
+---@return string?
+local function get_file_history_hash_at_cursor()
+	local diffview_lib = require('diffview.lib')
+	local view = diffview_lib.get_current_view()
+	if view == nil or not view.panel:is_focused() then return end
+
+	local item = view.panel:get_item_at_cursor()
+	if not item then return end
+
+	local commit_hash = item.commit.hash
+	if commit_hash == nil then return end
+
+	return commit_hash
+end
+
 local function setup_diffview_keymaps()
 	vim.keymap.set('n', '<leader>gd', function() vim.cmd [[ :DiffviewOpen ]] end, { desc = 'Open git diff' })
 	vim.keymap.set({ 'n', 'v' }, '<leader>gh', function() vim.cmd [[ :DiffviewFileHistory ]] end,
@@ -100,25 +117,30 @@ return {
 				file_history_panel = {
 					{ 'n', '<leader>q', function() vim.cmd [[ :tabclose ]] end, { desc = 'Diffview: Close current tab' } },
 					{ 'n', '<C-H>', diffview_actions.focus_entry, { desc = 'Diffview: focus entry' } },
-					{ 'n', '<C-s>', function()
-						local view = diffview_lib.get_current_view()
-						if view ~= nil and view.panel:is_focused() then
-							local item = view.panel:get_item_at_cursor()
-							if item then
-								local commit_hash = item.commit.hash
-								if commit_hash ~= nil then
-									local remote_commit_url = project_settings.build_remote_url(commit_hash)
-									if remote_commit_url == nil then return end
+					{ 'n', '<C-s>', function ()
+						local commit_hash = get_file_history_hash_at_cursor()
+						if commit_hash == nil then return end
 
-									local exit_code, error = vim.ui.open(remote_commit_url)
-									if error ~= nil then
-										vim.notify(error .. '(exit code: ' .. vim.inspect(exit_code) .. ')', vim.log.levels.ERROR)
-									end
-								end
-							end
+						local remote_commit_url = project_settings.build_remote_url(commit_hash)
+						if remote_commit_url == nil then return end
+
+						local exit_code, error = vim.ui.open(remote_commit_url)
+						if error ~= nil then
+							vim.notify(error .. '(exit code: ' .. vim.inspect(exit_code) .. ')', vim.log.levels.ERROR)
 						end
-					end,
-					{	desc = 'Diffview (file history): open current commit in browser' } }
+					end, {	desc = 'Diffview (file history): open current commit in browser' } },
+					{ 'n', '<C-r>', function ()
+						local commit_hash = get_file_history_hash_at_cursor()
+						if commit_hash == nil then return end
+
+						vim.cmd("Git rebase -i " .. commit_hash)
+					end, { desc = 'Diffview (file history): start interactive rebase on here' } },
+					{ 'n', '<C-c>', function ()
+						local commit_hash = get_file_history_hash_at_cursor()
+						if commit_hash == nil then return end
+
+						vim.cmd("Git checkout " .. commit_hash)
+					end, { desc = 'Diffview (file history): checkout commit' } }
 				},
 			},
 			hooks = {
