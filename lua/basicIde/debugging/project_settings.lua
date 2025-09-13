@@ -114,6 +114,7 @@ local function create_external_script_keymaps(project_settings)
 		args = {},
 		cwd = '.',
 		open_console_on_start = false,
+		open_console_on_end = false,
 	}
 
 	for i, external_script in ipairs(external_scripts) do
@@ -130,6 +131,7 @@ local function create_external_script_keymaps(project_settings)
 		local script_desc = vim.tbl_extend('force', template, external_script)
 
 		vim.keymap.set('n', external_script.keymap, function()
+			local notif_id = nil
 			local command = utils.tables.concat(script_desc.command, script_desc.args)
 			local terminal = toggleterm.Terminal:new({
 				cmd = table.concat(command, ' '),
@@ -137,8 +139,14 @@ local function create_external_script_keymaps(project_settings)
 				close_on_exit = false,
 				display_name = display_name,
 				direction = 'float',
-				on_exit = function(term)
-					if not external_script.open_console_on_start and not term:is_open() then
+				on_exit = function(term, _, exit_code)
+					if not external_script.open_console_on_end then
+						if exit_code == 0 then
+							vim.notify(display_name .. ' ended', vim.log.levels.INFO, { replace = notif_id })
+						else
+							vim.notify(display_name .. ' ended with exit code ' .. exit_code, vim.log.levels.ERROR, { replace = notif_id })
+						end
+					elseif not term:is_open() then
 						term:open()
 						term:set_mode('i')
 					end
@@ -148,7 +156,7 @@ local function create_external_script_keymaps(project_settings)
 			if external_script.open_console_on_start then
 				terminal:open()
 			else
-				vim.notify('Starting ' .. display_name)
+				notif_id = vim.notify('Starting ' .. display_name)
 				terminal:spawn()
 			end
 

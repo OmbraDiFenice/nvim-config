@@ -33,6 +33,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field args string[]|nil
 ---@field cwd string?
 ---@field open_console_on_start? boolean
+---@field open_console_on_end? boolean
 
 ---@class DebuggingSettings
 ---@field dap_configurations? table<string, DapConfigurationExtended[]>
