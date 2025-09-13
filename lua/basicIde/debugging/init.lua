@@ -1,6 +1,7 @@
 local language_modules = {
 	require('basicIde.debugging.languages.python'),
 	require('basicIde.debugging.languages.javascript'),
+	require('basicIde.debugging.languages.cpp'),
 }
 
 ---@type IdeModule
