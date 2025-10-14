@@ -38,6 +38,7 @@ local function edit_session_file(data_directory)
 		'neoscopes.config.json',
 		'nvim-tree.state',
 		'gp.nvim.log',
+		'copilot-lua.log',
 	}
 	local session_files = vim.fn.readdir(data_directory, function(item)
 		local file_path = data_directory .. item

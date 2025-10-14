@@ -1,3 +1,5 @@
+local utils = require("basicIde.utils")
+
 local CopilotManager = {
 	keymap_callbacks = {
 		accept_current_suggestion = { callback = function() require("copilot.suggestion").accept() end, opts = {} },
@@ -30,6 +32,10 @@ function CopilotManager:init()
 			},
 		},
 		filetypes = filetypes,
+		logger = {
+			file = utils.paths.ensure_trailing_slash(utils.get_data_directory()) .. "copilot-lua.log",
+			file_log_level = vim.log.levels.TRACE,
+		},
 	})
 end
 
