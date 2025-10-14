@@ -1,4 +1,4 @@
-local show_report = require('basicIde.loader.show_report')
+local show_report = require('basicIde.loader.show_report_fn')
 
 -- to create a floating window the UI must be completely started.
 -- Use VimEnter event to ensure to run the code after that.

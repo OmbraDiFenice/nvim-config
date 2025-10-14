@@ -1,7 +1,7 @@
 --- Note: this function must not use any facility
 --- from the rest of this repo because it can be called
 --- before anything else is loaded by the loader script
-return function show_report()
+return function ()
 	local report_file = os.getenv('REPORT_FILE')
 	if report_file == nil then return end
 
