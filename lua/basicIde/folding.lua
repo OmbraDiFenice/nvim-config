@@ -24,6 +24,7 @@ return {
 			},
 			ignore_install = {
 				"groovy", -- groovy query.lua is broken
+				"ipkg", -- broken
 			},
 			incremental_selection = {
 				enable = true,
