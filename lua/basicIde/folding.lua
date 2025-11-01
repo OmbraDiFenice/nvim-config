@@ -23,6 +23,7 @@ return {
 			ensure_installed = vim.tbl_deep_extend('keep', project_settings.project_languages, utils.treesitter.default_languages),
 			highlight = {
 				enable = true,
+				disable = project_settings.performance.disable_treesitter_highlight,
 			},
 			ignore_install = {
 				"groovy", -- groovy query.lua is broken

@@ -142,6 +142,9 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field keymaps table<string, string[]> -- they keys are fixed and associated to each possible AI action. The value is a list of keymaps shortcut to trigger the action in a format similar to the keys associated to CustomKeymapDef in other configs. These keymaps should always be set for insert mode
 ---@field show_in_status_bar boolean
 
+---@class PerformanceSettings
+---@field disable_treesitter_highlight fun(lang: string, bufnr: integer): boolean -- return true if treesitter highlight should be disabled. Takes the buffer language and the bufnr as parameters
+
 ---@class ProjectSettings
 ---@field PROJECT_SETTINGS_FILE string
 ---@field PROJECT_ROOT_DIRECTORY string
@@ -163,6 +166,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field ai AiConfig
 ---@field ai_chat AiChatConfig
 ---@field build_remote_url fun(commit_hash: string): string? -- builds the url for the given commit so that it can be opened in the browser with a key shortcut from Diffview history view. Return the url or nil to cancel the operation
+---@field performance PerformanceSettings
 
 ---Execute the callbacks in `custom_startup_scripts` setting
 ---@param settings ProjectSettings
@@ -194,6 +198,9 @@ local default_settings = {
 	PROJECT_ROOT_DIRECTORY = '',
 	project_title = '[nvim IDE] ' .. vim.fn.getcwd(-1, -1),
 	project_languages = {},
+	performance = {
+		disable_treesitter_highlight = function(_, bufnr) return vim.api.nvim_buf_line_count(bufnr) > 50000 end,
+	},
 	settings_templates = {
 		python = {
 			'project_languages = {"python"},',
