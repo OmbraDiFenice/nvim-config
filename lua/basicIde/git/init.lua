@@ -138,7 +138,8 @@ return {
 						local commit_hash = get_file_history_hash_at_cursor()
 						if commit_hash == nil then return end
 
-						vim.cmd("Git rebase -i " .. commit_hash)
+						vim.cmd [[ :tabclose ]]
+						vim.cmd("Git rebase -i " .. commit_hash .. "~1")
 					end, { desc = 'Diffview (file history): start interactive rebase on here' } },
 					{ 'n', '<C-c>', function ()
 						local commit_hash = get_file_history_hash_at_cursor()
