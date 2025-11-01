@@ -1,3 +1,5 @@
+local utils = require('basicIde.utils')
+
 ---@type IdeModule
 return {
 	use_deps = function(use)
@@ -16,9 +18,9 @@ return {
 		use { 'luukvbaal/statuscol.nvim' }
 	end,
 
-	configure = function()
+	configure = function(project_settings)
 		require('nvim-treesitter.configs').setup {
-			ensure_installed = 'all',
+			ensure_installed = vim.tbl_deep_extend('keep', project_settings.project_languages, utils.treesitter.default_languages),
 			highlight = {
 				enable = true,
 			},
@@ -78,6 +80,14 @@ return {
 		vim.opt.foldlevelstart = 99
 		vim.opt.foldcolumn = '1'
 		vim.opt.fillchars = 'foldopen:,foldclose:'
+
+		vim.api.nvim_create_autocmd('User', {
+			pattern = 'ProjectSettingsChanged',
+			desc = 'install TreeSitter parser for new project languages',
+			callback = function()
+				utils.treesitter.ensure_installed(project_settings.project_languages)
+			end,
+		})
 
 		-- status column
 

@@ -148,6 +148,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field DATA_DIRECTORY string
 ---@field IDE_DIRECTORY string -- path to the directory where the IDE code is located (inside nvim config). To be used as a convenience in some components to point to utility scripts in there
 ---@field project_title string
+---@field project_languages string[] -- languages to use in this project. Used to e.g. ensure the TreeSitter parsers are installed
 ---@field settings_templates table<string, string[]> -- key is the name of the template and the value is a list of the lines to put inside the project settings table. No need to put newlines at the end of each line. The lines will be placed inside the returned table, so they must only include the key/values you want in the template.
 ---@field loader LoaderConfig
 ---@field format_on_save FormatOnSaveSettings
@@ -192,13 +193,16 @@ local default_settings = {
 	IDE_DIRECTORY = '',
 	PROJECT_ROOT_DIRECTORY = '',
 	project_title = '[nvim IDE] ' .. vim.fn.getcwd(-1, -1),
+	project_languages = {},
 	settings_templates = {
 		python = {
+			'project_languages = {"python"},',
 			'loader = {',
 			'  virtual_environment = "venv",',
 			'},',
 		},
 		platformio = {
+			'project_languages = {"c", "cpp"},',
 			'loader = {',
 			'  virtual_environment = "${env:HOME}/.platformio/penv",',
 			'},',

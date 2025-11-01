@@ -7,6 +7,7 @@ local M = {
 	loader = require('basicIde._utils.loader'),
 	popup_menu = require('basicIde._utils.popup_menu'),
 	vim = require('basicIde._utils.vim'),
+	treesitter = require('basicIde._utils.treesitter'),
 }
 
 ---Returns the directory to be used to store data related to the current nvim session.
