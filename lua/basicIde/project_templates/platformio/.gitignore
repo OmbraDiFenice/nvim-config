@@ -1,0 +1,7 @@
+compile_commands.json
+
+# platformio build dir
+/.pio
+
+# clangd cache
+/.cache/

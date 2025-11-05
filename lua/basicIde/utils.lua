@@ -8,6 +8,7 @@ local M = {
 	popup_menu = require('basicIde._utils.popup_menu'),
 	vim = require('basicIde._utils.vim'),
 	treesitter = require('basicIde._utils.treesitter'),
+	python = require('basicIde._utils.python'),
 }
 
 ---Returns the directory to be used to store data related to the current nvim session.
@@ -148,5 +149,8 @@ function M.get_buf_var(buf, var_name, default_value)
   end)
   if s then return v else return default_value end
 end
+
+function M.false_fn() return false end
+function M.true_fn() return false end
 
 return M

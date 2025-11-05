@@ -145,6 +145,10 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@class PerformanceSettings
 ---@field disable_treesitter_highlight fun(lang: string, bufnr: integer): boolean -- return true if treesitter highlight should be disabled. Takes the buffer language and the bufnr as parameters
 
+---@class ProjectTemplate
+---@field template_dir string -- path of the folder containing the files to copy to initialize the project template
+---@field post_dir_init nil|fun(utils: Utils, end_cb: fun():nil): nil -- optional function to be called after the template directy has been copied. end_cb must be called once the post init is complete
+
 ---@class ProjectSettings
 ---@field PROJECT_SETTINGS_FILE string
 ---@field PROJECT_ROOT_DIRECTORY string
@@ -152,7 +156,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field IDE_DIRECTORY string -- path to the directory where the IDE code is located (inside nvim config). To be used as a convenience in some components to point to utility scripts in there
 ---@field project_title string
 ---@field project_languages string[] -- languages to use in this project. Used to e.g. ensure the TreeSitter parsers are installed
----@field settings_templates table<string, string[]> -- key is the name of the template and the value is a list of the lines to put inside the project settings table. No need to put newlines at the end of each line. The lines will be placed inside the returned table, so they must only include the key/values you want in the template.
+---@field project_templates table<string, ProjectTemplate> -- key is the name of the template
 ---@field loader LoaderConfig
 ---@field format_on_save FormatOnSaveSettings
 ---@field debugging DebuggingSettings
@@ -201,19 +205,52 @@ local default_settings = {
 	performance = {
 		disable_treesitter_highlight = function(_, bufnr) return vim.api.nvim_buf_line_count(bufnr) > 50000 end,
 	},
-	settings_templates = {
+	project_templates = {
+		empty = {
+			template_dir = "${ide:IDE_DIRECTORY}/project_templates/empty",
+		},
 		python = {
-			'project_languages = {"python"},',
-			'loader = {',
-			'  virtual_environment = "venv",',
-			'},',
+			template_dir = "${ide:IDE_DIRECTORY}/project_templates/python",
+			post_dir_init = function(utils, end_cb)
+				if utils.files.is_dir('venv') then end_cb() return end
+				utils.python.create_venv(end_cb)
+			end,
 		},
 		platformio = {
-			'project_languages = {"c", "cpp"},',
-			'loader = {',
-			'  virtual_environment = "${env:HOME}/.platformio/penv",',
-			'},',
-		}
+			template_dir = "${ide:IDE_DIRECTORY}/project_templates/platformio",
+			post_dir_init = function(utils, end_cb)
+				if not utils.files.is_file(vim.uv.os_homedir() .. '/.platformio/penv/bin/pio') and not utils.files.is_bin_available('pio') then
+					vim.notify('pio script not found. Please install it then reload nvim.\nSee https://docs.platformio.org/en/latest/core/installation/methods/index.html')
+				end
+				vim.notify('new venv added to config, restart neovim to use it properly')
+				end_cb()
+			end
+		},
+		ufbt = {
+			template_dir = "${ide:IDE_DIRECTORY}/project_templates/ufbt",
+			post_dir_init = function(utils, end_cb)
+				vim.ui.input({ prompt = "APPID: " }, function(appid)
+					utils.python.create_venv(function(_, _)
+						local notif = vim.notify("creating installing ufbt...", vim.log.levels.INFO, { keep = utils.true_fn })
+						utils.proc.runAndReturnOutput("bash -c 'source venv/bin/activate && pip install --upgrade ufbt'", function(output_lines, exit_code)
+							if exit_code ~= 0 then
+								vim.notify(table.concat(output_lines, '\n'), vim.log.levels.ERROR)
+								return
+							end
+
+							notif = vim.notify("initializing ufbt app...", vim.log.levels.INFO, { keep = utils.false_fn, replace = notif })
+							utils.proc.runAndReturnOutput("bash -c 'source venv/bin/activate && ufbt create APPID=".. appid .. "'", function(output_lines, exit_code)
+								if exit_code ~= 0 then
+									vim.notify(table.concat(output_lines, '\n'), vim.log.levels.ERROR)
+									return
+								end
+								end_cb()
+							end)
+						end)
+					end)
+				end)
+			end,
+		},
 	},
 	build_remote_url = function() return nil end,
 	loader = {
@@ -782,6 +819,7 @@ local function resolve_variable(orig_value, settings)
 		return env_value:gsub('\r', '')
 	end)
 	value, _ = string.gsub(value, "%${ide:PROJECT_ROOT}", settings.PROJECT_ROOT_DIRECTORY)
+	value, _ = string.gsub(value, "%${ide:IDE_DIRECTORY}", settings.IDE_DIRECTORY)
 	return value
 end
 
@@ -807,7 +845,7 @@ local function resolve_variables(settings)
 		end)
 end
 
----Creates a new project configuration file in the home folder. 
+---Creates a new project configuration file in the project root folder. 
 ---If the template is specified, it is used to index the defined
 ---templates in the settings to fill the otherwise empty settings table
 ---with some initial values. Normally one would set custom predefined
@@ -823,33 +861,36 @@ end
 ---@param settings ProjectSettings
 local function create_or_open_project_file(template_name, settings)
 	if utils.files.path_exists(settings.PROJECT_SETTINGS_FILE, false) then
-		vim.notify('Opening existing project serttings')
-	else
-		local lines = {
-			'---@diagnostic disable: unused-local, missing-fields',
-			'---@type ProjectSettings',
-			'return {',
-		}
-
-		local template = nil
-		if template_name ~= nil then
-			template = settings.settings_templates[template_name]
-			if template == nil then
-				vim.notify('Unknown project template: ' .. template_name, vim.log.levels.ERROR)
-				return
-			else
-				template = utils.tables.map(template, function(line) return '  ' .. line end)
-				lines = vim.list_extend(lines, template)
-			end
-		end
-
-		lines[#lines + 1] = '}'
-
-		utils.files.touch_file(settings.PROJECT_SETTINGS_FILE)
-		vim.fn.writefile(lines, settings.PROJECT_SETTINGS_FILE)
+		vim.notify('Opening existing project settings')
+		vim.cmd.edit(settings.PROJECT_SETTINGS_FILE)
+		return
 	end
 
-	vim.cmd.edit(settings.PROJECT_SETTINGS_FILE)
+	if template_name == nil then template_name = "empty" end
+
+	local template = settings.project_templates[template_name]
+	if template == nil then
+		vim.notify('Unknown project template: ' .. template_name, vim.log.levels.ERROR)
+		return
+	end
+
+	if not utils.files.is_dir(template.template_dir) then
+		vim.notify('templte folder ' .. template.template_dir .. ' is not a directory', vim.log.levels.ERROR)
+		return
+	end
+
+	utils.files.copy_folder(template.template_dir, settings.PROJECT_ROOT_DIRECTORY,
+													function ()
+														vim.cmd.edit(settings.PROJECT_SETTINGS_FILE)
+														if template.post_dir_init ~= nil then
+															local notif = vim.notify("setting up project template", vim.log.levels.INFO, { keep = function() return true end })
+															template.post_dir_init(utils, function()
+																vim.notify("project template setup done", vim.log.levels.INFO, { replace = notif, keep = function() return false end })
+															end)
+														end
+													end,
+													function(output, _) vim.notify(output, vim.log.levels.ERROR) end)
+
 end
 
 return {
@@ -926,10 +967,14 @@ return {
 				create_or_open_project_file(params.fargs[1], settings)
 			end, {
 			nargs = '?',
+			complete = function(arglead, _, _)
+				return utils.tables.filter(vim.tbl_keys(settings.project_templates),
+													         function(template) return vim.startswith(template, arglead) end)
+			end,
 			desc = 'Create and edit a new project settings file, optionally using a template. If the file already exists it will just be opened',
 		})
 		vim.api.nvim_create_user_command('BasicIdeListProjectTemplates', function()
-				print('Available project templates:\n' .. table.concat(vim.tbl_keys(settings.settings_templates), '\n'))
+				print('Available project templates:\n' .. table.concat(vim.tbl_keys(settings.project_templates), '\n'))
 			end, {
 			nargs = 0,
 			desc = 'List available project templates'

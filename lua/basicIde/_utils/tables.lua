@@ -121,4 +121,21 @@ function M.concat(t1, t2)
 	return t
 end
 
+---Takes an array-like table and return a new array-like table
+---containing the elements from the input for which the given function returns
+---true.
+---@generic T: any
+---@param t T[] array-like table
+---@param fn fun(T):boolean functions called with each input element, returning true if the element must be included in the output
+---@return T[]
+function M.filter(t, fn)
+	local out = {}
+	for _, elem in ipairs(t) do
+		if fn(elem) then
+			table.insert(out, elem)
+		end
+	end
+	return out
+end
+
 return M
