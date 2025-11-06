@@ -62,6 +62,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@class LspSettings
 ---@field notifications NotificationSettings
 ---@field extra_server_cli table<string, string[]> -- key is the server name and the value is a list of extra arguments to be passed to the server when starting it
+---@field server_settings table<string, table<any, any>> -- key is the server name and the value is the settings to apply to that server. These settings are merged with any default ones defined in the IDE and take precedence over them in case of conflict
 
 ---@class TokenPattern
 ---@field type 'token'|'node_type'
@@ -279,6 +280,7 @@ local default_settings = {
 			enabled = true,
 		},
 		extra_server_cli = {},
+		server_settings = {},
 	},
 	terminal = {
 		init_environment_cmd = '[[ -d ${VIRTUAL_ENV+x} ]] || source "$VIRTUAL_ENV/bin/activate" ; clear'

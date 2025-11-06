@@ -148,7 +148,7 @@ return {
 						vim.keymap.set("i", "<A-s>", "<cmd>LspOverloadsSignature<CR>", { noremap = true, silent = true, buffer = bufnr })
 					end
 				end,
-				settings = servers_configuration[server_name],
+				settings = vim.tbl_deep_extend("force", servers_configuration[server_name] or {}, project_settings.lsp.server_settings[server_name] or {}),
 				cmd = server_cmd,
 			}
 		end
