@@ -1,3 +1,4 @@
+local key_mapping = require('basicIde.key_mapping')
 local utils = require('basicIde.utils')
 local OS = utils.files.OS
 
@@ -85,42 +86,41 @@ local function close_all()
 	vim.cmd [[ qall ]]
 end
 
-local function setup_diagnostics_keybindings()
-	vim.keymap.set(
-		'n', '<leader>d?',
-		vim.diagnostic.open_float,
-		{ desc = 'open diagnostic floating window for current line' }
-	)
+local keymap_descriptions = {
+	show_line_diagnostic = 'open diagnostic floating window for current line',
+	show_buffer_diagnostic = 'show diagnostics for current buffer',
+	search_lsp_symbol = '[S]earch [S]symbol - highlight symbol under cursor with LSP',
+	clear_lsp_symbol_highlight = 'clear search symbol LSP highlight',
+	show_opened_buffers = 'show opened buffers',
+	close_buffer = 'close buffer',
+	quit_nvim = 'quit neovim',
+	open_undo_tree = 'open undo tree view',
+}
 
-	vim.keymap.set(
-		'n', '<C-l>',
-		function() require('trouble').open('diagnostics_buffer') end,
-		{ desc = 'show diagnostics for current buffer' }
-	)
-end
-
-local function setup_highlight_identifier_keybindings()
-	vim.api.nvim_set_keymap('n', '<leader>ss', '', {
-	  callback = function()
-			vim.lsp.buf.clear_references()
-			vim.lsp.buf.document_highlight()
-		end,
-	  desc = '[S]earch [S]symbol - highlight symbol under cursor with LSP',
-	})
-	vim.api.nvim_set_keymap('n', '<leader>sS', '', {
-		callback = vim.lsp.buf.clear_references,
-	  desc = 'clear search symbol LSP highlight',
-	})
-end
-
-local function setup_navigation_keybindings()
-	vim.api.nvim_set_keymap('n', '<leader>b', '', {
-		callback = function()
-			require('telescope.builtin').buffers({ sort_mru = true, sort_lastused = true })
-		end,
-		desc = 'show opened buffers',
-	})
-end
+---@type KeymapManager
+local keymap_manager = {
+	keymap_callbacks = {
+		show_line_diagnostic = { callback = vim.diagnostic.open_float, opts = {} },
+		show_buffer_diagnostic = { callback = function() require('trouble').open('diagnostics_buffer') end, opts = {} },
+		search_lsp_symbol = {
+			callback = function()
+				vim.lsp.buf.clear_references()
+				vim.lsp.buf.document_highlight()
+			end,
+			opts = {},
+		},
+		clear_lsp_symbol_highlight = { callback = vim.lsp.buf.clear_references, opts = {} },
+		show_opened_buffers = {
+			callback = function()
+				require('telescope.builtin').buffers({ sort_mru = true, sort_lastused = true })
+			end,
+			opts = {}
+		},
+		close_buffer = { callback = close_current_buffer, opts = { silent = true, noremap = true } },
+		quit_nvim = { callback = close_all, opts = {} },
+		open_undo_tree = { callback = require('undotree').open, opts = {} },
+	}
+}
 
 ---@type IdeModule
 return {
@@ -182,9 +182,6 @@ return {
 			end
 		})
 
-		vim.keymap.set("n", "<leader>q", close_current_buffer, { silent = true, noremap = true, desc = "close buffer" })
-		vim.keymap.set('n', '<leader>Q', close_all, { desc = 'close all windows' })
-
 		-- opens help windows on the right, taken from https://vi.stackexchange.com/questions/4452/how-can-i-make-vim-open-help-in-a-vertical-split
 		local vimrc_help_group = vim.api.nvim_create_augroup('vimrc_help', { clear = true })
 		vim.api.nvim_create_autocmd({ 'BufEnter' }, {
@@ -226,10 +223,7 @@ return {
 			signs = false,
 		})
 
-		setup_diagnostics_keybindings()
-		setup_navigation_keybindings()
-
-		setup_highlight_identifier_keybindings()
+		key_mapping.setup_keymaps(keymap_descriptions, keymap_manager, project_settings.editor.keymaps)
 
 		-- ------------------- MARKS -------------------
 		require('marks').setup({
@@ -256,8 +250,6 @@ return {
 		undotree.setup({
 			float_diff = true,
 		})
-
-		vim.keymap.set("n", "<leader>u", undotree.open, { desc = "Open undo tree view" })
 
 		-- ------------------- MARKDOWN -------------------
 		require('render-markdown').setup({

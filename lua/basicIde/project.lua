@@ -119,6 +119,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field status_bar StatusBarConfig
 ---@field append_git_branch_to_title boolean
 ---@field notifications GlobalNotificationConfig
+---@field keymaps table<string, string[]> -- they keys are fixed and associated to each possible AI action. The value is a list of keymaps shortcut to trigger the action in a format similar to the keys associated to CustomKeymapDef in other configs. These keymaps should always be set for insert mode
 
 ---@class LoaderConfig
 ---@field virtual_environment? string path to the virtual environment to launch nvim with. If the path is relative it will be resolved relative to the project root
@@ -777,6 +778,16 @@ local default_settings = {
 				icons = {},
 				transient = true,
 			},
+		},
+		keymaps = {
+			show_line_diagnostic = { '<leader>d?' },
+			show_buffer_diagnostic = { '<C-l>' },
+			search_lsp_symbol = { '<leader>ss' },
+			clear_lsp_symbol_highlight = { '<leader>sS' },
+			show_opened_buffers = { '<leader>b' },
+			close_buffer = { '<leader>q' },
+			quit_nvim = { '<leader>Q' },
+			open_undo_tree = { '<leader>u' },
 		},
 	},
 	ai = {
