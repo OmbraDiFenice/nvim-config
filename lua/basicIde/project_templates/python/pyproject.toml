@@ -1,0 +1,8 @@
+[tool.mypy]
+mypy_path = 'src'
+disable_error_code = 'var-annotated'
+explicit_package_bases = true
+implicit_optional = true
+
+[tool.ruff]
+ignore = [ 'E501' ]
