@@ -114,6 +114,14 @@ return {
 	configure = function(project_settings)
 		utils.popup_menu.make_entry("Find references", "Telescope lsp_references", { icon = "󰓾" })
 
+		-- add border to all lsp floating windows
+		local orig_util_open_floating_preview = vim.lsp.util.open_floating_preview
+		vim.lsp.util.open_floating_preview = function(contents, syntax, opts, ...)
+			opts = opts or {}
+			opts.border = opts.border or 'rounded'
+			return orig_util_open_floating_preview(contents, syntax, opts, ...)
+		end
+
 		require('neodev').setup() -- must be called before lspconfig
 
 		-- mason
