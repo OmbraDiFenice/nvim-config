@@ -117,7 +117,7 @@ return {
 			post_restore_cmds = post_restore_cmds,
 		}
 
-		vim.o.sessionoptions = "blank,buffers,curdir,help,tabpages,winsize,winpos,terminal,localoptions"
+		vim.o.sessionoptions = "blank,buffers,curdir,help,tabpages,winsize,winpos,terminal,localoptions,globals"
 
 		vim.keymap.set('n', '<leader>es', function() edit_session_file(settings.DATA_DIRECTORY) end, { desc = "edit session file" })
 	end,
