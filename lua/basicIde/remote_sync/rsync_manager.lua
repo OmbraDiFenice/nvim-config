@@ -4,6 +4,7 @@ local remote_sync_utils = require('basicIde.remote_sync.utils')
 ---@class RsyncStrategySettings
 ---@field remote_user string
 ---@field remote_host string
+---@field remote_port number
 
 ---Make sure that the settings are well formatted
 ---@param settings RemoteSyncSettings
@@ -12,6 +13,11 @@ local function clean_settings(settings)
 	for i, mapping in ipairs(settings.mappings) do
 		settings.mappings[i][1] = utils.paths.ensure_trailing_slash(mapping[1])
 		settings.mappings[i][2] = utils.paths.ensure_trailing_slash(mapping[2])
+	end
+	local port = settings.rsync_settings.remote_port
+	if port < 1 or port > 65535 then
+		vim.notify('rsync remote port must be between 1 and 65535. Defaulting to 22', vim.log.levels.ERROR)
+		settings.rsync_settings.remote_port = 22
 	end
 end
 
@@ -83,6 +89,7 @@ function RsyncManager:start_master_ssh()
 		'-o', 'ControlMaster=yes',
 		'-o', 'ControlPath=' .. self.ssh_control_master_socket,
 		'-N',
+		'-p', tostring(self.settings.rsync_settings.remote_port),
 		self.settings.rsync_settings.remote_user .. '@' .. self.settings.rsync_settings.remote_host,
 	}, function(output, exit_code)
 		if exit_code ~= 0 then
@@ -105,7 +112,7 @@ function RsyncManager:synchronize_file(file_path)
 
 	local master_socket_option = ''
 	if self.ssh_control_master_socket ~= nil then
-		master_socket_option = 'ssh -l ' .. self.settings.rsync_settings.remote_user .. ' -S ' .. self.ssh_control_master_socket
+		master_socket_option = 'ssh -l ' .. self.settings.rsync_settings.remote_user .. ' -p ' .. self.settings.rsync_settings.remote_port .. ' -S ' .. self.ssh_control_master_socket
 	end
 
 	local command = {
