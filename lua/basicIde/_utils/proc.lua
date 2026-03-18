@@ -8,16 +8,24 @@ local M = {}
 M.openFloatWindow = function(bufnr, custom_options)
 	local utils = require('basicIde.utils')
 
-	local win_width  = vim.api.nvim_win_get_width(0)
-	local win_height = vim.api.nvim_win_get_height(0)
+	if custom_options == nil then custom_options = {} end
+
+	local viewport_width  = vim.api.nvim_win_get_width(0)
+	local viewport_height = vim.api.nvim_win_get_height(0)
+	if custom_options.relative == 'editor' then
+		-- if the float should be relative to the editor assume that it should span all the opened windows (split views)
+		-- and compute the row/col size based on the entire editor area
+		viewport_width = vim.o.columns
+		viewport_height = vim.o.lines
+	end
 
 	local perc       = 0.1
 
-	local width      = math.floor(win_width - (win_width * perc) * 2)
-	local height     = math.floor(win_height - (win_height * perc) * 2)
+	local width      = math.floor(viewport_width - (viewport_width * perc) * 2)
+	local height     = math.floor(viewport_height - (viewport_height * perc) * 2)
 
-	local orig_col   = math.floor(win_width * perc)
-	local orig_row   = math.floor(win_height * perc)
+	local orig_col   = math.floor(viewport_width * perc)
+	local orig_row   = math.floor(viewport_height * perc)
 
 	local options    = {
 		relative = 'win',
@@ -28,7 +36,6 @@ M.openFloatWindow = function(bufnr, custom_options)
 		border = 'single',
 	}
 
-	if custom_options == nil then custom_options = {} end
 	options = utils.tables.deepmerge(options, custom_options)
 
 	if bufnr == nil then bufnr = vim.api.nvim_create_buf(false, false) end
