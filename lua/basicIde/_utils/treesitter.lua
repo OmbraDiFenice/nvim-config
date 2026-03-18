@@ -1,9 +1,18 @@
 local M = {}
 
 M.default_languages = {
+	"vim",
 	"vimdoc",
 	"markdown",
+	'markdown_inline',
 	"lua",
+	"diff",
+	"git_config",
+	"git_rebase",
+	"gitattributes",
+	"gitcommit",
+	"gitignore",
+	"regex",
 }
 
 
