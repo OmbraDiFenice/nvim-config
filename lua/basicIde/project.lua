@@ -733,6 +733,25 @@ local default_settings = {
 					},
 				},
 			},
+			markdown = {
+				node_types = {'atx_heading'},
+				stop_at_tokens = {},
+				ignore_tokens = {},
+				queries = {
+					{
+						format = "${name}",
+						-- lang: query
+						query = [[
+							(
+								section
+								(
+									atx_heading
+								) @name
+							) @root
+						]]
+					},
+				},
+			},
 		},
 		keymaps = {
 			open_layout = {'<leader>l'}, -- from the file to analyze

@@ -142,4 +142,25 @@ describe("Smart code layout", function ()
 
 		check_layout_nodes("lua/basicIde/code_layout/tests/fixtures/test.py", "python", expected_nodes_text)
 	end)
+
+	it("extract right nodes for markdown", function()
+		local expected_nodes_text = {
+			"# Meeting: [Topic] — 2025-09-04",
+			"## Agenda",
+			"## Discussion",
+			"### 1. Sprint Review",
+			"### 2. Q4 Roadmap",
+			"## Decisions",
+			"## Action Items",
+			"## Configuration",
+			"# Project Name",
+			"## Features",
+			"## Installation",
+			"## Usage",
+			"## Contributing",
+			"## Licence",
+		}
+
+		check_layout_nodes("lua/basicIde/code_layout/tests/fixtures/test.md", "markdown", expected_nodes_text)
+	end)
 end)
