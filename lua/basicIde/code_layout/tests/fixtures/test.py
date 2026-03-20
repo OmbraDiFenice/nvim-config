@@ -1,11 +1,11 @@
 global_var: str = "global var"
 untyped_var = True
 
-def
-multiline_func(
+def multiline_func(
     x: int
 ) -> bool:
-    pass
+    a, b = True, False
+    return a
 
 def global_func(x):
     x = 3
@@ -20,7 +20,7 @@ class SomeClass:
 
     def method(self) -> int:
         global some_global
-        retun 0
+        return 0
 
     def method2(self, param: bool) -> None:
         def inner_method2():
