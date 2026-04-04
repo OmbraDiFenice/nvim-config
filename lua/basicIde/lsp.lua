@@ -178,8 +178,9 @@ return {
 
 		require('lint').linters_by_ft.python = {'mypy', 'pylint'}
 
-		vim.api.nvim_create_autocmd({ "BufWinEnter", "BufWritePost" }, {
-			callback = function()
+		vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+			callback = function(args)
+				if vim.tbl_isempty(require('lint').linters_by_ft[vim.bo[args.buf].filetype] or {}) then return end
 				require("lint").try_lint(nil, { ignore_errors = true })
 			end,
 		})
