@@ -21,9 +21,15 @@ end
 
 ---@type IdeModule
 return {
-	use_deps = function(use)
-		use 'Exafunction/codeium.vim'
-		use "zbirenbaum/copilot.lua"
+	use_deps = function(use, project_settings)
+		local config = project_settings.ai
+		if not config.enabled then return end
+
+		if config.engine == 'codeium' then
+			use 'Exafunction/codeium.vim'
+		elseif config.engine == 'copilot' then
+			use "zbirenbaum/copilot.lua"
+		end
 	end,
 
 	configure = function(project_settings)
