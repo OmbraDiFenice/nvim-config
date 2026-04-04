@@ -32,33 +32,43 @@ table.insert(components, 'basicIde/statusBar') -- depends on the existence of th
                                                -- depends on the theme being already loaded
 																							 -- depends on search module for trouble integration
 
+---@type IdeModule[]?
+local loaded_components = nil
+
+---@return IdeModule[]
+local function get_loaded_components()
+	if loaded_components ~= nil then
+		return loaded_components
+	end
+
+	loaded_components = {}
+	for _, component in ipairs(components) do
+		---@type boolean, IdeModule
+		local ok, module = pcall(require, component)
+		if ok then
+			table.insert(loaded_components, module)
+		else
+			vim.notify('error while loading module ' .. component .. '. Skipping for now, try relunch nvim again to see if it gets fixed', vim.log.levels.WARN)
+			vim.notify('error message:\n' .. module, vim.log.levels.DEBUG)
+		end
+	end
+
+	return loaded_components
+end
+
 ---@type { use_deps: fun(use: fun(plugin_sepc: any), use_rocks: fun(plugin_spec: any)), configure: fun() }
 return {
 	use_deps = function(use, use_rocks)
-		for _, component in ipairs(components)
+		for _, module in ipairs(get_loaded_components())
 		do
-			---@type boolean, IdeModule
-			local ok, module = pcall(require, component)
-			if ok then
-				module.use_deps(use, project_settings, use_rocks)
-			else
-				vim.notify('error while loading module ' .. component .. '. Skipping for now, try relunch nvim again to see if it gets fixed', vim.log.levels.WARN)
-				vim.notify('error message:\n' .. module, vim.log.levels.DEBUG)
-			end
+			module.use_deps(use, project_settings, use_rocks)
 		end
 	end,
 
 	configure = function()
-		for _, component in ipairs(components)
+		for _, module in ipairs(get_loaded_components())
 		do
-			---@type boolean, IdeModule
-			local ok, module = pcall(require, component)
-			if ok then
-				module.configure(project_settings)
-			else
-				vim.notify('error while configuring module ' .. component .. '. Skipping for now, try relunch nvim again to see if it gets fixed', vim.log.levels.WARN)
-				vim.notify('error message:\n' .. module, vim.log.levels.DEBUG)
-			end
+			module.configure(project_settings)
 		end
 
 		project.init(project_settings)
