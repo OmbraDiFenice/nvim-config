@@ -170,6 +170,33 @@ return {
 		utils.popup_menu.make_entry("Open treesitter tree", "InspectTree", { icon = "" })
 		utils.popup_menu.make_entry("New file/folder", "a", { icon = "", enabled_by = in_tree_view, is_keymap = true, mode = "n" })
 
+		vim.api.nvim_create_user_command('BasicIdeCompareWithClipboard', function()
+			local clipboard = vim.fn.getreg('+')
+			local selection = utils.get_visual_selection2()
+
+			vim.cmd.tabnew()
+			local clipboard_buf = vim.api.nvim_get_current_buf()
+			vim.api.nvim_buf_set_lines(0, 0, 0, false, utils.paths.split(clipboard, utils.files.OS.newline))
+			vim.api.nvim_buf_set_name(0, 'clipboard')
+			vim.cmd.diffthis()
+			vim.api.nvim_set_option_value("modifiable", false, { buf = 0 })
+
+			vim.cmd.vnew()
+			local selection_buf = vim.api.nvim_get_current_buf()
+			vim.api.nvim_buf_set_lines(0, 0, 0, false, utils.paths.split(selection, utils.files.OS.newline))
+			vim.api.nvim_buf_set_name(0, 'selection')
+			vim.cmd.diffthis()
+			vim.api.nvim_set_option_value("modifiable", false, { buf = 0 })
+
+			for _, buf in ipairs({ clipboard_buf, selection_buf }) do
+				vim.keymap.set("n", "<leader>q", function()
+					vim.api.nvim_buf_delete(clipboard_buf, { force = true, unload = false })
+					vim.api.nvim_buf_delete(selection_buf, { force = true, unload = false })
+				end, { silent = true, buffer = buf, desc = 'Close diff window' })
+			end
+		end, { desc = 'Compare current selection with clipboard' })
+		utils.popup_menu.make_entry("Compare with clipboard", "BasicIdeCompareWithClipboard", { icon = "", is_keymap = false, mode = "v" })
+
 		require('auto-save').setup({
 			enabled = project_settings.editor.autosave,
 			condition = function(buf)
