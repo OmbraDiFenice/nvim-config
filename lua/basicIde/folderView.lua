@@ -157,20 +157,17 @@ return {
 					local filetype = vim.api.nvim_get_option_value('filetype', { buf = ev.bufnr })
 					if utils.tables.is_in_list(filetype, ignore_filetypes) then return end
 
-					if vim.fn.exists('b:BasicIdeWinState') == 0 then
-						vim.api.nvim_buf_set_var(0, 'BasicIdeWinState', vim.json.encode({}))
-					end
-					local win_state = vim.json.decode(vim.api.nvim_buf_get_var(0, 'BasicIdeWinState'))
+					local win_state = utils.get_buf_var(ev.buf, 'BasicIdeWinState', {})
 					local current_win = tostring(vim.api.nvim_get_current_win())
 					win_state[current_win] = vim.fn.winsaveview()
-					vim.api.nvim_buf_set_var(0, 'BasicIdeWinState', vim.json.encode(win_state))
+					vim.api.nvim_buf_set_var(ev.buf, 'BasicIdeWinState', win_state)
 				end
 			})
 
 			vim.api.nvim_create_autocmd({"BufEnter"}, {
-				callback = function()
-					if vim.fn.exists('b:BasicIdeWinState') == 0 then return end
-					local win_state = vim.json.decode(vim.api.nvim_buf_get_var(0, 'BasicIdeWinState'))
+				callback = function(ev)
+					local win_state = utils.get_buf_var(ev.buf, 'BasicIdeWinState', nil)
+					if win_state == nil then return end
 					local current_win = tostring(vim.api.nvim_get_current_win())
 					local state = win_state[current_win]
 					if state ~= nil then
