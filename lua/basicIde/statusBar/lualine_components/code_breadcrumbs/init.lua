@@ -9,14 +9,32 @@ local M = {
 ---@class LanguageBreadcrumbHandler
 ---@field find_breadcrumbs fun(tree_root: TSNode, starting_node: TSNode): string Find the treesitter node path from `tree_root` to the given `starting_node`
 
----@type table<string, LanguageBreadcrumbHandler>
-local language_handlers = {
-	python = require('basicIde.statusBar.lualine_components.code_breadcrumbs.languages.python'),
-	json = require('basicIde.statusBar.lualine_components.code_breadcrumbs.languages.json'),
-	lua = require('basicIde.statusBar.lualine_components.code_breadcrumbs.languages.lua'),
-	c = require('basicIde.statusBar.lualine_components.code_breadcrumbs.languages.c'),
-	cpp = require('basicIde.statusBar.lualine_components.code_breadcrumbs.languages.c'), -- C headers are still identified as cpp file type
+---@type table<string, string>
+local language_handler_modules = {
+	python = 'basicIde.statusBar.lualine_components.code_breadcrumbs.languages.python',
+	json = 'basicIde.statusBar.lualine_components.code_breadcrumbs.languages.json',
+	lua = 'basicIde.statusBar.lualine_components.code_breadcrumbs.languages.lua',
+	c = 'basicIde.statusBar.lualine_components.code_breadcrumbs.languages.c',
+	cpp = 'basicIde.statusBar.lualine_components.code_breadcrumbs.languages.c', -- C headers are still identified as cpp file type
 }
+
+---@type table<string, LanguageBreadcrumbHandler>
+local loaded_language_handlers = {}
+
+---@param file_type string
+---@return LanguageBreadcrumbHandler?
+local function get_language_handler(file_type)
+	if loaded_language_handlers[file_type] ~= nil then
+		return loaded_language_handlers[file_type]
+	end
+
+	local module_name = language_handler_modules[file_type]
+	if module_name == nil then return nil end
+
+	local handler = require(module_name)
+	loaded_language_handlers[file_type] = handler
+	return handler
+end
 
 ---Find the treesitter node path from root of the file to the given `tree_node`
 ---@param tree_node TSNode
@@ -74,7 +92,7 @@ function M:update()
 	local file_type = vim.api.nvim_get_option_value('filetype', { scope = 'local' })
 	if file_type == nil then return end
 
-	local language_handler = language_handlers[file_type]
+	local language_handler = get_language_handler(file_type)
 	if language_handler == nil then return {} end
 
 	local next_msg = find_breadcrumbs(tree_node, language_handler)

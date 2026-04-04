@@ -1,5 +1,3 @@
-local CodeiumManager = require('basicIde.ai.codeium')
-local CopilotManager = require('basicIde.ai.copilot')
 local key_mapping = require('basicIde.key_mapping')
 
 local keymap_descriptions = {
@@ -12,9 +10,9 @@ local keymap_descriptions = {
 ---@param ai_config AiConfig
 local function select_ai_manager(ai_config)
 	if ai_config.engine == 'codeium' then
-		return CodeiumManager:new(ai_config)
+		return require('basicIde.ai.codeium'):new(ai_config)
 	elseif ai_config.engine == 'copilot' then
-		return CopilotManager:new(ai_config)
+		return require('basicIde.ai.copilot'):new(ai_config)
 	end
 	vim.notify('AI engine "' .. ai_config.engine .. '" not supported', vim.log.levels.WARN)
 end

@@ -143,6 +143,23 @@ M.debounce = function (options, fn, ...)
 	return timer
 end
 
+---Wrap a function so it only runs once. Later calls return the first result.
+---@generic T
+---@param fn fun(): T?
+---@return fun(): T?
+M.once = function(fn)
+	local did_run = false
+	local result
+
+	return function()
+		if not did_run then
+			result = fn()
+			did_run = true
+		end
+		return result
+	end
+end
+
 function M.get_buf_var(buf, var_name, default_value)
   local s, v = pcall(function()
     return vim.api.nvim_buf_get_var(buf, var_name)

@@ -1,14 +1,19 @@
-local setup_keymaps = function()
-	local coverage = require('coverage')
-	local report = require('coverage.report')
-	local config = require('coverage.config')
+local utils = require('basicIde.utils')
 
-	---Calls `cb` making sure that the coverage data are loaded first.
-	---This is necessary because the plugin doesn't load them until they're required
-	---but then if we call functions to access the coverage data they'll get empty result
-	---because the data is loaded asynchronously.
-	---@param cb fun(): nil
-	local ensureLoaded = function(cb)
+local ensure_coverage_setup = utils.once(function()
+	require("coverage").setup({
+		auto_reload = true,
+	})
+end)
+
+local setup_keymaps = function()
+	local function with_coverage(cb)
+		ensure_coverage_setup()
+
+		local coverage = require('coverage')
+		local report = require('coverage.report')
+		local config = require('coverage.config')
+
 		if not report.is_cached() then
 			local cb_orig = config.opts.load_coverage_cb
 			if cb_orig == nil then
@@ -28,10 +33,10 @@ local setup_keymaps = function()
 	end
 
 	vim.keymap.set('n', '<leader>ct', function()
-		ensureLoaded(coverage.toggle)
+		with_coverage(function() require('coverage').toggle() end)
 	end, { desc = 'Toggle coverage gutter' })
 	vim.keymap.set('n', '<leader>cs', function()
-		ensureLoaded(coverage.summary)
+		with_coverage(function() require('coverage').summary() end)
 	end, { desc = 'Show coverage summary' })
 end
 
@@ -47,9 +52,6 @@ return {
 	end,
 
 	configure = function()
-		require("coverage").setup({
-			auto_reload = true,
-		})
 		setup_keymaps()
 	end
 }
