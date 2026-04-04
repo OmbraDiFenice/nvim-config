@@ -77,9 +77,18 @@ M.copy_folder = function(src, dest, on_success, on_fail)
 	end)
 end
 
+local function get_os_newline_sep()
+	if vim.fn.has('win32') == 1 then
+		return "\r\n"
+	else
+		return "\n"
+	end
+end
+
 M.OS = {
 	---directory path separator
 	sep = package.config:sub(1, 1),
+	newline = get_os_newline_sep(),
 }
 
 return M
