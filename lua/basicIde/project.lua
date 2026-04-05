@@ -236,17 +236,25 @@ local default_settings = {
 						local notif = vim.notify("creating installing ufbt...", vim.log.levels.INFO, { keep = utils.true_fn })
 						utils.proc.runAndReturnOutput("bash -c 'source venv/bin/activate && pip install --upgrade ufbt'", function(output_lines, exit_code)
 							if exit_code ~= 0 then
-								vim.notify(table.concat(output_lines, '\n'), vim.log.levels.ERROR)
+								vim.notify(table.concat(output_lines, utils.files.OS.newline), vim.log.levels.ERROR)
 								return
 							end
 
 							notif = vim.notify("initializing ufbt app...", vim.log.levels.INFO, { keep = utils.false_fn, replace = notif })
 							utils.proc.runAndReturnOutput("bash -c 'source venv/bin/activate && ufbt create APPID=".. appid .. "'", function(output_lines, exit_code)
 								if exit_code ~= 0 then
-									vim.notify(table.concat(output_lines, '\n'), vim.log.levels.ERROR)
+									vim.notify(table.concat(output_lines, utils.files.OS.newline), vim.log.levels.ERROR)
 									return
 								end
-								end_cb()
+
+								notif = vim.notify("configuring .clangd...", vim.log.levels.INFO, { keep = utils.false_fn, replace = notif })
+								utils.proc.runAndReturnOutput("sed -i -e 's#$HOME#" .. vim.uv.os_homedir() .. "#g' .clangd", function(output_lines, exit_code)
+									if exit_code ~= 0 then
+										vim.notify(table.concat(output_lines, utils.files.OS.newline), vim.log_levels.ERROR)
+										return
+									end
+									end_cb()
+								end)
 							end)
 						end)
 					end)
