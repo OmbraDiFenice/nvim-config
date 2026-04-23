@@ -95,6 +95,8 @@ local keymap_descriptions = {
 	close_buffer = 'close buffer',
 	quit_nvim = 'quit neovim',
 	open_undo_tree = 'open undo tree view',
+	jump_to_previous_location = 'jump to previous location',
+	jump_to_next_location = 'jump to next location',
 }
 
 ---@type KeymapManager
@@ -119,6 +121,16 @@ local keymap_manager = {
 		close_buffer = { callback = close_current_buffer, opts = { silent = true, noremap = true } },
 		quit_nvim = { callback = close_all, opts = {} },
 		open_undo_tree = { callback = require('undotree').open, opts = {} },
+		jump_to_previous_location = { callback = function()
+			vim.schedule(function()
+				vim.api.nvim_feedkeys(vim.keycode("<C-o>"), "n", false)
+			end)
+		end, opts = { silent = true, noremap = true } }, -- ignore remapping
+		jump_to_next_location = { callback = function()
+			vim.schedule(function()
+				vim.api.nvim_feedkeys(vim.keycode("<C-i>"), "n", false)
+			end)
+		end, opts = { silent = true, noremap = true } }, -- ignore remapping
 	}
 }
 

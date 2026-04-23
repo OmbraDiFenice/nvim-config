@@ -818,6 +818,8 @@ local default_settings = {
 			close_buffer = { '<leader>q' },
 			quit_nvim = { '<leader>Q' },
 			open_undo_tree = { '<leader>u' },
+			jump_to_previous_location = { '<X1Mouse>', '<C-y>' },
+			jump_to_next_location = { '<X2Mouse>', '<C-p>' },
 		},
 	},
 	ai = {
