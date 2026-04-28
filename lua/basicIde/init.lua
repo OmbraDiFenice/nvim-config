@@ -63,6 +63,10 @@ return {
 		do
 			module.use_deps(use, project_settings, use_rocks)
 		end
+
+		for _, packer_config in ipairs(project_settings.custom_packer_plugins) do
+			use(packer_config)
+		end
 	end,
 
 	configure = function()

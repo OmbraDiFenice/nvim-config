@@ -1,3 +1,37 @@
+---@alias PackerStringOrList string|string[]
+---@alias PackerCondition string|fun(): boolean|(string|fun(): boolean)[]
+---@alias PackerHook string|fun(...): any|table<any, any>
+---@alias PackerDependency string|PackerPluginSpec|(string|PackerPluginSpec)[]
+---@alias PackerUseSpec string|PackerPluginSpec
+
+---@class PackerPluginSpec
+---@field [1] string plugin location string passed as the first positional entry to `packer.use`
+---@field disable? boolean
+---@field as? string
+---@field installer? fun(...): any
+---@field updater? fun(...): any
+---@field after? PackerStringOrList
+---@field rtp? string
+---@field opt? boolean
+---@field bufread? boolean
+---@field branch? string
+---@field tag? string
+---@field commit? string
+---@field lock? boolean
+---@field run? PackerHook
+---@field requires? PackerDependency
+---@field rocks? PackerStringOrList
+---@field config? string|fun(...): any
+---@field setup? string|fun(...): any
+---@field cmd? PackerStringOrList
+---@field ft? PackerStringOrList
+---@field keys? PackerStringOrList
+---@field event? PackerStringOrList
+---@field fn? PackerStringOrList
+---@field cond? PackerCondition
+---@field module? PackerStringOrList
+---@field module_pattern? PackerStringOrList
+
 local utils = require('basicIde.utils')
 local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 
@@ -164,6 +198,7 @@ local PROJECT_SETTINGS_FILE = '.nvim.proj.lua'
 ---@field debugging DebuggingSettings
 ---@field terminal TerminalSettings
 ---@field remote_sync RemoteSyncSettings
+---@field custom_packer_plugins PackerUseSpec[] -- list of packer specs to install custom plugins. They are added after all the IDE modules have been loaded (but before they're configured).
 ---@field custom_startup_scripts table<string, fun(utils: Utils): nil>
 ---@field custom_keymaps table<string, CustomKeymapDef>
 ---@field lsp LspSettings
