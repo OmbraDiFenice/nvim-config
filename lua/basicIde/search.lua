@@ -208,6 +208,14 @@ return {
 			no_ignore_parent = false,
 		}
 		vim.keymap.set('n', '<leader>sf', function()
+			if vim.fn.getcwd(-1, 0) ~= project_settings.PROJECT_ROOT_DIRECTORY then
+				telescope_builtin.find_files({
+					hidden = true,
+					no_ignore = true,
+					no_ignore_parent = true,
+				})
+				return
+			end
 			neoscopes_telescope.file_search({
 				use_last_scope = true,
 				remember_last_scope_used = true,
@@ -226,6 +234,14 @@ return {
 		end, { desc = '[S]earch [F]iles (explicitly select scope)' })
 
 		vim.keymap.set('n', '<leader>sg', function()
+			if vim.fn.getcwd(-1, 0) ~= project_settings.PROJECT_ROOT_DIRECTORY then
+				telescope_builtin.grep_string({
+					hidden = true,
+					no_ignore = true,
+					no_ignore_parent = true,
+				})
+				return
+			end
 			neoscopes_telescope.grep_search({
 				use_last_scope = true,
 				remember_last_scope_used = true,
