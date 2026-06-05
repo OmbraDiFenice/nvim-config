@@ -70,7 +70,7 @@ end
 ---@param on_fail fun(output, exit_code):nil|nil optional callback invoked when the copy fails (exit_code is not 0)
 M.copy_folder = function(src, dest, on_success, on_fail)
 	local utils = require('basicIde.utils')
-	local copy_cmd = {"cp", "--recursive", "--no-target-directory", "--update=none", src, dest}
+	local copy_cmd = {"cp", "--recursive", "--no-target-directory", "--update", src, dest}
 	utils.proc.runAndReturnOutput(copy_cmd, function(output, exit_code)
 		if exit_code ~= 0 and on_fail ~= nil then on_fail(output, exit_code)
 		else on_success() end
