@@ -349,6 +349,7 @@ local default_settings = {
 		},
 	},
 	custom_startup_scripts = {},
+	custom_packer_plugins = {},
 	custom_keymaps = {},
 	code_layout = {
 		strategy = "smart",
