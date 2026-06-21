@@ -1,12 +1,33 @@
 --- Note: this function must not use any facility
 --- from the rest of this repo because it can be called
 --- before anything else is loaded by the loader script
-return function ()
+--- @param force_show_report boolean
+return function (force_show_report)
+	if force_show_report == nil then
+		force_show_report = false
+	end
+
 	local report_file = os.getenv('REPORT_FILE')
 	if report_file == nil then return end
 
 	local lines_iter = io.lines(report_file)
 	if lines_iter == nil then return end
+
+	local lines = {}
+	local full_report = ''
+	for line in lines_iter do
+		table.insert(lines, line)
+		full_report = full_report .. line .. '\n'
+	end
+
+	if not force_show_report  then
+		local sha = require('basicIde.vendor.sha2')
+		local report_sha = sha.md5(full_report)
+		if report_sha == vim.g.BasicIde_reviewed_report then
+			return
+		end
+		vim.g.BasicIde_reviewed_report = report_sha
+	end
 
 	local buf = vim.api.nvim_create_buf(false, true)
 	if buf == 0 then
@@ -36,9 +57,6 @@ return function ()
 	end
 
 	vim.api.nvim_set_option_value('filetype', 'markdown', { buf = buf })
-
-	local lines = {}
-	for line in lines_iter do table.insert(lines, line) end
 	vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
 	vim.keymap.set('n', 'q', ':bdel!<CR>', { buffer=buf, silent=true})
 end

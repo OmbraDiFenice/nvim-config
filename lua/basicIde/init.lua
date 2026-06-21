@@ -99,7 +99,7 @@ return {
 					return
 				end
 				local show_report = require('basicIde.loader.show_report_fn')
-				show_report()
+				show_report(true)
 			end,
 			{
 				nargs = 0,
