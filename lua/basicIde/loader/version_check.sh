@@ -191,6 +191,14 @@ function beginswith() {
 function check_plugins() {
 	headline "Nvim plugins check"
 
+	local git=$(which git)
+	if [[ ${#git} == 0 ]]
+	then
+		fail "missing git, cannot check plugins"
+		log_to_report "missing $git: cannot check plugins" >> "$report"
+		return 1
+	fi
+
 	local ret=0
 
 	jq -rc 'to_entries | map(.value=.value.commit)[]' "$PACKER_PLUGIN_SNAPSHOT" |\
@@ -262,9 +270,16 @@ then
 fi
 
 echo "$report"
-check_requirements && check_nvim && check_plugins
-ret=$?
-if [ $ret -eq 0 ]
+
+errors=0
+check_requirements
+errors=$(( errors + $? ))
+check_nvim
+errors=$(( errors + $? ))
+check_plugins
+errors=$(( errors + $? ))
+
+if [ $errors -eq 0 ]
 then
 	rm "$report"
 fi
