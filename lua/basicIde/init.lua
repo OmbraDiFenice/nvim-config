@@ -98,7 +98,7 @@ return {
 					vim.notify('No report to display')
 					return
 				end
-				local show_report = require('basicIde.loader.show_report')
+				local show_report = require('basicIde.loader.show_report_fn')
 				show_report()
 			end,
 			{
