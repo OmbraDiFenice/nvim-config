@@ -296,7 +296,10 @@ return {
 				lsp = {
 					enabled = true
 				}
-			}
+			},
+			anti_conceal = {
+				enabled = false,
+			},
 		})
 
 	end
