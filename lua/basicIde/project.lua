@@ -88,6 +88,14 @@ local default_settings = {
 				end)
 			end,
 		},
+		react_native = {
+			template_dir = "${ide:IDE_DIRECTORY}/project_templates/react_native",
+			post_dir_init = function(utils, end_cb)
+				vim.notify("initialized example Expo app. Run npm install and npx expo start to start working")
+				vim.notify("remember to review the project name and android package in package.json and app.json")
+				end_cb()
+			end,
+		},
 	},
 	build_remote_url = function() return nil end,
 	loader = {
